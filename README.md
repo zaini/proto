@@ -1,3 +1,5 @@
+[![CI](https://github.com/zaini/proto/actions/workflows/main.yml/badge.svg)](https://github.com/zaini/proto/actions/workflows/main.yml)
+
 # proto (WIP)
 
 A web application for students to learn programming and data structures & algorithms. Enabling teachers to track the progress of students, identify areas of struggle and create their own problems.

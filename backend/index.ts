@@ -1,10 +1,14 @@
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
+import { PrismaClient } from "@prisma/client";
+
 const typeDefs = require("./graphql/typeDefs/typeDefs");
 const resolvers = require("./graphql/resolvers");
 
 const app = express();
 const port = process.env.PORT || 8080;
+
+const prisma = new PrismaClient();
 
 const corsOptions = {
   origin: "*",

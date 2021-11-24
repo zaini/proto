@@ -1,14 +1,18 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "../views/Accounts/Login";
+import Navbar from "../components/Navbar/Navbar";
+import Login from "../views/Accounts/Login/Login";
+import Signup from "../views/Accounts/Signup/Signup";
 import Home from "../views/Home/Home";
 import NotFound from "../views/NotFound/NotFound";
 
 const IndexRouter = () => {
   return (
     <BrowserRouter>
+      <Navbar />
       <Routes>
         <Route path={"/"} element={<Home />} />
         <Route path={"/accounts/login"} element={<Login />} />
+        <Route path={"/accounts/sign-up"} element={<Signup />} />
         <Route path={"*"} element={<NotFound />} />
       </Routes>
     </BrowserRouter>

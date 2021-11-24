@@ -1,17 +1,18 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import App from "../views/App/App";
+import Login from "../views/Accounts/Login";
+import Home from "../views/Home/Home";
 import NotFound from "../views/NotFound/NotFound";
 
 const IndexRouter = () => {
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path={"/"} element={<App />} />
-                <Route path={"*"} element={<NotFound />} />
-            </Routes>
-        </BrowserRouter>
-    )
-}
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path={"/"} element={<Home />} />
+        <Route path={"/accounts/login"} element={<Login />} />
+        <Route path={"*"} element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
-export default IndexRouter
+export default IndexRouter;

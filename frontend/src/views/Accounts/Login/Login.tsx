@@ -1,10 +1,11 @@
+import { Box, Heading } from "@chakra-ui/layout";
 import React from "react";
 
 const Login = () => {
   return (
-    <div>
-      <h1>Login</h1>
-    </div>
+    <Box>
+      <Heading>Login</Heading>
+    </Box>
   );
 };
 

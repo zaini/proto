@@ -1,23 +1,24 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { ListItem, UnorderedList, Box } from "@chakra-ui/react";
 
 const Navbar = () => {
   return (
-    <div>
+    <Box>
       <h2>Navbar</h2>
       <h2>proto</h2>
-      <ul>
-        <li>
+      <UnorderedList>
+        <ListItem>
           <Link to="/">Home</Link>
-        </li>
-        <li>
+        </ListItem>
+        <ListItem>
           <Link to="/accounts/login">Login</Link>
-        </li>
-        <li>
+        </ListItem>
+        <ListItem>
           <Link to="/accounts/sign-up">Sign Up</Link>
-        </li>
-      </ul>
-    </div>
+        </ListItem>
+      </UnorderedList>
+    </Box>
   );
 };
 

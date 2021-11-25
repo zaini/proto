@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon -e ts --exec \"yarn run start\"",
-    "start": "tsc && node dist/index.js",
+    "start": "tsc && node dist/server.js",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

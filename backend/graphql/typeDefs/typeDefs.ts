@@ -8,14 +8,13 @@ module.exports = gql`
     id: ID!
     email: String!
     password: String!
-    createdAt: String!
   }
   type Mutation {
     signup(
       email: String!
       password: String!
       passwordConfirmation: String!
-    ): Boolean
+    ): User
     login(email: String!, password: String!): AuthResponse
   }
   type Query {

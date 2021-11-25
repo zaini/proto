@@ -1,13 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import IndexRouter from "./routes";
-import { ChakraProvider } from "@chakra-ui/react";
+import App from "./ApolloProvider";
 
 ReactDOM.render(
   <React.StrictMode>
-    <ChakraProvider>
-      <IndexRouter />
-    </ChakraProvider>
+    <App />
   </React.StrictMode>,
   document.getElementById("root")
 );

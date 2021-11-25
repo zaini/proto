@@ -16,8 +16,8 @@ module.exports = gql`
       passwordConfirmation: String!
     ): User
     login(email: String!, password: String!): AuthResponse
-    changePassword(password: String!, password_confirmation: String!): Boolean!
-    deleteAccount(password: String!, password_confirmation: String!): Boolean!
+    changePassword(password: String!, passwordConfirmation: String!): Boolean!
+    deleteAccount(password: String!, passwordConfirmation: String!): Boolean!
   }
   type Query {
     getUsers: [User!]

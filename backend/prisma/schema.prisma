@@ -35,22 +35,33 @@ model Classroom {
 }
 
 model Assignment {
-  id          Int       @id @default(autoincrement())
-  classroom   Classroom @relation(fields: [classroomId], references: [id])
-  userId      Int
-  createdAt   DateTime  @default(now())
-  setDate     DateTime
-  dueDate     DateTime
-  classroomId Int
+  id                    Int                     @id @default(autoincrement())
+  classroom             Classroom               @relation(fields: [classroomId], references: [id])
+  classroomId           Int
+  createdAt             DateTime                @default(now())
+  setDate               DateTime
+  dueDate               DateTime
+  ProblemsOnAssignments ProblemsOnAssignments[]
 }
 
 model Problem {
-  id            Int  @id @default(autoincrement())
-  creator       User @relation(fields: [userId], references: [id])
-  userId        Int
-  likes         Int  @default(0)
-  dislikes      Int  @default(0)
-  specification Json
+  id                    Int                     @id @default(autoincrement())
+  creator               User                    @relation(fields: [userId], references: [id])
+  userId                Int
+  likes                 Int                     @default(0)
+  dislikes              Int                     @default(0)
+  specification         Json
+  ProblemsOnAssignments ProblemsOnAssignments[]
+}
+
+// TODO check this is many-to-many
+model ProblemsOnAssignments {
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId Int
+  problem      Problem    @relation(fields: [problemId], references: [id])
+  problemId    Int
+
+  @@id([assignmentId, problemId])
 }
 
 // HelpRequest, DailyChallenge, CronJobHistory etc.

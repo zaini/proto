@@ -1,6 +1,12 @@
 import { gql } from "apollo-server-core";
 
 module.exports = gql`
+  enum AccountType {
+    LEARNER
+    TEACHER
+    ADMIN
+  }
+
   type AuthResponse {
     accessToken: String
   }
@@ -8,8 +14,32 @@ module.exports = gql`
     id: ID!
     email: String!
     password: String!
+    accountType: AccountType!
+    createdAt: String! # These could all be Date scalar
   }
+  type Classroom {
+    id: ID!
+    owner: User
+    createdAt: String!
+  }
+  type Assignment {
+    id: ID!
+    classroom: Classroom!
+    problems: [Problem!]
+    createdAt: String!
+    setDate: String!
+    dueDate: String!
+  }
+  type Problem {
+    id: ID!
+    creator: User!
+    likes: Int
+    dislikes: Int
+    specification: String! # This could be a JSON scalar
+  }
+
   type Mutation {
+    # User Mutations
     signup(
       email: String!
       password: String!
@@ -18,9 +48,38 @@ module.exports = gql`
     login(email: String!, password: String!): AuthResponse
     changePassword(password: String!, passwordConfirmation: String!): Boolean!
     deleteAccount(password: String!, passwordConfirmation: String!): Boolean!
+    # End of User Mutations
+
+    # Classroom Mutations
+    createClassroom(creatorId: ID!): Classroom
+    # End of Classroom Mutations
+
+    # Assignment Mutations
+    # REMOVE THIS COMMENT: assuming only the owner can create assignments for a classroom
+    createAssignment(classroomId: ID!, problemIds: [ID!]): Assignment
+    # End of Assignment Mutations
+
+    # Problem Mutations
+    createProblem(creatorId: ID!, specification: String!): Problem
+    # End of Problem Mutations
   }
+
   type Query {
+    # User Queries
     getUsers: [User!]
     isLoggedIn: String!
+    # End of User Queries
+
+    # Classroom Queries
+    getClassrooms: [Classroom!]
+    # End of Classroom Queries
+
+    # Assignment Queries
+    getAssignments: [Assignment!]
+    # End of Assignment Queries
+
+    # Problem Queries
+    getProblems: [Problem!]
+    # End of Problem Queries
   }
 `;

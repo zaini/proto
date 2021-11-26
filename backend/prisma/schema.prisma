@@ -10,8 +10,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  password String
+enum AccountType {
+  LEARNER
+  TEACHER
+  ADMIN
 }
+
+model User {
+  id          Int         @id @default(autoincrement())
+  email       String      @unique
+  password    String
+  accountType AccountType @default(LEARNER)
+  createdAt   DateTime    @default(now())
+  Classroom   Classroom[]
+  Problem     Problem[]
+}
+
+model Classroom {
+  id         Int          @id @default(autoincrement())
+  owner      User         @relation(fields: [userId], references: [id])
+  userId     Int
+  createdAt  DateTime     @default(now())
+  Assignment Assignment[]
+}
+
+model Assignment {
+  id          Int       @id @default(autoincrement())
+  classroom   Classroom @relation(fields: [classroomId], references: [id])
+  userId      Int
+  createdAt   DateTime  @default(now())
+  setDate     DateTime
+  dueDate     DateTime
+  classroomId Int
+}
+
+model Problem {
+  id            Int  @id @default(autoincrement())
+  creator       User @relation(fields: [userId], references: [id])
+  userId        Int
+  likes         Int  @default(0)
+  dislikes      Int  @default(0)
+  specification Json
+}
+
+// HelpRequest, DailyChallenge, CronJobHistory etc.

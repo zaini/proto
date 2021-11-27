@@ -1,5 +1,6 @@
 import { prisma } from "../../index";
 import { UserInputError } from "apollo-server-errors";
+import { createAccessToken, authenticateToken } from "./utils/tokens";
 const argon2 = require("argon2");
 
 module.exports = {
@@ -8,8 +9,13 @@ module.exports = {
       const users = prisma.user.findMany();
       return users;
     },
-    isLoggedIn: (data: any) => {
-      console.log(data);
+    isLoggedIn: (_: any, __: any, context: any) => {
+      const authHeader = context.req.headers.authorization as string;
+      if (authHeader) {
+        const accessToken = authHeader.substring("Bearer ".length);
+        return JSON.stringify(authenticateToken(accessToken));
+      }
+      return false;
     },
   },
   Mutation: {
@@ -32,7 +38,7 @@ module.exports = {
       }
     },
     login: async (_: any, { email, password }: any) => {
-      const user = await prisma.user.findUnique({ where: { email } });
+      let user = await prisma.user.findUnique({ where: { email } });
       if (!user) {
         throw new UserInputError("User with this email could not be found");
       }
@@ -43,7 +49,10 @@ module.exports = {
       if (!is_password_valid) {
         throw new UserInputError("Invalid password");
       }
-      return { accessToken: "VALID" };
+
+      delete (user as any).password;
+
+      return { accessToken: createAccessToken({ ...user }) };
     },
   },
 };

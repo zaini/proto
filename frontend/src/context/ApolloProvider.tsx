@@ -1,8 +1,9 @@
 import React from "react";
-import IndexRouter from "./routes";
+import IndexRouter from "../routes";
 import { ChakraProvider } from "@chakra-ui/react";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import * as dotenv from "dotenv";
+import { AuthProvider } from "./Auth";
 dotenv.config({ path: __dirname + "/.env" });
 
 const client = new ApolloClient({
@@ -13,9 +14,11 @@ const client = new ApolloClient({
 const App = () => {
   return (
     <ApolloProvider client={client}>
-      <ChakraProvider>
-        <IndexRouter />
-      </ChakraProvider>
+      <AuthProvider>
+        <ChakraProvider>
+          <IndexRouter />
+        </ChakraProvider>
+      </AuthProvider>
     </ApolloProvider>
   );
 };

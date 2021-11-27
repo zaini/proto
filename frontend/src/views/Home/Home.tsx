@@ -1,7 +1,10 @@
+import React, { useContext } from "react";
+import { AuthContext } from "../../context/Auth";
 import { Box, Heading } from "@chakra-ui/layout";
-import React from "react";
 
 const Home = () => {
+  const { run } = useContext(AuthContext);
+  run();
   return (
     <Box>
       <Heading>Home</Heading>

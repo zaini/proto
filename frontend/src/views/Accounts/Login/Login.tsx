@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useMutation } from "@apollo/client";
 import { Box, Heading, Text } from "@chakra-ui/layout";
 import gql from "graphql-tag";
 import { FormControl, FormLabel, Input, Button } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import { AuthContext } from "../../../context/Auth";
+import { useNavigate } from "react-router";
 
 const Login = () => {
+  const context = useContext(AuthContext);
+  const navigate = useNavigate();
   const {
     handleSubmit,
     register,
@@ -19,8 +23,10 @@ const Login = () => {
         message: `${err}`,
       });
     },
-    onCompleted: (data) => {
-      console.log(data);
+    onCompleted: ({ login }) => {
+      const accessToken = login.accessToken;
+      context.login(accessToken);
+      navigate("/", { replace: true });
     },
   });
 

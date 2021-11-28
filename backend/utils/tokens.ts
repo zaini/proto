@@ -1,4 +1,3 @@
-import { AuthenticationError } from "apollo-server-errors";
 import { sign, verify } from "jsonwebtoken";
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET as string;
@@ -18,10 +17,10 @@ const authenticateToken = (token: string) => {
     try {
       return verify(token, JWT_TOKEN_SECRET);
     } catch (error) {
-      throw new AuthenticationError("Invalid Login Token");
+      throw new Error("Invalid Login Token");
     }
   }
-  throw new AuthenticationError("Invalid Login Token");
+  throw new Error("Invalid Login Token");
 };
 
 export { createAccessToken, authenticateToken };

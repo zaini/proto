@@ -1,18 +1,113 @@
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
 import { PrismaClient } from "@prisma/client";
-import FormData from "form-data";
-import fetch from "node-fetch";
-import bodyParser from "body-parser";
+import { Strategy as GitHubStrategy } from "passport-github2";
+import cors from "cors";
+import passport from "passport";
+import session from "express-session";
+import { createAccessToken } from "./utils/tokens";
 
 const typeDefs = require("./graphql/typeDefs/typeDefs");
 const resolvers = require("./graphql/resolvers");
 
-const github_client_id = process.env.GITHUB_CLIENT_ID as string;
-const github_redirect_uri = process.env.GITHUB_REDIRECT_URI as string;
-const github_client_secret = process.env.GITHUB_CLIENT_SECRET as string;
+const FRONTEND_URL = process.env.FRONTEND_URL as string;
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID as string;
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET as string;
+const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI as string;
+const SESSION_SECRET = process.env.SESSION_SECRET as string;
 
 const app = express();
+app.use(express.json());
+// https://studio.apollographql.com is there so I can use GraphQL studio, will remove for deployment.
+app.use(
+  cors({
+    origin: [FRONTEND_URL, "https://studio.apollographql.com"],
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
+app.set("trust proxy", 1);
+app.use(
+  session({
+    secret: SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true,
+    // Doesn't work locally if I use this
+    // cookie: {
+    //   sameSite: "none",
+    //   secure: true,
+    //   maxAge: 1000 * 60 * 60 * 24 * 7, // One Week
+    // },
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser((user: any, done) => {
+  return done(null, user.id);
+});
+
+passport.deserializeUser(async (user_id: any, done) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: user_id,
+    },
+  });
+  // This is what is sent to the frontend
+  return done(null, createAccessToken(user));
+});
+
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: GITHUB_CLIENT_ID,
+      clientSecret: GITHUB_CLIENT_SECRET,
+      callbackURL: "/auth/github/callback",
+    },
+    async (accessToken: any, refreshToken: any, profile: any, done: any) => {
+      // called on successful authentication (step 2)
+      let user = await prisma.user.findUnique({
+        where: {
+          githubId: profile.id,
+        },
+      });
+
+      if (user === null) {
+        user = await prisma.user.create({
+          data: { username: profile.username, githubId: profile.id },
+        });
+      }
+
+      return done(null, user);
+    }
+  )
+);
+
+// Called when trying to authenticate (step 1)
+app.get(
+  "/auth/github",
+  passport.authenticate("github", { scope: ["user:email"] })
+);
+
+// Called when authentication has been completed (step 3)
+app.get(
+  "/auth/github/callback",
+  passport.authenticate("github", { failureRedirect: GITHUB_REDIRECT_URI }),
+  (req, res) => {
+    res.redirect(FRONTEND_URL);
+  }
+);
+
+app.get("/auth/logout", (req, res) => {
+  if (req.user) {
+    req.logout();
+  }
+  res.send("done");
+});
+
+app.get("/getUserToken", (req, res) => {
+  res.send(req.user);
+});
 
 const prisma = new PrismaClient();
 
@@ -36,50 +131,5 @@ async function startApolloServer() {
   }
 }
 startApolloServer();
-
-app.use(bodyParser.json());
-app.use(bodyParser.json({ type: "text/*" }));
-app.use(bodyParser.urlencoded({ extended: false }));
-// Enabled Access-Control-Allow-Origin", "*" in the header so as to by-pass the CORS error.
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  next();
-});
-
-// https://levelup.gitconnected.com/how-to-implement-login-with-github-in-a-react-app-bd3d704c64fc
-app.post("/authenticate", (req, res) => {
-  console.log(req.body);
-  const { code } = req.body;
-
-  const data = new FormData();
-  data.append("client_id", github_client_id);
-  data.append("client_secret", github_client_secret);
-  data.append("code", code);
-  data.append("redirect_uri", github_redirect_uri);
-
-  // Request to exchange code for an access token
-  fetch(`https://github.com/login/oauth/access_token`, {
-    method: "POST",
-    body: data as any,
-  })
-    .then((response: any) => response.text())
-    .then(async (paramsString: any) => {
-      let params = new URLSearchParams(paramsString);
-      const access_token = params.get("access_token");
-
-      // Request to return email data of a user that has been authenticated
-      const emails = await fetch(`https://api.github.com/user/emails`, {
-        headers: {
-          Authorization: `token ${access_token}`,
-        },
-      });
-      const result = { access_token, emails: await emails.json() };
-
-      return res.status(200).json(result);
-    })
-    .catch((error: any) => {
-      return res.status(400).json(error);
-    });
-});
 
 export { app, apolloServer, prisma };

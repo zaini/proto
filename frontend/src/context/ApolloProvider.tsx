@@ -1,13 +1,36 @@
 import React from "react";
 import IndexRouter from "../routes";
 import { ChakraProvider } from "@chakra-ui/react";
-import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  createHttpLink,
+} from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 import * as dotenv from "dotenv";
 import { AuthProvider } from "./Auth";
 dotenv.config({ path: __dirname + "/.env" });
 
+const REACT_APP_GRAPHQL_URL = process.env.REACT_APP_GRAPHQL_URL;
+
+const httpLink = createHttpLink({
+  uri: REACT_APP_GRAPHQL_URL,
+});
+
+const authLink = setContext((_, { headers }) => {
+  const token = localStorage.getItem("authToken");
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
+    },
+  };
+});
+
 const client = new ApolloClient({
-  uri: process.env.REACT_APP_BACKEND_URL,
+  link: authLink.concat(httpLink),
+  uri: REACT_APP_GRAPHQL_URL,
   cache: new InMemoryCache(),
 });
 

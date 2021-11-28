@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect } from "react";
 import { decode } from "jsonwebtoken";
 import axios, { AxiosResponse } from "axios";
 
+const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const TOKEN_STORE_KEY = "authToken";
 
 interface AuthState {
@@ -34,7 +35,7 @@ const AuthProvider = (props: any) => {
   // Login
   useEffect(() => {
     axios
-      .get("http://localhost:5000/getUserToken", { withCredentials: true })
+      .get(`${REACT_APP_BACKEND_URL}/getUserToken`, { withCredentials: true })
       .then((res: AxiosResponse) => {
         const accessToken = res.data;
         if (res.data) {
@@ -47,7 +48,7 @@ const AuthProvider = (props: any) => {
 
   const logout = () => {
     axios
-      .get("http://localhost:5000/auth/logout", { withCredentials: true })
+      .get(`${REACT_APP_BACKEND_URL}/auth/logout`, { withCredentials: true })
       .then((res: AxiosResponse) => {
         if (res.data === "done") {
           window.location.href = "/";

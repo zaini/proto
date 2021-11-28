@@ -1,7 +1,5 @@
 import { prisma } from "../../index";
-import { UserInputError } from "apollo-server-errors";
-import { createAccessToken, authenticateToken } from "./utils/tokens";
-const argon2 = require("argon2");
+import { authenticateToken } from "../../utils/tokens";
 
 module.exports = {
   Query: {

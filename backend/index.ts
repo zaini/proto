@@ -5,21 +5,23 @@ import { Strategy as GitHubStrategy } from "passport-github2";
 import cors from "cors";
 import passport from "passport";
 import session from "express-session";
-import { createAccessToken } from "./graphql/resolvers/utils/tokens";
+import { createAccessToken } from "./utils/tokens";
 
 const typeDefs = require("./graphql/typeDefs/typeDefs");
 const resolvers = require("./graphql/resolvers");
 
+const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID as string;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET as string;
 const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI as string;
+const SESSION_SECRET = process.env.SESSION_SECRET as string;
 
 const app = express();
 app.use(express.json());
-// https://studio.apollographql.com is there so I can test GraphQL locally, will remove for deployment.
+// https://studio.apollographql.com is there so I can use GraphQL studio, will remove for deployment.
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://studio.apollographql.com"],
+    origin: [FRONTEND_URL, "https://studio.apollographql.com"],
     credentials: true,
     optionsSuccessStatus: 200,
   })
@@ -27,7 +29,7 @@ app.use(
 app.set("trust proxy", 1);
 app.use(
   session({
-    secret: "sfhnekfj",
+    secret: SESSION_SECRET,
     resave: true,
     saveUninitialized: true,
     // Doesn't work locally if I use this
@@ -41,7 +43,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// TODO Only store IDs in 'user', change this!
 passport.serializeUser((user: any, done) => {
   return done(null, user.id);
 });
@@ -93,8 +94,7 @@ app.get(
   "/auth/github/callback",
   passport.authenticate("github", { failureRedirect: GITHUB_REDIRECT_URI }),
   (req, res) => {
-    // Redirect them back to the website
-    res.redirect("http://localhost:3000/");
+    res.redirect(FRONTEND_URL);
   }
 );
 

@@ -2,6 +2,9 @@ import React from "react";
 import { Box, Heading } from "@chakra-ui/layout";
 import { Button } from "@chakra-ui/react";
 
+const REACT_APP_GITHUB_AUTH_URL = process.env
+  .REACT_APP_GITHUB_AUTH_URL as string;
+
 const Login = () => {
   return (
     <Box>
@@ -9,7 +12,7 @@ const Login = () => {
 
       <Button
         onClick={() => {
-          window.open("http://localhost:5000/auth/github/", "_self");
+          window.open(REACT_APP_GITHUB_AUTH_URL, "_self");
         }}
       >
         Login with GitHub

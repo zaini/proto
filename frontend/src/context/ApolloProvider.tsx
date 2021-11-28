@@ -12,8 +12,10 @@ import * as dotenv from "dotenv";
 import { AuthProvider } from "./Auth";
 dotenv.config({ path: __dirname + "/.env" });
 
+const REACT_APP_GRAPHQL_URL = process.env.REACT_APP_GRAPHQL_URL;
+
 const httpLink = createHttpLink({
-  uri: "http://localhost:5000/graphql",
+  uri: REACT_APP_GRAPHQL_URL,
 });
 
 const authLink = setContext((_, { headers }) => {
@@ -28,7 +30,7 @@ const authLink = setContext((_, { headers }) => {
 
 const client = new ApolloClient({
   link: authLink.concat(httpLink),
-  uri: process.env.REACT_APP_BACKEND_URL,
+  uri: REACT_APP_GRAPHQL_URL,
   cache: new InMemoryCache(),
 });
 

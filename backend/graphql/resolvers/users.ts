@@ -27,9 +27,10 @@ module.exports = {
       }
       try {
         const hashed_password = await argon2.hash(password);
-        const user = await prisma.user.create({
-          data: { email, password: hashed_password },
-        });
+        // const user = await prisma.user.create({
+        //   data: { username: "", password: hashed_password },
+        // });
+        const user = null;
         return user;
       } catch (error) {
         throw new UserInputError(
@@ -38,21 +39,22 @@ module.exports = {
       }
     },
     login: async (_: any, { email, password }: any) => {
-      let user = await prisma.user.findUnique({ where: { email } });
-      if (!user) {
-        throw new UserInputError("User with this email could not be found");
-      }
-      const is_password_valid: boolean = await argon2.verify(
-        user.password,
-        password
-      );
-      if (!is_password_valid) {
-        throw new UserInputError("Invalid password");
-      }
+      // let user = await prisma.user.findUnique({ where: { email } });
+      // if (!user) {
+      //   throw new UserInputError("User with this email could not be found");
+      // }
+      // const is_password_valid: boolean = await argon2.verify(
+      //   user.password,
+      //   password
+      // );
+      // if (!is_password_valid) {
+      //   throw new UserInputError("Invalid password");
+      // }
 
-      delete (user as any).password;
+      // delete (user as any).password;
 
-      return { accessToken: createAccessToken({ ...user }) };
+      // return { accessToken: createAccessToken({ ...user }) };
+      return null;
     },
   },
 };

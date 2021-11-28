@@ -1,5 +1,6 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { decode } from "jsonwebtoken";
+import axios, { AxiosResponse } from "axios";
 
 const TOKEN_STORE_KEY = "authToken";
 
@@ -30,6 +31,18 @@ const AuthContext = createContext({
 const AuthProvider = (props: any) => {
   const [user, setUser] = useState<string | null>(null);
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/getUser", { withCredentials: true })
+      .then((res: AxiosResponse) => {
+        console.log(res);
+        if (res.data) {
+          console.log(" data", res.data);
+          setUser(res.data);
+        }
+      });
+  }, []);
+
   const login = (accessToken: string) => {
     localStorage.setItem(TOKEN_STORE_KEY, accessToken);
     const userData = decode(accessToken) as string;
@@ -37,6 +50,15 @@ const AuthProvider = (props: any) => {
   };
 
   const logout = () => {
+    axios
+      .get("http://localhost:5000/auth/logout", { withCredentials: true })
+      .then((res: AxiosResponse) => {
+        if (res.data === "done") {
+          console.log(res.data);
+          window.location.href = "/";
+        }
+      });
+
     localStorage.removeItem(TOKEN_STORE_KEY);
     setUser(null);
   };

@@ -1,10 +1,10 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { ListItem, UnorderedList, Box } from "@chakra-ui/react";
+import { ListItem, UnorderedList, Box, Text } from "@chakra-ui/react";
 import { AuthContext } from "../../context/Auth";
 
 const Navbar = () => {
-  const { user } = useContext(AuthContext);
+  const { user }: any = useContext(AuthContext);
 
   return (
     <Box>
@@ -19,14 +19,16 @@ const Navbar = () => {
             <ListItem>
               <Link to="/accounts/login">Login</Link>
             </ListItem>
-            <ListItem>
-              <Link to="/accounts/sign-up">Sign Up</Link>
-            </ListItem>
           </>
         ) : (
-          <ListItem>
-            <Link to="/accounts/log-out">Logout</Link>
-          </ListItem>
+          <>
+            <ListItem>
+              <Link to="/accounts/log-out">Logout</Link>
+            </ListItem>
+            <ListItem>
+              <Text>Hello, {user.username}</Text>
+            </ListItem>
+          </>
         )}
       </UnorderedList>
     </Box>

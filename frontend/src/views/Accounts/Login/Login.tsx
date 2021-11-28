@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { Box, Heading, Text } from "@chakra-ui/layout";
 import gql from "graphql-tag";
@@ -8,8 +8,48 @@ import { AuthContext } from "../../../context/Auth";
 import { useNavigate } from "react-router";
 
 const Login = () => {
-  const context = useContext(AuthContext);
+  const { user, login } = useContext(AuthContext);
+  const [state, setState] = useState("");
   const navigate = useNavigate();
+
+  const client_id = process.env.REACT_APP_GITHUB_CLIENT_ID as string;
+  const redirect_uri = process.env.REACT_APP_GITHUB_REDIRECT_URI as string;
+
+  // https://levelup.gitconnected.com/how-to-implement-login-with-github-in-a-react-app-bd3d704c64fc
+  useEffect(() => {
+    const url = window.location.href;
+    const hasCode = url.includes("?code=");
+
+    if (hasCode) {
+      const newUrl = url.split("?code=");
+      window.history.pushState({}, "", newUrl[0]);
+
+      const code = newUrl[1];
+
+      const requestData = {
+        code: code,
+      };
+
+      const proxy_url = "http://localhost:5000/authenticate";
+
+      // Use code parameter and other parameters to make POST request to proxy_server
+      fetch(proxy_url, {
+        method: "POST",
+        body: JSON.stringify(requestData),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("DATA RESPONSE:", data);
+          const accessToken = data.accessToken;
+          // login(accessToken);
+          setState(accessToken);
+        })
+        .catch((error) => {
+          console.log("LOGIN FAILED", error);
+        });
+    }
+  }, [user, state]);
+
   const {
     handleSubmit,
     register,
@@ -17,21 +57,21 @@ const Login = () => {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  const [login] = useMutation(LOGIN, {
+  const [loginMutation] = useMutation(LOGIN, {
     onError: (err) => {
       setError("email", {
         message: `${err}`,
       });
     },
-    onCompleted: ({ login }) => {
-      const accessToken = login.accessToken;
-      context.login(accessToken);
+    onCompleted: (res) => {
+      const accessToken = res.login.accessToken;
+      login(accessToken);
       navigate("/", { replace: true });
     },
   });
 
   const onSubmit = async (data: any) => {
-    login({ variables: data });
+    loginMutation({ variables: data });
   };
 
   return (
@@ -63,6 +103,16 @@ const Login = () => {
           Submit
         </Button>
       </form>
+
+      <a
+        className="login-link"
+        href={`https://github.com/login/oauth/authorize?scope=user&client_id=${client_id}&redirect_uri=${redirect_uri}`}
+        onClick={() => {
+          setState("test");
+        }}
+      >
+        login with github
+      </a>
     </Box>
   );
 };

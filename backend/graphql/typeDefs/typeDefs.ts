@@ -12,8 +12,8 @@ module.exports = gql`
   }
   type User {
     id: ID!
-    email: String!
-    password: String!
+    githubId: String!
+    username: String!
     accountType: AccountType!
     createdAt: String! # These could all be Date scalar
   }
@@ -40,14 +40,6 @@ module.exports = gql`
 
   type Mutation {
     # User Mutations
-    signup(
-      email: String!
-      password: String!
-      passwordConfirmation: String!
-    ): User
-    login(email: String!, password: String!): AuthResponse
-    changePassword(password: String!, passwordConfirmation: String!): Boolean!
-    deleteAccount(password: String!, passwordConfirmation: String!): Boolean!
     # End of User Mutations
 
     # Classroom Mutations

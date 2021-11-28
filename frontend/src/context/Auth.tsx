@@ -24,41 +24,35 @@ if (localStorage.getItem(TOKEN_STORE_KEY)) {
 // Define the auth context with some default values for type inferences
 const AuthContext = createContext({
   user: null,
-  login: (accessToken: string) => {},
+  // login: (accessToken: string) => {},
   logout: () => {},
 });
 
 const AuthProvider = (props: any) => {
   const [user, setUser] = useState<string | null>(null);
 
+  // Login
   useEffect(() => {
     axios
-      .get("http://localhost:5000/getUser", { withCredentials: true })
+      .get("http://localhost:5000/getUserToken", { withCredentials: true })
       .then((res: AxiosResponse) => {
-        console.log(res);
+        const accessToken = res.data;
         if (res.data) {
-          console.log(" data", res.data);
-          setUser(res.data);
+          localStorage.setItem(TOKEN_STORE_KEY, accessToken);
+          const userData = decode(accessToken) as string;
+          setUser(userData);
         }
       });
   }, []);
-
-  const login = (accessToken: string) => {
-    localStorage.setItem(TOKEN_STORE_KEY, accessToken);
-    const userData = decode(accessToken) as string;
-    setUser(userData);
-  };
 
   const logout = () => {
     axios
       .get("http://localhost:5000/auth/logout", { withCredentials: true })
       .then((res: AxiosResponse) => {
         if (res.data === "done") {
-          console.log(res.data);
           window.location.href = "/";
         }
       });
-
     localStorage.removeItem(TOKEN_STORE_KEY);
     setUser(null);
   };
@@ -67,7 +61,6 @@ const AuthProvider = (props: any) => {
     <AuthContext.Provider
       value={{
         user,
-        login,
         logout,
       }}
       {...props}

@@ -5,6 +5,7 @@ import { Strategy as GitHubStrategy } from "passport-github2";
 import cors from "cors";
 import passport from "passport";
 import session from "express-session";
+import { createAccessToken } from "./graphql/resolvers/utils/tokens";
 
 const typeDefs = require("./graphql/typeDefs/typeDefs");
 const resolvers = require("./graphql/resolvers");
@@ -15,7 +16,14 @@ const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI as string;
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+// https://studio.apollographql.com is there so I can test GraphQL locally, will remove for deployment.
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://studio.apollographql.com"],
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
 app.set("trust proxy", 1);
 app.use(
   session({
@@ -44,8 +52,8 @@ passport.deserializeUser(async (user_id: any, done) => {
       id: user_id,
     },
   });
-
-  return done(null, user);
+  // This is what is sent to the frontend
+  return done(null, createAccessToken(user));
 });
 
 passport.use(
@@ -97,7 +105,7 @@ app.get("/auth/logout", (req, res) => {
   res.send("done");
 });
 
-app.get("/getUser", (req, res) => {
+app.get("/getUserToken", (req, res) => {
   res.send(req.user);
 });
 

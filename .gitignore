@@ -25,3 +25,4 @@ yarn-error.log*
 /backend/node_modules
 backend/dist
 frontend/build
+backend/logs

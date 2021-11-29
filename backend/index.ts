@@ -6,6 +6,7 @@ import cors from "cors";
 import passport from "passport";
 import session from "express-session";
 import { createAccessToken } from "./utils/tokens";
+import { logger } from "./logger";
 
 const typeDefs = require("./graphql/typeDefs/typeDefs");
 const resolvers = require("./graphql/resolvers");
@@ -66,6 +67,9 @@ passport.use(
     },
     async (accessToken: any, refreshToken: any, profile: any, done: any) => {
       // called on successful authentication (step 2)
+      logger.info("GitHub auth callback", {
+        meta: JSON.stringify({ id: profile.id, username: profile.username }),
+      });
       let user = await prisma.user.findUnique({
         where: {
           githubId: profile.id,
@@ -73,11 +77,15 @@ passport.use(
       });
 
       if (user === null) {
+        logger.info("New user created", {
+          meta: JSON.stringify({ id: profile.id, username: profile.username }),
+        });
         user = await prisma.user.create({
           data: { username: profile.username, githubId: profile.id },
         });
+      } else {
       }
-
+      logger.info("Completed GitHub auth callback");
       return done(null, user);
     }
   )
@@ -94,18 +102,22 @@ app.get(
   "/auth/github/callback",
   passport.authenticate("github", { failureRedirect: GITHUB_REDIRECT_URI }),
   (req, res) => {
+    logger.info("Authentication complete, redirecting to frontend");
     res.redirect(FRONTEND_URL);
   }
 );
 
 app.get("/auth/logout", (req, res) => {
+  logger.info("GET Logout");
   if (req.user) {
     req.logout();
   }
+  logger.info("Logout complete");
   res.send("done");
 });
 
 app.get("/getUserToken", (req, res) => {
+  logger.info("GET user JWT token");
   res.send(req.user);
 });
 
@@ -118,6 +130,7 @@ const corsOptions = {
 
 let apolloServer: any = null;
 async function startApolloServer() {
+  logger.info("Attempting to start Apollo Server");
   try {
     apolloServer = new ApolloServer({
       typeDefs,
@@ -126,8 +139,9 @@ async function startApolloServer() {
     });
     await apolloServer.start();
     apolloServer.applyMiddleware({ app, cors: corsOptions });
+    logger.info("Successfully started Apollo Server");
   } catch (error) {
-    console.log(error);
+    logger.error("Failed to start Apollo Server", error);
   }
 }
 startApolloServer();

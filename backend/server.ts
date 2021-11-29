@@ -1,8 +1,9 @@
 import { app, apolloServer, prisma } from "./index";
+import { logger } from "./logger";
 
 const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
-  console.log(`server started at http://localhost:${port}`);
-  console.log(`graphql at http://localhost:${port}${apolloServer.graphqlPath}`);
+  logger.info(`Server started at http://localhost:${port}`);
+  logger.info(`GraphQL at http://localhost:${port}${apolloServer.graphqlPath}`);
 });

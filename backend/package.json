@@ -5,7 +5,7 @@
   "author": "zaini",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon -e ts --exec \"yarn run start\"",
+    "dev": "NODE_ENV=development nodemon -e ts --exec \"yarn run start\"",
     "start": "tsc && node dist/server.js",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -28,7 +28,8 @@
     "node-fetch": "2",
     "passport": "^0.5.0",
     "passport-github2": "^0.1.12",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.2",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
@@ -38,6 +39,7 @@
     "@types/node-fetch": "2",
     "@types/passport": "^1.0.7",
     "@types/passport-github2": "^1.2.5",
+    "@types/winston": "^2.4.4",
     "nodemon": "^2.0.14",
     "prisma": "3.5.0",
     "ts-node": "^10.4.0"

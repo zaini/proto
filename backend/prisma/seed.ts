@@ -1,6 +1,8 @@
 import { prisma } from "../index";
+import { logger } from "../logger";
 
 async function main() {
+  logger.info("Starting seeding for database");
   await prisma.user.createMany({
     data: [
       { githubId: "11", username: "ali" },
@@ -9,12 +11,16 @@ async function main() {
     ],
   });
   const allUsers = await prisma.user.findMany();
-  console.log(JSON.stringify(allUsers));
+  logger.info("Successfully seeded users");
+  logger.debug(JSON.stringify(allUsers));
+
   await prisma.classroom.createMany({
     data: [{ userId: 1 }, { userId: 2 }],
   });
   const allClassrooms = await prisma.classroom.findMany();
-  console.log(JSON.stringify(allClassrooms));
+  logger.info("Successfully seeded classrooms");
+  logger.debug(JSON.stringify(allClassrooms));
+
   await prisma.usersOnClassrooms.createMany({
     data: [
       { userId: 1, classroomId: 2 },
@@ -24,17 +30,15 @@ async function main() {
     ],
   });
   const allUsersOnClassrooms = await prisma.usersOnClassrooms.findMany();
-  console.log(JSON.stringify(allUsersOnClassrooms));
-  const classroom2students = await prisma.classroom.findFirst({
-    where: { id: 1 },
-    include: { UsersOnClassrooms: { include: { user: true } } },
-  });
-  console.log(JSON.stringify(classroom2students?.UsersOnClassrooms[0].user));
+  logger.info("Successfully seeded users in classrooms");
+  logger.debug(JSON.stringify(allUsersOnClassrooms));
 }
 main()
   .catch((e) => {
+    logger.error(e);
     throw e;
   })
   .finally(async () => {
+    logger.info("Disconnecting from Prisma instance");
     await prisma.$disconnect();
   });

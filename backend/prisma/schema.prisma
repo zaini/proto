@@ -10,38 +10,61 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum AccountType {
-  LEARNER
-  TEACHER
-  ADMIN
-}
+// enum AccountType {
+//   LEARNER
+//   TEACHER
+//   ADMIN
+// }
 
 model User {
-  id          Int         @id @default(autoincrement())
-  email       String      @unique
-  password    String
-  accountType AccountType @default(LEARNER)
-  createdAt   DateTime    @default(now())
-  Classroom   Classroom[]
-  Problem     Problem[]
+  id                Int                 @id @default(autoincrement())
+  githubId          String              @unique
+  username          String              @unique
+  // accountType       AccountType         @default(LEARNER)
+  createdAt         DateTime            @default(now())
+  Classroom         Classroom[] // Classrooms the User has created
+  Problem           Problem[] // Problems the User has created
+  UsersOnClassrooms UsersOnClassrooms[] // Classrooms the User is a LEARNER in
 }
 
 model Classroom {
-  id         Int          @id @default(autoincrement())
-  owner      User         @relation(fields: [userId], references: [id])
-  userId     Int
-  createdAt  DateTime     @default(now())
-  Assignment Assignment[]
+  id                      Int                       @id @default(autoincrement())
+  creator                 User                      @relation(fields: [userId], references: [id])
+  userId                  Int
+  UsersOnClassrooms       UsersOnClassrooms[] // The Users who are in this Classroom
+  AssignmentsOnClassrooms AssignmentsOnClassrooms[]
+  Assignment              Assignment[] // The Assignments set for this Classroom
+}
+
+model UsersOnClassrooms {
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  classroom   Classroom @relation(fields: [classroomId], references: [id])
+  classroomId Int
+  assignedAt  DateTime  @default(now())
+
+  @@id([userId, classroomId])
 }
 
 model Assignment {
-  id                    Int                     @id @default(autoincrement())
-  classroom             Classroom               @relation(fields: [classroomId], references: [id])
-  classroomId           Int
-  createdAt             DateTime                @default(now())
-  setDate               DateTime
-  dueDate               DateTime
-  ProblemsOnAssignments ProblemsOnAssignments[]
+  id                      Int                       @id @default(autoincrement())
+  classroom               Classroom                 @relation(fields: [classroomId], references: [id])
+  classroomId             Int
+  createdAt               DateTime                  @default(now())
+  setDate                 DateTime
+  dueDate                 DateTime
+  AssignmentsOnClassrooms AssignmentsOnClassrooms[]
+  ProblemsOnAssignments   ProblemsOnAssignments[]
+}
+
+model AssignmentsOnClassrooms {
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId Int
+  classroom    Classroom  @relation(fields: [classroomId], references: [id])
+  classroomId  Int
+  assignedAt   DateTime   @default(now())
+
+  @@id([assignmentId, classroomId])
 }
 
 model Problem {
@@ -54,14 +77,14 @@ model Problem {
   ProblemsOnAssignments ProblemsOnAssignments[]
 }
 
-// TODO check this is many-to-many
 model ProblemsOnAssignments {
-  assignment   Assignment @relation(fields: [assignmentId], references: [id])
-  assignmentId Int
   problem      Problem    @relation(fields: [problemId], references: [id])
   problemId    Int
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId Int
+  assignedAt   DateTime   @default(now())
 
-  @@id([assignmentId, problemId])
+  @@id([problemId, assignmentId])
 }
 
 // HelpRequest, DailyChallenge, CronJobHistory etc.

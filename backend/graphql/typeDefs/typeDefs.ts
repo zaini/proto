@@ -1,11 +1,11 @@
 import { gql } from "apollo-server-core";
 
 module.exports = gql`
-  enum AccountType {
-    LEARNER
-    TEACHER
-    ADMIN
-  }
+  # enum AccountType {
+  #   LEARNER
+  #   TEACHER
+  #   ADMIN
+  # }
 
   type AuthResponse {
     accessToken: String
@@ -14,13 +14,17 @@ module.exports = gql`
     id: ID!
     githubId: String!
     username: String!
-    accountType: AccountType!
+    # accountType: AccountType!
     createdAt: String! # These could all be Date scalar
+    problems: [Problem]!
+    classroom: [Classroom]!
   }
   type Classroom {
     id: ID!
-    owner: User
+    creator: User
     createdAt: String!
+    users: [User]!
+    assignments: [Assignment]!
   }
   type Assignment {
     id: ID!

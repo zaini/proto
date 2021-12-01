@@ -17,7 +17,8 @@ module.exports = gql`
     # accountType: AccountType!
     createdAt: String! # These could all be Date scalar
     problems: [Problem]!
-    classroom: [Classroom]!
+    classrooms: [Classroom]!
+    UsersOnClassrooms: [Classroom] # Rename to this something more clear - this is a list of the classrooms the user is a LEARNER in
   }
   type Classroom {
     id: ID!

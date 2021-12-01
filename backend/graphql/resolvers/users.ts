@@ -1,13 +1,28 @@
+import { Prisma, UsersOnClassrooms } from ".prisma/client";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { authenticateToken } from "../../utils/tokens";
 
 module.exports = {
   Query: {
-    getUsers: () => {
+    getUsers: async () => {
       logger.info("GraphQL users/getUsers");
-      const users = prisma.user.findMany();
-      return users;
+      let users = await prisma.user.findMany({
+        include: {
+          problems: true,
+          classrooms: true,
+          UsersOnClassrooms: { include: { classroom: true } },
+        },
+      });
+
+      const parsedUsers = users.map((user) => {
+        const classroomsUsersIsIn = user.UsersOnClassrooms.map(
+          (x) => x.classroom
+        );
+        return { ...user, UsersOnClassrooms: classroomsUsersIsIn };
+      });
+
+      return parsedUsers;
     },
     isLoggedIn: (_: any, __: any, context: any) => {
       logger.info("GraphQL users/isLoggedIn");
@@ -19,5 +34,7 @@ module.exports = {
       return false;
     },
   },
-  Mutation: {},
+  Mutation: {
+    // Users are currently made directly from the backend when authenticating GitHub, not from GraphQL
+  },
 };

@@ -1,36 +1,39 @@
 import React, { createContext, useState, useEffect } from "react";
 import { decode } from "jsonwebtoken";
 import axios, { AxiosResponse } from "axios";
+import { AccountType } from "../utils";
 
 const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const TOKEN_STORE_KEY = "authToken";
+const ACCOUNT_TYPE_STORE_KEY = "accountType";
 
-interface AuthState {
-  user: any;
-}
-
-const initialState: AuthState = {
-  user: null,
-};
-
+// Remove local token if it has expired
 if (localStorage.getItem(TOKEN_STORE_KEY)) {
   const decodedToken = decode(localStorage.getItem(TOKEN_STORE_KEY) as string);
   if (decodedToken && (decodedToken as any).exp * 1000 < Date.now()) {
     localStorage.removeItem(TOKEN_STORE_KEY);
-  } else {
-    initialState.user = decodedToken;
   }
+}
+
+// If user has logged in before, set their initial account type to the same as last
+let initialAccountType = AccountType.Learner;
+if (localStorage.getItem(ACCOUNT_TYPE_STORE_KEY)) {
+  initialAccountType = localStorage.getItem(
+    ACCOUNT_TYPE_STORE_KEY
+  ) as AccountType;
 }
 
 // Define the auth context with some default values for type inferences
 const AuthContext = createContext({
   user: null,
-  // login: (accessToken: string) => {},
   logout: () => {},
+  accountType: null,
+  setAccountType: (_: AccountType | null) => {},
 });
 
 const AuthProvider = (props: any) => {
   const [user, setUser] = useState<string | null>(null);
+  const [accountType, setAccountTypeState] = useState<AccountType | null>(null);
 
   // Login
   useEffect(() => {
@@ -42,6 +45,7 @@ const AuthProvider = (props: any) => {
           localStorage.setItem(TOKEN_STORE_KEY, accessToken);
           const userData = decode(accessToken) as string;
           setUser(userData);
+          setAccountTypeState(initialAccountType);
         }
       });
   }, []);
@@ -58,11 +62,21 @@ const AuthProvider = (props: any) => {
     setUser(null);
   };
 
+  const setAccountType = (type: AccountType | null) => {
+    setAccountTypeState(type);
+    localStorage.removeItem(ACCOUNT_TYPE_STORE_KEY);
+    if (type) {
+      localStorage.setItem(ACCOUNT_TYPE_STORE_KEY, `${type}`);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         logout,
+        accountType,
+        setAccountType,
       }}
       {...props}
     />

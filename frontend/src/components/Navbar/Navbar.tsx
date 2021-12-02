@@ -28,6 +28,9 @@ const Navbar = () => {
             <ListItem>
               <Text>Hello, {user.username}</Text>
             </ListItem>
+            <ListItem>
+              <Link to="/dashboard">Dashboard</Link>
+            </ListItem>
           </>
         )}
       </UnorderedList>

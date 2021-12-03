@@ -16,20 +16,18 @@ import { AccountType } from "../../utils";
 import ProfileIcon from "./ProfileIcon/ProfileIcon";
 import DesktopNavbar from "./DesktopNavbar/DesktopNavbar";
 import MobileNavbar from "./MobileNavbar/MobileNavbar";
-
-interface NavItem {
-  label: string;
-  subLabel?: string;
-  children?: Array<NavItem>;
-  href?: string;
-}
+import { NavItem } from "./utils";
 
 const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user, accountType }: any = useContext(AuthContext);
   const navbarItems = getNavbarItems(accountType);
+
   return (
-    <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
+    <Box
+      bg={useColorModeValue("gray.100", "gray.900")}
+      px={useBreakpointValue({ base: 5, md: "25%" })}
+    >
       <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
         <IconButton
           size={"md"}

@@ -12,13 +12,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { ChevronRightIcon } from "@chakra-ui/icons";
-
-interface NavItem {
-  label: string;
-  subLabel?: string;
-  children?: Array<NavItem>;
-  href?: string;
-}
+import { NavItem } from "../utils";
 
 const DesktopNavbar = ({ navbarItems }: { navbarItems: Array<NavItem> }) => {
   const linkColor = useColorModeValue("gray.600", "gray.200");

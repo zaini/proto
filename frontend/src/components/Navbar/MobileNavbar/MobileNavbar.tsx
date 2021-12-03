@@ -10,13 +10,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-
-interface NavItem {
-  label: string;
-  subLabel?: string;
-  children?: Array<NavItem>;
-  href?: string;
-}
+import { NavItem } from "../utils";
 
 const MobileNavbar = ({ navbarItems }: { navbarItems: Array<NavItem> }) => {
   return (

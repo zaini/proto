@@ -1,6 +1,7 @@
 import React from "react";
 import IndexRouter from "../routes";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import "@fontsource/roboto-mono";
 import {
   ApolloClient,
   InMemoryCache,
@@ -34,11 +35,18 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+const theme = extendTheme({
+  fonts: {
+    body: "Roboto Mono",
+    heading: "Roboto Mono",
+  },
+});
+
 const App = () => {
   return (
     <ApolloProvider client={client}>
       <AuthProvider>
-        <ChakraProvider>
+        <ChakraProvider theme={theme}>
           <IndexRouter />
         </ChakraProvider>
       </AuthProvider>

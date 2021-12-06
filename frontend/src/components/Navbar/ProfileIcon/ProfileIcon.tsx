@@ -8,6 +8,7 @@ import {
   MenuItem,
   MenuDivider,
   Center,
+  Link,
 } from "@chakra-ui/react";
 import { AuthContext } from "../../../context/Auth";
 
@@ -39,10 +40,11 @@ const ProfileIcon = () => {
         </Center>
         <br />
         <MenuDivider />
-        <MenuItem>Your Servers</MenuItem>
+        <MenuItem>Profile</MenuItem>
         <MenuItem>Account Settings</MenuItem>
-        {/* "/accounts/log-out" */}
-        <MenuItem>Logout</MenuItem>
+        <a href="/accounts/log-out">
+          <MenuItem>Logout</MenuItem>
+        </a>
       </MenuList>
     </Menu>
   );

@@ -9,6 +9,7 @@ import {
   useBreakpointValue,
   Collapse,
   Text,
+  Link,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { AuthContext } from "../../context/Auth";
@@ -37,15 +38,19 @@ const Navbar = () => {
           onClick={isOpen ? onClose : onOpen}
         />
         <HStack spacing={8} alignItems={"center"}>
-          <Text
+          <Link
             textAlign={useBreakpointValue({ base: "center", md: "left" })}
             fontFamily={"heading"}
             fontWeight={900}
             size={"xl"}
             color={useColorModeValue("gray.800", "white")}
+            _hover={{
+              textDecoration: "none",
+            }}
+            href="/"
           >
             Proto
-          </Text>
+          </Link>
           <Flex display={{ base: "none", md: "flex" }} ml={10}>
             <DesktopNavbar navbarItems={navbarItems} />
           </Flex>
@@ -80,33 +85,7 @@ const getNavbarItems = (accountType: AccountType | null): Array<NavItem> => {
 const DEFAULT_NAV_ITEMS: Array<NavItem> = [
   {
     label: "Home",
-    children: [
-      {
-        label: "Explore Design Work",
-        subLabel: "Trending Design to inspire you",
-        href: "#",
-      },
-      {
-        label: "New & Noteworthy",
-        subLabel: "Up-and-coming Designers",
-        href: "#",
-      },
-    ],
-  },
-  {
-    label: "About",
-    children: [
-      {
-        label: "Job Board",
-        subLabel: "Find your dream design job",
-        href: "#",
-      },
-      {
-        label: "Freelance Projects",
-        subLabel: "An exclusive list for contract work",
-        href: "#",
-      },
-    ],
+    href: "/",
   },
   {
     label: "Login",
@@ -117,73 +96,25 @@ const DEFAULT_NAV_ITEMS: Array<NavItem> = [
 const LEANER_NAV_ITEMS: Array<NavItem> = [
   {
     label: "Dashboard",
-    children: [
-      {
-        label: "Explore Design Work",
-        subLabel: "Trending Design to inspire you",
-        href: "#",
-      },
-      {
-        label: "New & Noteworthy",
-        subLabel: "Up-and-coming Designers",
-        href: "#",
-      },
-    ],
+    href: "/dashboard",
   },
   {
     label: "View Assignments",
-    children: [
-      {
-        label: "Job Board",
-        subLabel: "Find your dream design job",
-        href: "#",
-      },
-      {
-        label: "Freelance Projects",
-        subLabel: "An exclusive list for contract work",
-        href: "#",
-      },
-    ],
-  },
-  {
-    label: "Logout",
-    href: "/accounts/log-out",
+    href: "/dashboard/assignments",
   },
 ];
 
 const TEACHER_NAV_ITEMS: Array<NavItem> = [
   {
     label: "Dashboard",
-    children: [
-      {
-        label: "Explore Design Work",
-        subLabel: "Trending Design to inspire you",
-        href: "#",
-      },
-      {
-        label: "New & Noteworthy",
-        subLabel: "Up-and-coming Designers",
-        href: "#",
-      },
-    ],
+    href: "/dashboard",
   },
   {
     label: "Set Assignments",
-    children: [
-      {
-        label: "Job Board",
-        subLabel: "Find your dream design job",
-        href: "#",
-      },
-      {
-        label: "Freelance Projects",
-        subLabel: "An exclusive list for contract work",
-        href: "#",
-      },
-    ],
+    href: "/dashboard/assignments",
   },
   {
-    label: "Logout",
-    href: "/accounts/log-out",
+    label: "Classrooms",
+    href: "/dashboard/classrooms",
   },
 ];

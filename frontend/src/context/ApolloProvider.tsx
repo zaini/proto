@@ -11,6 +11,8 @@ import {
 import { setContext } from "@apollo/client/link/context";
 import * as dotenv from "dotenv";
 import { AuthProvider } from "./Auth";
+import Navbar from "../components/Navbar/Navbar";
+import Footer from "../components/Footer/Footer";
 dotenv.config({ path: __dirname + "/.env" });
 
 const REACT_APP_GRAPHQL_URL = process.env.REACT_APP_GRAPHQL_URL;
@@ -47,7 +49,9 @@ const App = () => {
     <ApolloProvider client={client}>
       <AuthProvider>
         <ChakraProvider theme={theme}>
+          <Navbar />
           <IndexRouter />
+          <Footer />
         </ChakraProvider>
       </AuthProvider>
     </ApolloProvider>

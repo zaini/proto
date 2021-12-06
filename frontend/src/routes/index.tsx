@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "../components/Navbar/Navbar";
 import Login from "../views/Accounts/Login/Login";
 import Logout from "../views/Accounts/Logout/Logout";
 import DashboardHome from "../views/Dashboard/Home/Home";
@@ -10,7 +9,6 @@ import ProtectedRoute from "./utils/ProtectedRoute";
 const IndexRouter = () => {
   return (
     <BrowserRouter>
-      <Navbar />
       <Routes>
         <Route
           path={"/"}

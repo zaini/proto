@@ -1,13 +1,19 @@
-const userResolver = require("./users");
-const problemResolver = require("./problems");
+const usersResolver = require("./users");
+const classroomsResolver = require("./classrooms");
+const assignmentsResolver = require("./assignments");
+const problemsResolver = require("./problems");
 
 module.exports = {
   Query: {
-    ...userResolver.Query,
-    ...problemResolver.Query,
+    ...usersResolver.Query,
+    ...classroomsResolver.Query,
+    ...assignmentsResolver.Query,
+    ...problemsResolver.Query,
   },
   Mutation: {
-    ...userResolver.Mutation,
-    ...problemResolver.Mutation,
+    ...usersResolver.Mutation,
+    ...classroomsResolver.Mutation,
+    ...assignmentsResolver.Mutation,
+    ...problemsResolver.Mutation,
   },
 };

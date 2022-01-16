@@ -24,7 +24,7 @@ model User {
   createdAt         DateTime            @default(now())
   classrooms        Classroom[] // Classrooms the User has created
   problems          Problem[] // Problems the User has created
-  UsersOnClassrooms UsersOnClassrooms[] // Classrooms the User is a LEARNER in
+  UsersOnClassrooms UsersOnClassrooms[] // Rename this. Classrooms the User is a LEARNER in
 }
 
 model Classroom {

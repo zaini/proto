@@ -4,6 +4,7 @@ import Logout from "../views/Accounts/Logout/Logout";
 import DashboardHome from "../views/Dashboard/Home/Home";
 import Home from "../views/Home/Home";
 import NotFound from "../views/NotFound/NotFound";
+import Problem from "../views/Problem/Problem";
 import ProtectedRoute from "./utils/ProtectedRoute";
 
 const IndexRouter = () => {
@@ -32,6 +33,14 @@ const IndexRouter = () => {
           element={
             <ProtectedRoute mustBeLoggedIn={true}>
               <DashboardHome />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={"/problems/:problemId"}
+          element={
+            <ProtectedRoute mustBeLoggedIn={true}>
+              <Problem />
             </ProtectedRoute>
           }
         />

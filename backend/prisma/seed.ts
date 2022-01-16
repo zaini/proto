@@ -33,12 +33,37 @@ async function main() {
   logger.info("Successfully seeded users in classrooms");
   logger.debug(JSON.stringify(allUsersOnClassrooms));
 
-  await prisma.problem.createMany({
-    data: [
-      { userId: 1, specification: { problem_name: "One Sum" }, likes: 10 },
-      { userId: 2, specification: { problem_name: "Two Sum" } },
-      { userId: 3, specification: { problem_name: "Three Sum" } },
-    ],
+  const problem1 = await prisma.problem.create({
+    data: {
+      userId: 1,
+      specification: {
+        title: "Addition",
+        description: "Add two numbers together and return the result",
+        initialCode: "def add(a, b):\n  return a + b",
+      },
+      likes: 27,
+      dislikes: 3,
+    },
+  });
+  const problem2 = await prisma.problem.create({
+    data: {
+      userId: 2,
+      specification: {
+        title: "Two Sum",
+        description: "Add two numbers together and return the result",
+        initialCode: "def add(a, b):\n  return a + b",
+      },
+    },
+  });
+  const problem3 = await prisma.problem.create({
+    data: {
+      userId: 3,
+      specification: {
+        title: "Three Sum",
+        description: "Add two numbers together and return the result",
+        initialCode: "def add(a, b):\n  return a + b",
+      },
+    },
   });
   const allProblems = await prisma.assignment.findMany();
   logger.info("Successfully seeded problems");
@@ -57,9 +82,9 @@ async function main() {
 
   await prisma.problemsOnAssignments.createMany({
     data: [
-      { problemId: 1, assignmentId: 1 },
-      { problemId: 3, assignmentId: 2 },
-      { problemId: 2, assignmentId: 3 },
+      { problemId: problem1.id, assignmentId: 1 },
+      { problemId: problem3.id, assignmentId: 2 },
+      { problemId: problem2.id, assignmentId: 3 },
     ],
   });
   const allProblemsOnAssignments =

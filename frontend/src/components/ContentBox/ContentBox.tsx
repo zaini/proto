@@ -1,5 +1,6 @@
 import { Box, Text, Button } from "@chakra-ui/react";
 import React from "react";
+import { Link } from "react-router-dom";
 
 const ContentBox = ({ header, subheader, text }: any) => {
   return (
@@ -18,7 +19,12 @@ const ContentBox = ({ header, subheader, text }: any) => {
       </Text>
       <Text fontSize="md">{text}</Text>
       <Box textAlign="right">
-        <Button fontSize="lg" backgroundColor={"#00ADB5"}>
+        <Button
+          as={Link}
+          to="/problems/1"
+          fontSize="lg"
+          backgroundColor={"#00ADB5"}
+        >
           GO
         </Button>
       </Box>

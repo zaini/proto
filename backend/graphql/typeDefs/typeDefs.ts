@@ -6,7 +6,11 @@ module.exports = gql`
   #   TEACHER
   #   ADMIN
   # }
-
+  type Specification {
+    title: String
+    description: String
+    initialCode: String
+  }
   type AuthResponse {
     accessToken: String
   }
@@ -39,7 +43,7 @@ module.exports = gql`
     creator: User!
     likes: Int
     dislikes: Int
-    specification: String! # This could be a JSON scalar
+    specification: Specification
   }
 
   type Mutation {
@@ -76,6 +80,7 @@ module.exports = gql`
 
     # Problem Queries
     getProblems: [Problem!]
+    getProblem(problemId: ID!): Problem
     # End of Problem Queries
   }
 `;

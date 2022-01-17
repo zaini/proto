@@ -16,5 +16,19 @@ module.exports = {
       return problem;
     },
   },
-  Mutation: {},
+  Mutation: {
+    submitCustomTests: async (
+      _: any,
+      { problemId, code, testCases }: any,
+      context: any
+    ) => {
+      console.log(problemId, code, testCases);
+      return [
+        {
+          id: 1,
+          passed: true,
+        },
+      ];
+    },
+  },
 };

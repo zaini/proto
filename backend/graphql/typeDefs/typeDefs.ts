@@ -6,6 +6,15 @@ module.exports = gql`
   #   TEACHER
   #   ADMIN
   # }
+  input TestCase {
+    id: ID!
+    input: String!
+    expectedOutput: String!
+  }
+  type TestCaseResult {
+    id: ID!
+    passed: Boolean!
+  }
   type Specification {
     title: String
     description: String
@@ -14,6 +23,7 @@ module.exports = gql`
   type AuthResponse {
     accessToken: String
   }
+
   type User {
     id: ID!
     githubId: String!
@@ -62,6 +72,11 @@ module.exports = gql`
 
     # Problem Mutations
     createProblem(creatorId: ID!, specification: String!): Problem
+    submitCustomTests(
+      problemId: ID!
+      code: String
+      testCases: [TestCase!]
+    ): [TestCaseResult!]
     # End of Problem Mutations
   }
 

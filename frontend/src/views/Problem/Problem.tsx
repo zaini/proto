@@ -1,9 +1,9 @@
 import React from "react";
-import { Box, Heading, SimpleGrid, Text } from "@chakra-ui/layout";
+import { Box, SimpleGrid } from "@chakra-ui/layout";
 import { useParams } from "react-router-dom";
-import CodeMirror from "@uiw/react-codemirror";
-import { python } from "@codemirror/lang-python";
 import { gql, useQuery } from "@apollo/client";
+import CodeEditor from "../../components/Problem/CodeEditor/CodeEditor";
+import ProblemInformation from "../../components/Problem/ProblemInformation/ProblemInformation";
 
 const GET_PROBLEM = gql`
   query getProblem($problemId: ID!) {
@@ -40,24 +40,10 @@ const Problem = () => {
     <Box>
       <SimpleGrid columns={2}>
         <Box className="leftPanel" p="4px">
-          <Heading>{problem.specification.title}</Heading>
-          <Text>
-            👍 {problem.likes} 👎 {problem.dislikes}
-          </Text>
-          <Text>Created by {problem.creator.username}</Text>
-          <br />
-          <Heading size="md">Description</Heading>
-          <Text>{problem.specification.description}</Text>
+          <ProblemInformation problem={problem} />
         </Box>
         <Box className="rightPanel">
-          <CodeMirror
-            value={problem.specification.initialCode}
-            height="1000px"
-            extensions={[python()]}
-            onChange={(value: any, viewUpdate: any) => {
-              console.log("value:", value);
-            }}
-          />
+          <CodeEditor problem={problem} />
         </Box>
       </SimpleGrid>
     </Box>

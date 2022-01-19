@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 
 const TestcaseView = ({ customTestData, customTestResults }: any) => {
+  console.log(customTestResults);
   return (
     <Tabs>
       <TabList>
@@ -22,7 +23,7 @@ const TestcaseView = ({ customTestData, customTestResults }: any) => {
       </TabList>
       <TabPanels>
         <TabPanel>
-          <Accordion>
+          <Accordion allowMultiple>
             <AccordionItem>
               <h2>
                 <AccordionButton>
@@ -59,9 +60,8 @@ const TestcaseView = ({ customTestData, customTestResults }: any) => {
         </TabPanel>
         <TabPanel>
           <p>Custom Test Cases!</p>
-          <Accordion>
+          <Accordion allowMultiple>
             {customTestData.map((e: any, i: number) => {
-              console.log(customTestResults[i].passed);
               return (
                 <AccordionItem>
                   <h2>
@@ -77,7 +77,7 @@ const TestcaseView = ({ customTestData, customTestResults }: any) => {
                     <br />
                     Expected Output: {e.expectedOutput}
                     <br />
-                    Your Output: {e.expectedOutput}
+                    Your Output: {customTestResults[i].stdout}
                     <br />
                     Passed: {customTestResults[i].passed ? "✔" : "❌"}
                   </AccordionPanel>

@@ -14,6 +14,7 @@ module.exports = gql`
   type TestCaseResult {
     id: ID!
     passed: Boolean!
+    stdout: String
   }
   type Specification {
     title: String
@@ -75,6 +76,7 @@ module.exports = gql`
     submitCustomTests(
       problemId: ID!
       code: String
+      language: Int
       testCases: [TestCase!]
     ): [TestCaseResult!]
     # End of Problem Mutations

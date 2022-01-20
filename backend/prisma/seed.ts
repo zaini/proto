@@ -39,7 +39,16 @@ async function main() {
       specification: {
         title: "Addition",
         description: "Add two numbers together and return the result",
-        initialCode: "def add(a, b):\n  return a + b",
+        initialCode: `
+def add(a, b):
+  return a + b
+
+if __name__ == "__main__":
+  stdin = input()
+  a, b = stdin.split()
+  a, b = int(a), int(b)
+  print(add(a, b))
+`,
       },
       likes: 27,
       dislikes: 3,

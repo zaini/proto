@@ -5,7 +5,7 @@ import { Box, Button } from "@chakra-ui/react";
 import TestcaseView from "../TestcaseView/TestcaseView";
 import { gql, useMutation } from "@apollo/client";
 import { Select } from "@chakra-ui/react";
-
+import { TestCaseInput, TestCaseResult } from "../../../../../gql-types";
 const SUBMIT_CUSTOM_TESTS = gql`
   mutation submitCustomTests(
     $problemId: ID!
@@ -36,12 +36,14 @@ const SUBMIT_CUSTOM_TESTS = gql`
 const CodeEditor = ({ problem }: any) => {
   const [code, setCode] = useState(problem.specification.initialCode);
   const [selectedLanguage, setSelectedLanguage] = useState(71);
-  const [customTestData, setCustomTestData] = useState([
-    { id: 1, input: "5 2", expectedOutput: "7\n" },
-    { id: 2, input: "1 2", expectedOutput: "3\n" },
-    { id: 3, input: "7 2", expectedOutput: "9\n" },
+  const [customTestData, setCustomTestData] = useState<TestCaseInput[]>([
+    { id: "1", input: "5 2", expectedOutput: "7\n" },
+    { id: "2", input: "1 2", expectedOutput: "3\n" },
+    { id: "3", input: "7 2", expectedOutput: "9\n" },
   ]);
-  const [customTestResults, setCustomTestResults] = useState([]);
+  const [customTestResults, setCustomTestResults] = useState<TestCaseResult[]>(
+    []
+  );
 
   const [submitCustomTests, { data, loading, error }] = useMutation(
     SUBMIT_CUSTOM_TESTS,

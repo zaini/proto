@@ -12,12 +12,25 @@ import {
   TabPanels,
   TabPanel,
 } from "@chakra-ui/react";
+import { TestCaseInput, TestCaseResult } from "../../../../../gql-types";
 
-const TestcaseView = ({ customTestData, customTestResults }: any) => {
-  let testData = customTestData;
-  if (customTestResults.length !== 0 && customTestResults !== []) {
-    testData = customTestData.map((e: any) => {
-      return { ...e, ...e.testCase };
+type TestcaseViewProps = {
+  customTestData: TestCaseInput[];
+  customTestResults: TestCaseResult[];
+};
+
+const TestcaseView = ({
+  customTestData,
+  customTestResults,
+}: TestcaseViewProps) => {
+  let testData = customTestResults;
+  if (testData.length === 0 || customTestResults === []) {
+    testData = customTestData.map((e: TestCaseInput) => {
+      return {
+        id: e.id,
+        testCase: e,
+        passed: false,
+      };
     });
   }
 
@@ -40,10 +53,7 @@ const TestcaseView = ({ customTestData, customTestResults }: any) => {
                 </AccordionButton>
               </h2>
               <AccordionPanel pb={4}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat.
+                Just go look at the custom tests intead...
               </AccordionPanel>
             </AccordionItem>
             <AccordionItem>
@@ -56,10 +66,7 @@ const TestcaseView = ({ customTestData, customTestResults }: any) => {
                 </AccordionButton>
               </h2>
               <AccordionPanel pb={4}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat.
+                Just go look at the custom tests intead...
               </AccordionPanel>
             </AccordionItem>
           </Accordion>
@@ -67,9 +74,9 @@ const TestcaseView = ({ customTestData, customTestResults }: any) => {
         <TabPanel>
           <p>Custom Test Cases!</p>
           <Accordion allowMultiple>
-            {testData.map((e: any, i: number) => {
+            {testData.map((e: TestCaseResult, i: number) => {
               return (
-                <AccordionItem key={i}>
+                <AccordionItem key={e.id}>
                   <h2>
                     <AccordionButton>
                       <Box flex="1" textAlign="left">
@@ -79,14 +86,17 @@ const TestcaseView = ({ customTestData, customTestResults }: any) => {
                     </AccordionButton>
                   </h2>
                   <AccordionPanel pb={4}>
-                    Input: {e.input}
+                    Input: {e.testCase.input}
                     <br />
-                    Expected Output: {e.expectedOutput}
+                    Expected Output: {e.testCase.expectedOutput}
                     {e.passed !== undefined && (
                       <Box>
-                        💾 {e.memory} bytes | 🕓 {e.time}ms
+                        💾 {e.memory ? e.memory + " bytes" : "N/A"} | 🕓{" "}
+                        {e.time ? e.time + "ms" : "N/A"}
                         <br />
                         Your Output: {e.stdout || "N/A"}
+                        <br />
+                        Errors: {e.stderr || "N/A"}
                         <br />
                         Passed: {e.passed ? "✔" : "❌"}
                       </Box>

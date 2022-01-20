@@ -1,16 +1,17 @@
+import axios from "axios";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
-import axios from "axios";
-import e from "express";
+import { TestCaseResult } from "../../../gql-types";
 
 module.exports = {
   Query: {
     getProblems: () => {
-      logger.info("GraphQL users/getProblems");
+      logger.info("GraphQL problems/getProblems");
       const problems = prisma.problem.findMany();
       return problems;
     },
     getProblem: async (_: any, { problemId }: any, context: any) => {
+      logger.info("GraphQL problems/getProblem");
       const problem = await prisma.problem.findUnique({
         where: { id: parseInt(problemId) },
         include: { creator: true },
@@ -24,17 +25,10 @@ module.exports = {
       { code, language, testCases }: any,
       context: any
     ) => {
+      logger.info("GraphQL problems/submitCustomTests");
       var axios = require("axios").default;
       let options;
-      let res: {
-        id: number;
-        testCase: any;
-        passed: boolean;
-        stdout: any;
-        stderr: any;
-        time: any;
-        memory: any;
-      }[] = [];
+      let res: TestCaseResult[] = [];
 
       await Promise.all(
         testCases.map(async (testCase: any) => {
@@ -57,6 +51,7 @@ module.exports = {
               submission_token = response.data.token;
             })
             .catch(function (error: any) {
+              logger.error("Error submitting code to Judge0", error);
               return [];
             });
 
@@ -68,7 +63,7 @@ module.exports = {
             );
             time = x.data.time;
           }
-          const result = {
+          const result: TestCaseResult = {
             id: testCase.id,
             testCase,
             passed: x.data.stdout === testCase.expectedOutput,
@@ -77,9 +72,13 @@ module.exports = {
             time: x.data.time,
             memory: x.data.memory,
           };
+
           res.push(result);
         })
       );
+      logger.info("Test case results: ", {
+        meta: JSON.stringify(res),
+      });
       return res;
     },
   },

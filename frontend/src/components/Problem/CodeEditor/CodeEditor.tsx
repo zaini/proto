@@ -11,7 +11,7 @@ const SUBMIT_CUSTOM_TESTS = gql`
     $problemId: ID!
     $code: String
     $language: Int
-    $testCases: [TestCase!]
+    $testCases: [TestCaseInput!]
   ) {
     submitCustomTests(
       problemId: $problemId
@@ -22,6 +22,13 @@ const SUBMIT_CUSTOM_TESTS = gql`
       id
       passed
       stdout
+      stderr
+      time
+      memory
+      testCase {
+        input
+        expectedOutput
+      }
     }
   }
 `;
@@ -30,11 +37,11 @@ const CodeEditor = ({ problem }: any) => {
   const [code, setCode] = useState(problem.specification.initialCode);
   const [selectedLanguage, setSelectedLanguage] = useState(71);
   const [customTestData, setCustomTestData] = useState([
-    { id: 0, input: "5 2", expectedOutput: "7" },
+    { id: 1, input: "5 2", expectedOutput: "7\n" },
+    { id: 2, input: "1 2", expectedOutput: "3\n" },
+    { id: 3, input: "7 2", expectedOutput: "9\n" },
   ]);
-  const [customTestResults, setCustomTestResults] = useState([
-    { id: 0, passed: false },
-  ]);
+  const [customTestResults, setCustomTestResults] = useState([]);
 
   const [submitCustomTests, { data, loading, error }] = useMutation(
     SUBMIT_CUSTOM_TESTS,
@@ -54,7 +61,7 @@ const CodeEditor = ({ problem }: any) => {
     <Box>
       <CodeMirror
         value={code}
-        height="1000px"
+        height="600px"
         extensions={[python()]}
         onChange={(value: any, viewUpdate: any) => {
           setCode(value);

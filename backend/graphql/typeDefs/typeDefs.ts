@@ -6,15 +6,24 @@ module.exports = gql`
   #   TEACHER
   #   ADMIN
   # }
-  input TestCase {
+  type TestCase {
+    id: ID!
+    input: String!
+    expectedOutput: String!
+  }
+  input TestCaseInput {
     id: ID!
     input: String!
     expectedOutput: String!
   }
   type TestCaseResult {
     id: ID!
+    testCase: TestCase!
     passed: Boolean!
     stdout: String
+    stderr: String
+    time: Float
+    memory: Float
   }
   type Specification {
     title: String
@@ -77,8 +86,8 @@ module.exports = gql`
       problemId: ID!
       code: String
       language: Int
-      testCases: [TestCase!]
-    ): [TestCaseResult!]
+      testCases: [TestCaseInput!]
+    ): [TestCaseResult]
     # End of Problem Mutations
   }
 

@@ -14,7 +14,13 @@ import {
 } from "@chakra-ui/react";
 
 const TestcaseView = ({ customTestData, customTestResults }: any) => {
-  console.log(customTestResults);
+  let testData = customTestData;
+  if (customTestResults.length !== 0 && customTestResults !== []) {
+    testData = customTestData.map((e: any) => {
+      return { ...e, ...e.testCase };
+    });
+  }
+
   return (
     <Tabs>
       <TabList>
@@ -61,13 +67,13 @@ const TestcaseView = ({ customTestData, customTestResults }: any) => {
         <TabPanel>
           <p>Custom Test Cases!</p>
           <Accordion allowMultiple>
-            {customTestData.map((e: any, i: number) => {
+            {testData.map((e: any, i: number) => {
               return (
-                <AccordionItem>
+                <AccordionItem key={i}>
                   <h2>
                     <AccordionButton>
                       <Box flex="1" textAlign="left">
-                        Custom Test #{i}
+                        Custom Test #{e.id}
                       </Box>
                       <AccordionIcon />
                     </AccordionButton>
@@ -76,10 +82,15 @@ const TestcaseView = ({ customTestData, customTestResults }: any) => {
                     Input: {e.input}
                     <br />
                     Expected Output: {e.expectedOutput}
-                    <br />
-                    Your Output: {customTestResults[i].stdout}
-                    <br />
-                    Passed: {customTestResults[i].passed ? "✔" : "❌"}
+                    {e.passed !== undefined && (
+                      <Box>
+                        💾 {e.memory} bytes | 🕓 {e.time}ms
+                        <br />
+                        Your Output: {e.stdout || "N/A"}
+                        <br />
+                        Passed: {e.passed ? "✔" : "❌"}
+                      </Box>
+                    )}
                   </AccordionPanel>
                 </AccordionItem>
               );

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
-import { Box, Button } from "@chakra-ui/react";
+import { javascript } from "@codemirror/lang-javascript";
+import { Box, Button, Select, IconButton } from "@chakra-ui/react";
 import TestcaseView from "../TestcaseView/TestcaseView";
 import { gql, useMutation } from "@apollo/client";
-import { Select } from "@chakra-ui/react";
 import { TestCaseInput, TestCaseResult } from "../../../../../gql-types";
+import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 const SUBMIT_CUSTOM_TESTS = gql`
   mutation submitCustomTests(
     $problemId: ID!
@@ -35,6 +36,7 @@ const SUBMIT_CUSTOM_TESTS = gql`
 
 const CodeEditor = ({ problem }: any) => {
   const [code, setCode] = useState(problem.specification.initialCode);
+  const [editorTheme, setEditorTheme] = useState<"dark" | "light">("dark");
   const [selectedLanguage, setSelectedLanguage] = useState(71);
   const [customTestData, setCustomTestData] = useState<TestCaseInput[]>([
     { id: "1", input: "5 2", expectedOutput: "7\n" },
@@ -64,6 +66,7 @@ const CodeEditor = ({ problem }: any) => {
       <CodeMirror
         value={code}
         height="600px"
+        theme={editorTheme}
         extensions={[python()]}
         onChange={(value: any, viewUpdate: any) => {
           setCode(value);
@@ -100,6 +103,13 @@ const CodeEditor = ({ problem }: any) => {
       </Button>
       <Button>Run All Tests</Button>
       <Button>Submit</Button>
+      <IconButton
+        aria-label="Toggle editor theme"
+        onClick={() =>
+          setEditorTheme(editorTheme === "dark" ? "light" : "dark")
+        }
+        icon={editorTheme === "dark" ? <SunIcon /> : <MoonIcon />}
+      />
     </Box>
   );
 };

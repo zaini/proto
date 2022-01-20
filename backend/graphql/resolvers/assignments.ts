@@ -14,8 +14,6 @@ module.exports = {
         },
       });
 
-      console.log(assignments);
-
       const parsedAssignments = assignments.map((assignment) => {
         const problemsInAssignment = assignment.ProblemsOnAssignments.map(
           (x) => x.problem

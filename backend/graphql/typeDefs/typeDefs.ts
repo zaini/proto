@@ -6,6 +6,34 @@ module.exports = gql`
   #   TEACHER
   #   ADMIN
   # }
+  enum SubmissionType {
+    CUSTOM
+    PROBLEM
+    ALL
+  }
+  type TestCase {
+    id: ID!
+    stdin: String!
+    expectedOutput: String!
+  }
+  input TestCaseInput {
+    id: ID!
+    stdin: String!
+    expectedOutput: String!
+  }
+  type TestCaseResult {
+    id: ID!
+    testCase: TestCase!
+    passed: Boolean!
+    stdout: String
+    stderr: String
+    time: Float
+    memory: Float
+  }
+  type TestSubmissionResult {
+    results: [TestCaseResult]
+    submissionType: SubmissionType
+  }
   type Specification {
     title: String
     description: String
@@ -14,6 +42,7 @@ module.exports = gql`
   type AuthResponse {
     accessToken: String
   }
+
   type User {
     id: ID!
     githubId: String!
@@ -62,6 +91,13 @@ module.exports = gql`
 
     # Problem Mutations
     createProblem(creatorId: ID!, specification: String!): Problem
+    submitTests(
+      problemId: ID!
+      code: String
+      language: Int
+      testCases: [TestCaseInput!]
+      submissionType: SubmissionType
+    ): TestSubmissionResult
     # End of Problem Mutations
   }
 

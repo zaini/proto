@@ -6,14 +6,19 @@ module.exports = gql`
   #   TEACHER
   #   ADMIN
   # }
+  enum SubmissionType {
+    CUSTOM
+    PROBLEM
+    ALL
+  }
   type TestCase {
     id: ID!
-    input: String!
+    stdin: String!
     expectedOutput: String!
   }
   input TestCaseInput {
     id: ID!
-    input: String!
+    stdin: String!
     expectedOutput: String!
   }
   type TestCaseResult {
@@ -24,6 +29,10 @@ module.exports = gql`
     stderr: String
     time: Float
     memory: Float
+  }
+  type TestSubmissionResult {
+    results: [TestCaseResult]
+    submissionType: SubmissionType
   }
   type Specification {
     title: String
@@ -82,12 +91,13 @@ module.exports = gql`
 
     # Problem Mutations
     createProblem(creatorId: ID!, specification: String!): Problem
-    submitCustomTests(
+    submitTests(
       problemId: ID!
       code: String
       language: Int
       testCases: [TestCaseInput!]
-    ): [TestCaseResult]
+      submissionType: SubmissionType
+    ): TestSubmissionResult
     # End of Problem Mutations
   }
 

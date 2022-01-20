@@ -1,14 +1,14 @@
 import React from "react";
-import { Heading, Text } from "@chakra-ui/layout";
+import { Heading, Text, Code } from "@chakra-ui/layout";
 
 const ProblemInformation = ({ problem }: any) => {
   return (
     <>
       <Heading>{problem.specification.title}</Heading>
       <Text>
-        👍 {problem.likes} 👎 {problem.dislikes}
+        <Code>👍 {problem.likes}</Code> <Code>👎 {problem.dislikes}</Code>
       </Text>
-      <Text>Created by {problem.creator.username}</Text>
+      Created by <Code>{problem.creator.username}</Code>
       <br />
       <Heading size="md">Description</Heading>
       <Text>{problem.specification.description}</Text>

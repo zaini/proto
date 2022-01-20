@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { gql, useQuery } from "@apollo/client";
 import CodeEditor from "../../components/Problem/CodeEditor/CodeEditor";
 import ProblemInformation from "../../components/Problem/ProblemInformation/ProblemInformation";
+import { Spinner, Center } from "@chakra-ui/react";
 
 const GET_PROBLEM = gql`
   query getProblem($problemId: ID!) {
@@ -31,7 +32,18 @@ const Problem = () => {
     },
   });
 
-  if (loading) return <>Loading...</>;
+  if (loading)
+    return (
+      <Center h="1000px">
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="blue.500"
+          size="xl"
+        />
+      </Center>
+    );
   if (error) return <>Error! ${error.message}</>;
 
   const problem = data.getProblem;

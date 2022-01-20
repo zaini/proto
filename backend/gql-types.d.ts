@@ -41,7 +41,7 @@ export type Mutation = {
   createAssignment?: Maybe<Assignment>;
   createClassroom?: Maybe<Classroom>;
   createProblem?: Maybe<Problem>;
-  submitCustomTests?: Maybe<Array<Maybe<TestCaseResult>>>;
+  submitTests?: Maybe<TestSubmissionResult>;
 };
 
 
@@ -62,10 +62,11 @@ export type MutationCreateProblemArgs = {
 };
 
 
-export type MutationSubmitCustomTestsArgs = {
+export type MutationSubmitTestsArgs = {
   code?: InputMaybe<Scalars['String']>;
   language?: InputMaybe<Scalars['Int']>;
   problemId: Scalars['ID'];
+  submissionType?: InputMaybe<SubmissionType>;
   testCases?: InputMaybe<Array<TestCaseInput>>;
 };
 
@@ -100,17 +101,23 @@ export type Specification = {
   title?: Maybe<Scalars['String']>;
 };
 
+export enum SubmissionType {
+  All = 'ALL',
+  Custom = 'CUSTOM',
+  Problem = 'PROBLEM'
+}
+
 export type TestCase = {
   __typename?: 'TestCase';
   expectedOutput: Scalars['String'];
   id: Scalars['ID'];
-  input: Scalars['String'];
+  stdin: Scalars['String'];
 };
 
 export type TestCaseInput = {
   expectedOutput: Scalars['String'];
   id: Scalars['ID'];
-  input: Scalars['String'];
+  stdin: Scalars['String'];
 };
 
 export type TestCaseResult = {
@@ -122,6 +129,12 @@ export type TestCaseResult = {
   stdout?: Maybe<Scalars['String']>;
   testCase: TestCase;
   time?: Maybe<Scalars['Float']>;
+};
+
+export type TestSubmissionResult = {
+  __typename?: 'TestSubmissionResult';
+  results?: Maybe<Array<Maybe<TestCaseResult>>>;
+  submissionType?: Maybe<SubmissionType>;
 };
 
 export type User = {

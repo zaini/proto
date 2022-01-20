@@ -3,63 +3,82 @@ import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { Box, Button, Select, IconButton } from "@chakra-ui/react";
-import TestcaseView from "../TestcaseView/TestcaseView";
+import TestCaseView from "../TestCaseView/TestCaseView";
 import { gql, useMutation } from "@apollo/client";
-import { TestCaseInput, TestCaseResult } from "../../../../../gql-types";
+import { TestCaseInput, TestCaseResult } from "../../../gql-types";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
-const SUBMIT_CUSTOM_TESTS = gql`
-  mutation submitCustomTests(
+
+const SUBMIT_TESTS = gql`
+  mutation submitTests(
     $problemId: ID!
     $code: String
     $language: Int
     $testCases: [TestCaseInput!]
+    $submissionType: SubmissionType
   ) {
-    submitCustomTests(
+    submitTests(
       problemId: $problemId
       code: $code
       language: $language
       testCases: $testCases
+      submissionType: $submissionType
     ) {
-      id
-      passed
-      stdout
-      stderr
-      time
-      memory
-      testCase {
-        input
-        expectedOutput
+      results {
+        id
+        passed
+        stdout
+        stderr
+        time
+        memory
+        testCase {
+          stdin
+          expectedOutput
+        }
       }
+      submissionType
     }
   }
 `;
 
 const CodeEditor = ({ problem }: any) => {
   const [code, setCode] = useState(problem.specification.initialCode);
+
   const [editorTheme, setEditorTheme] = useState<"dark" | "light">("dark");
+
   const [selectedLanguage, setSelectedLanguage] = useState(71);
-  const [customTestData, setCustomTestData] = useState<TestCaseInput[]>([
-    { id: "1", input: "5 2", expectedOutput: "7\n" },
-    { id: "2", input: "1 2", expectedOutput: "3\n" },
-    { id: "3", input: "7 2", expectedOutput: "9\n" },
+
+  const [customTestCases, setCustomTestCases] = useState<TestCaseInput[]>([
+    { id: "1", stdin: "5 2", expectedOutput: "7\n" },
+    { id: "2", stdin: "1 2", expectedOutput: "3\n" },
+    { id: "3", stdin: "7 2", expectedOutput: "9\n" },
   ]);
   const [customTestResults, setCustomTestResults] = useState<TestCaseResult[]>(
     []
   );
 
-  const [submitCustomTests, { data, loading, error }] = useMutation(
-    SUBMIT_CUSTOM_TESTS,
-    {
-      onCompleted({ submitCustomTests }) {
-        setCustomTestResults(submitCustomTests);
-      },
-    }
-  );
+  const [problemTestCases, setProblemTestCases] = useState<TestCaseInput[]>([
+    { id: "1", stdin: "10 22", expectedOutput: "32\n" },
+    { id: "2", stdin: "10 20", expectedOutput: "30\n" },
+    { id: "3", stdin: "70 20", expectedOutput: "90\n" },
+  ]);
+  const [problemTestResults, setProblemTestResults] = useState<
+    TestCaseResult[]
+  >([]);
 
-  //   const [submitAllTests, { data, loading, error }] =
-  //     useMutation(SUBMIT_CUSTOM_TESTS);
-  //   const [submitSolution, { data, loading, error }] =
-  //     useMutation(SUBMIT_ALL_TESTS);
+  const [submitTests, { data, loading, error }] = useMutation(SUBMIT_TESTS, {
+    onCompleted: ({ submitTests }) => {
+      switch (submitTests.submissionType) {
+        case "CUSTOM":
+          setCustomTestResults(submitTests.results);
+          break;
+        case "PROBLEM":
+          setProblemTestResults(submitTests.results);
+          break;
+        default:
+          break;
+      }
+    },
+  });
 
   return (
     <Box>
@@ -72,8 +91,10 @@ const CodeEditor = ({ problem }: any) => {
           setCode(value);
         }}
       />
-      <TestcaseView
-        customTestData={customTestData}
+      <TestCaseView
+        problemTestCases={problemTestCases}
+        problemTestResults={problemTestResults}
+        customTestCases={customTestCases}
         customTestResults={customTestResults}
       />
       {/* http://localhost:2358/languages/ */}
@@ -88,20 +109,37 @@ const CodeEditor = ({ problem }: any) => {
         <option value={74}>TypeScript</option>
       </Select>
       <Button
-        onClick={async () => {
-          await submitCustomTests({
+        isLoading={loading}
+        onClick={() => {
+          submitTests({
             variables: {
               problemId: problem.id as String,
               language: selectedLanguage,
               code: code,
-              testCases: customTestData,
+              testCases: customTestCases,
+              submissionType: "CUSTOM", // ideally I would use the Enum here but getting import errors
             },
           });
         }}
       >
         Run Custom Tests
       </Button>
-      <Button>Run All Tests</Button>
+      <Button
+        isLoading={loading}
+        onClick={() => {
+          submitTests({
+            variables: {
+              problemId: problem.id as String,
+              language: selectedLanguage,
+              code: code,
+              testCases: problemTestCases,
+              submissionType: "PROBLEM", // ideally I would use the Enum here but getting import errors
+            },
+          });
+        }}
+      >
+        Run All Tests
+      </Button>
       <Button>Submit</Button>
       <IconButton
         aria-label="Toggle editor theme"

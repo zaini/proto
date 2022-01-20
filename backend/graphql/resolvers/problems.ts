@@ -1,7 +1,11 @@
 import axios from "axios";
+import { MutationSubmitTestsArgs, TestCaseResult } from "../../gql-types";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
-import { TestCaseResult } from "../../../gql-types";
+
+const JUDGE_API_URL = process.env.JUDGE_API_URL as string;
+const TEST_TIMELIMIT = 60 * 1000;
+const SUBMISSION_TIMELIMIT = 300 * 1000;
 
 module.exports = {
   Query: {
@@ -20,27 +24,32 @@ module.exports = {
     },
   },
   Mutation: {
-    submitCustomTests: async (
+    submitTests: async (
       _: any,
-      { code, language, testCases }: any,
+      { code, language, testCases, submissionType }: MutationSubmitTestsArgs,
       context: any
     ) => {
-      logger.info("GraphQL problems/submitCustomTests");
+      logger.info("GraphQL problems/submitTests");
+      const SUBMISSION_START_TIME = Date.now();
+
       var axios = require("axios").default;
       let options;
       let res: TestCaseResult[] = [];
 
       await Promise.all(
-        testCases.map(async (testCase: any) => {
+        testCases!.map(async (testCase: any) => {
+          if (Date.now() - SUBMISSION_START_TIME >= SUBMISSION_TIMELIMIT) {
+            console.log("SUBMISSIONS HAVE TIMED OUT");
+          }
           options = {
             method: "POST",
-            url: "http://localhost:2358/submissions",
+            url: `${JUDGE_API_URL}/submissions`,
             params: { base64_encoded: "false", fields: "*" },
             headers: { "content-type": "application/json" },
             data: {
               language_id: language,
               source_code: code,
-              stdin: testCase.input,
+              stdin: testCase.stdin,
             },
           };
 
@@ -77,9 +86,9 @@ module.exports = {
         })
       );
       logger.info("Test case results: ", {
-        meta: JSON.stringify(res),
+        meta: [JSON.stringify(res), submissionType],
       });
-      return res;
+      return { submissionType, results: res };
     },
   },
 };

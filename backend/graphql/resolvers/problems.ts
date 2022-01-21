@@ -68,10 +68,11 @@ module.exports = {
           let x;
           while (!time) {
             x = await axios.get(
-              `http://localhost:2358/submissions/${submission_token}`
+              `${JUDGE_API_URL}/submissions/${submission_token}`
             );
             time = x.data.time;
           }
+
           const result: TestCaseResult = {
             id: testCase.id,
             testCase,

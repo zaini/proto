@@ -15,11 +15,13 @@ module.exports = gql`
     id: ID!
     stdin: String!
     expectedOutput: String!
+    isHidden: Boolean!
   }
   input TestCaseInput {
     id: ID!
     stdin: String!
     expectedOutput: String!
+    isHidden: Boolean!
   }
   type TestCaseResult {
     id: ID!
@@ -97,7 +99,7 @@ module.exports = gql`
       language: Int
       testCases: [TestCaseInput!]
       submissionType: SubmissionType
-    ): TestSubmissionResult
+    ): TestSubmissionResult!
     # End of Problem Mutations
   }
 

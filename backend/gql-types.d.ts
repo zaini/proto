@@ -41,7 +41,7 @@ export type Mutation = {
   createAssignment?: Maybe<Assignment>;
   createClassroom?: Maybe<Classroom>;
   createProblem?: Maybe<Problem>;
-  submitTests?: Maybe<TestSubmissionResult>;
+  submitTests: TestSubmissionResult;
 };
 
 
@@ -111,12 +111,14 @@ export type TestCase = {
   __typename?: 'TestCase';
   expectedOutput: Scalars['String'];
   id: Scalars['ID'];
+  isHidden: Scalars['Boolean'];
   stdin: Scalars['String'];
 };
 
 export type TestCaseInput = {
   expectedOutput: Scalars['String'];
   id: Scalars['ID'];
+  isHidden: Scalars['Boolean'];
   stdin: Scalars['String'];
 };
 

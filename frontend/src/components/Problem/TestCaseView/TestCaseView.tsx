@@ -12,10 +12,6 @@ import ProblemTestCaseTab from "./ProblemTestCaseTab/ProblemTestCaseTab";
 import CustomTestCaseTab from "./CustomTestCaseTab/CustomTestCaseTab";
 
 type TestCaseViewProps = {
-  problemTestCases: TestCaseInput[];
-  problemTestResults: TestCaseResult[];
-  customTestCases: TestCaseInput[];
-  customTestResults: TestCaseResult[];
   tabIndex: any;
   setTabIndex: any;
 };
@@ -37,17 +33,7 @@ const formatTestData = (
   return testData;
 };
 
-const TestCaseView = ({
-  problemTestCases,
-  problemTestResults,
-  customTestCases,
-  customTestResults,
-  tabIndex,
-  setTabIndex,
-}: TestCaseViewProps) => {
-  let problemTestData = formatTestData(problemTestCases, problemTestResults);
-  let customTestData = formatTestData(customTestCases, customTestResults);
-
+const TestCaseView = ({ tabIndex, setTabIndex }: TestCaseViewProps) => {
   return (
     <Tabs
       index={tabIndex}
@@ -64,11 +50,11 @@ const TestCaseView = ({
           You must pass all these test cases before submitting.
           <br />
           Hidden testcases mean you cannot see the input or expected output.
-          <ProblemTestCaseTab testData={problemTestData} />
+          <ProblemTestCaseTab />
         </TabPanel>
         <TabPanel>
-          You can create and run your own test cases here.
-          <CustomTestCaseTab testData={customTestData} />
+          You can create and run up to 10 of your own test cases here.
+          <CustomTestCaseTab />
         </TabPanel>
       </TabPanels>
     </Tabs>

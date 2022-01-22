@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -9,14 +9,40 @@ import {
   Code,
   ButtonGroup,
   Button,
+  InputGroup,
+  InputLeftAddon,
+  Input,
+  Stack,
+  Text,
+  Textarea,
+  Center,
 } from "@chakra-ui/react";
 import { TestCaseInput, TestCaseResult } from "../../../../gql-types";
+import { ProblemContext } from "../../../../views/Problem/Problem";
 
-type CustomTestCaseTabProps = {
-  testData: TestCaseResult[];
-};
+const CustomTestCaseTab = () => {
+  const problem = useContext(ProblemContext);
 
-const CustomTestCaseTab = ({ testData }: CustomTestCaseTabProps) => {
+  const [customInput, setCustomInput] = useState("");
+  const [customOutput, setCustomOutput] = useState("");
+
+  const [customTestCases, setCustomTestCases] = useState<TestCaseInput[]>([]);
+  const [customTestResults, setCustomTestResults] = useState<TestCaseResult[]>(
+    []
+  );
+
+  const addToCustomTestCases = () => {
+    console.log("addToCustomTestCases", customInput, customOutput);
+    // setCustomTestCases()
+  };
+
+  const removeFromCustomTestCases = () => {
+    console.log("removeFromCustomTestCases", customInput, customOutput);
+    // setCustomTestCases()
+  };
+
+  const testData: TestCaseResult[] = [];
+
   return (
     <>
       <Accordion allowMultiple>
@@ -49,7 +75,12 @@ const CustomTestCaseTab = ({ testData }: CustomTestCaseTabProps) => {
                     Passed: {e.passed ? "✔" : "❌"}
                     <ButtonGroup float={"right"}>
                       <Button colorScheme={"teal"}>Run</Button>
-                      <Button colorScheme={"red"}>Remove</Button>
+                      <Button
+                        colorScheme={"red"}
+                        onClick={removeFromCustomTestCases}
+                      >
+                        Remove
+                      </Button>
                     </ButtonGroup>
                     <br />
                     <br />
@@ -58,6 +89,39 @@ const CustomTestCaseTab = ({ testData }: CustomTestCaseTabProps) => {
               </AccordionItem>
             );
           })}
+        <Stack direction={"row"} mt={6}>
+          <InputGroup>
+            <InputLeftAddon children="Input" h="100%" />
+            <Input
+              as={Textarea}
+              resize={"vertical"}
+              placeholder="3 4"
+              value={customInput}
+              onChange={(e) => setCustomInput(e.target.value)}
+            />
+          </InputGroup>
+          <Center>
+            <Text>=&gt;</Text>
+          </Center>
+          <InputGroup>
+            <InputLeftAddon children="Output" h="100%" />
+            <Input
+              as={Textarea}
+              resize={"vertical"}
+              placeholder="7"
+              value={customOutput}
+              onChange={(e) => setCustomOutput(e.target.value)}
+            />
+          </InputGroup>
+          <Center>
+            <Button
+              disabled={testData.length >= 10}
+              onClick={addToCustomTestCases}
+            >
+              Add Test
+            </Button>
+          </Center>
+        </Stack>
       </Accordion>
     </>
   );

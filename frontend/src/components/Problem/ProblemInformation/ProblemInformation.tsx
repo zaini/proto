@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Heading, Text, Code } from "@chakra-ui/layout";
+import { ProblemContext } from "../../../views/Problem/Problem";
 
-const ProblemInformation = ({ problem }: any) => {
+const ProblemInformation = () => {
+  const problem = useContext(ProblemContext);
+
   return (
     <>
       <Heading>{problem.specification.title}</Heading>

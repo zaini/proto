@@ -1,10 +1,23 @@
-import React from "react";
+import React, { createContext } from "react";
 import { Box, SimpleGrid } from "@chakra-ui/layout";
 import { useParams } from "react-router-dom";
 import { gql, useQuery } from "@apollo/client";
 import CodeEditor from "../../components/Problem/CodeEditor/CodeEditor";
 import ProblemInformation from "../../components/Problem/ProblemInformation/ProblemInformation";
 import { Spinner, Center } from "@chakra-ui/react";
+import { Problem as ProblemType, User } from "../../gql-types";
+
+const ProblemContext = createContext<ProblemType>({
+  creator: {} as User,
+  dislikes: 0,
+  id: "0",
+  likes: 0,
+  specification: {
+    title: "",
+    description: "",
+    initialCode: "",
+  },
+});
 
 const GET_PROBLEM = gql`
   query getProblem($problemId: ID!) {
@@ -46,20 +59,18 @@ const Problem = () => {
     );
   if (error) return <>Error! ${error.message}</>;
 
-  const problem = data.getProblem;
-
   return (
-    <Box>
+    <ProblemContext.Provider value={data.getProblem}>
       <SimpleGrid columns={2}>
         <Box className="leftPanel" p="4px">
-          <ProblemInformation problem={problem} />
+          <ProblemInformation />
         </Box>
         <Box className="rightPanel">
-          <CodeEditor problem={problem} />
+          <CodeEditor />
         </Box>
       </SimpleGrid>
-    </Box>
+    </ProblemContext.Provider>
   );
 };
 
-export default Problem;
+export { Problem, ProblemContext };

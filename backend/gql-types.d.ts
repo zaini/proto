@@ -73,10 +73,10 @@ export type MutationSubmitTestsArgs = {
 export type Problem = {
   __typename?: 'Problem';
   creator: User;
-  dislikes?: Maybe<Scalars['Int']>;
+  dislikes: Scalars['Int'];
   id: Scalars['ID'];
-  likes?: Maybe<Scalars['Int']>;
-  specification?: Maybe<Specification>;
+  likes: Scalars['Int'];
+  specification: Specification;
 };
 
 export type Query = {
@@ -96,9 +96,9 @@ export type QueryGetProblemArgs = {
 
 export type Specification = {
   __typename?: 'Specification';
-  description?: Maybe<Scalars['String']>;
-  initialCode?: Maybe<Scalars['String']>;
-  title?: Maybe<Scalars['String']>;
+  description: Scalars['String'];
+  initialCode: Scalars['String'];
+  title: Scalars['String'];
 };
 
 export enum SubmissionType {

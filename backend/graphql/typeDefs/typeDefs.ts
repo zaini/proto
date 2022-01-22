@@ -37,9 +37,9 @@ module.exports = gql`
     submissionType: SubmissionType
   }
   type Specification {
-    title: String
-    description: String
-    initialCode: String
+    title: String!
+    description: String!
+    initialCode: String!
   }
   type AuthResponse {
     accessToken: String
@@ -73,9 +73,9 @@ module.exports = gql`
   type Problem {
     id: ID!
     creator: User!
-    likes: Int
-    dislikes: Int
-    specification: Specification
+    likes: Int!
+    dislikes: Int!
+    specification: Specification!
   }
 
   type Mutation {

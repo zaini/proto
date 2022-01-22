@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -15,11 +15,18 @@ import {
 } from "@chakra-ui/react";
 import { TestCaseInput, TestCaseResult } from "../../../../gql-types";
 
-type ProblemTestCaseTabProps = {
-  testData: TestCaseResult[];
-};
+const ProblemTestCaseTab = () => {
+  const [problemTestCases, setProblemTestCases] = useState<TestCaseInput[]>([
+    { id: "1", stdin: "10 22", expectedOutput: "32\n", isHidden: false },
+    { id: "2", stdin: "10 20", expectedOutput: "30\n", isHidden: false },
+    { id: "3", stdin: "70 20", expectedOutput: "90\n", isHidden: true },
+  ]);
+  const [problemTestResults, setProblemTestResults] = useState<
+    TestCaseResult[]
+  >([]);
 
-const ProblemTestCaseTab = ({ testData }: ProblemTestCaseTabProps) => {
+  const testData: TestCaseResult[] = [];
+
   return (
     <>
       <Accordion allowMultiple>

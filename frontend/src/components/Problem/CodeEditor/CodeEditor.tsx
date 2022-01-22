@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { Box, Button, ButtonGroup } from "@chakra-ui/react";
 import TestCaseView from "../TestCaseView/TestCaseView";
 import { gql, useMutation } from "@apollo/client";
-import { TestCaseInput, TestCaseResult } from "../../../gql-types";
+import { Problem, TestCaseInput, TestCaseResult } from "../../../gql-types";
 import EditorSettings from "./EditorSettings/EditorSettings";
+import { ProblemContext } from "../../../views/Problem/Problem";
 
 const SUBMIT_TESTS = gql`
   mutation submitTests(
@@ -41,47 +42,31 @@ const SUBMIT_TESTS = gql`
   }
 `;
 
-const CodeEditor = ({ problem }: any) => {
+const CodeEditor = () => {
+  const problem = useContext(ProblemContext);
+
   const [code, setCode] = useState(problem.specification.initialCode);
 
   const [editorTheme, setEditorTheme] = useState<"dark" | "light">("dark");
 
+  const [tabIndex, setTabIndex] = useState(0);
+
   const [selectedLanguage, setSelectedLanguage] = useState(71);
-
-  const [customTestCases, setCustomTestCases] = useState<TestCaseInput[]>([
-    { id: "1", stdin: "5 2", expectedOutput: "7\n", isHidden: false },
-    { id: "2", stdin: "1 2", expectedOutput: "3\n", isHidden: false },
-    { id: "3", stdin: "7 2", expectedOutput: "9\n", isHidden: false },
-  ]);
-  const [customTestResults, setCustomTestResults] = useState<TestCaseResult[]>(
-    []
-  );
-
-  const [problemTestCases, setProblemTestCases] = useState<TestCaseInput[]>([
-    { id: "1", stdin: "10 22", expectedOutput: "32\n", isHidden: false },
-    { id: "2", stdin: "10 20", expectedOutput: "30\n", isHidden: false },
-    { id: "3", stdin: "70 20", expectedOutput: "90\n", isHidden: true },
-  ]);
-  const [problemTestResults, setProblemTestResults] = useState<
-    TestCaseResult[]
-  >([]);
 
   const [submitTests, { data, loading, error }] = useMutation(SUBMIT_TESTS, {
     onCompleted: ({ submitTests }) => {
       switch (submitTests.submissionType) {
         case "CUSTOM":
-          setCustomTestResults(submitTests.results);
+          // setCustomTestResults(submitTests.results);
           break;
         case "PROBLEM":
-          setProblemTestResults(submitTests.results);
+          // setProblemTestResults(submitTests.results);
           break;
         default:
           break;
       }
     },
   });
-
-  const [tabIndex, setTabIndex] = useState(0);
 
   return (
     <Box>
@@ -94,14 +79,7 @@ const CodeEditor = ({ problem }: any) => {
           setCode(value);
         }}
       />
-      <TestCaseView
-        problemTestCases={problemTestCases}
-        problemTestResults={problemTestResults}
-        customTestCases={customTestCases}
-        customTestResults={customTestResults}
-        tabIndex={tabIndex}
-        setTabIndex={setTabIndex}
-      />
+      <TestCaseView tabIndex={tabIndex} setTabIndex={setTabIndex} />
       <EditorSettings
         selectedLanguage={selectedLanguage}
         setSelectedLanguage={setSelectedLanguage}
@@ -118,7 +96,7 @@ const CodeEditor = ({ problem }: any) => {
                 problemId: problem.id as String,
                 language: selectedLanguage,
                 code: code,
-                testCases: problemTestCases,
+                testCases: [],
                 submissionType: "PROBLEM", // ideally I would use the Enum here but getting import errors
               },
             });
@@ -136,7 +114,7 @@ const CodeEditor = ({ problem }: any) => {
                 problemId: problem.id as String,
                 language: selectedLanguage,
                 code: code,
-                testCases: customTestCases,
+                testCases: [],
                 submissionType: "CUSTOM", // ideally I would use the Enum here but getting import errors
               },
             });

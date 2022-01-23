@@ -6,6 +6,7 @@ import TestCaseView from "../TestCaseView/TestCaseView";
 import { gql, useMutation } from "@apollo/client";
 import EditorSettings from "./EditorSettings/EditorSettings";
 import { ProblemContext } from "../../../views/Problem/Problem";
+import { TestCaseInput } from "../../../gql-types";
 
 const EditorContext = createContext({
   selectedLanguage: -1,
@@ -15,40 +16,7 @@ const EditorContext = createContext({
   code: "",
 });
 
-const SUBMIT_TESTS = gql`
-  mutation submitTests(
-    $problemId: ID!
-    $code: String
-    $language: Int
-    $testCases: [TestCaseInput!]
-    $submissionType: SubmissionType
-  ) {
-    submitTests(
-      problemId: $problemId
-      code: $code
-      language: $language
-      testCases: $testCases
-      submissionType: $submissionType
-    ) {
-      results {
-        id
-        passed
-        stdout
-        stderr
-        time
-        memory
-        testCase {
-          stdin
-          expectedOutput
-          isHidden
-        }
-      }
-      submissionType
-    }
-  }
-`;
-
-const CodeEditor = () => {
+const CodeEditor = ({ submitTests }: any) => {
   const problem = useContext(ProblemContext);
 
   const [code, setCode] = useState(problem.specification.initialCode);
@@ -58,12 +26,6 @@ const CodeEditor = () => {
   const [tabIndex, setTabIndex] = useState(0);
 
   const [selectedLanguage, setSelectedLanguage] = useState(71);
-
-  const [submitTests, { data, loading, error }] = useMutation(SUBMIT_TESTS, {
-    onCompleted: ({ submitTests }) => {
-      console.log(submitTests);
-    },
-  });
 
   return (
     <EditorContext.Provider
@@ -90,7 +52,32 @@ const CodeEditor = () => {
       />
       <TestCaseView tabIndex={tabIndex} setTabIndex={setTabIndex} />
       <EditorSettings />
-      <Button colorScheme={"green"} my={2} mr={8} float="right">
+      <Button
+        colorScheme={"green"}
+        my={2}
+        mr={8}
+        float="right"
+        onClick={() => {
+          submitTests({
+            variables: {
+              problemId: problem.id as String,
+              language: selectedLanguage,
+              code: code,
+              // I have to do this mapping before for some reason the mutation does not work because testCases have properly "__typename"
+              testCases: problem.specification.testCases!.map(
+                (e: TestCaseInput) => {
+                  return {
+                    id: e.id,
+                    expectedOutput: e.expectedOutput,
+                    isHidden: e.isHidden,
+                    stdin: e.stdin,
+                  };
+                }
+              ),
+            },
+          });
+        }}
+      >
         Submit
       </Button>
     </EditorContext.Provider>

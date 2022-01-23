@@ -1,7 +1,7 @@
 import React, { createContext } from "react";
 import { Box, SimpleGrid } from "@chakra-ui/layout";
 import { useParams } from "react-router-dom";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { CodeEditor } from "../../components/Problem/CodeEditor/CodeEditor";
 import ProblemInformation from "../../components/Problem/ProblemInformation/ProblemInformation";
 import { Spinner, Center } from "@chakra-ui/react";
@@ -44,11 +44,50 @@ const GET_PROBLEM = gql`
   }
 `;
 
+const SUBMIT_TESTS = gql`
+  mutation submitTests(
+    $problemId: ID!
+    $code: String
+    $language: Int
+    $testCases: [TestCaseInput!]
+    $submissionType: SubmissionType
+  ) {
+    submitTests(
+      problemId: $problemId
+      code: $code
+      language: $language
+      testCases: $testCases
+      submissionType: $submissionType
+    ) {
+      results {
+        id
+        passed
+        stdout
+        stderr
+        time
+        memory
+        testCase {
+          stdin
+          expectedOutput
+          isHidden
+        }
+      }
+      submissionType
+    }
+  }
+`;
+
 const Problem = () => {
   const params = useParams();
   const { loading, error, data } = useQuery(GET_PROBLEM, {
     variables: {
       problemId: params.problemId,
+    },
+  });
+
+  const [submitTests] = useMutation(SUBMIT_TESTS, {
+    onCompleted: ({ submitTests }) => {
+      console.log("res:", submitTests);
     },
   });
 
@@ -74,7 +113,7 @@ const Problem = () => {
           <ProblemInformation />
         </Box>
         <Box className="rightPanel">
-          <CodeEditor />
+          <CodeEditor submitTests={submitTests} />
         </Box>
       </SimpleGrid>
     </ProblemContext.Provider>

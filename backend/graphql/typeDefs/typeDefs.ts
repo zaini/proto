@@ -122,5 +122,9 @@ module.exports = gql`
     getProblems: [Problem!]
     getProblem(problemId: ID!): Problem
     # End of Problem Queries
+
+    # Submission Queries
+    getUserSubmissionsForProblem(problemId: ID!): [Submission!]
+    # End of Submission Queries
   }
 `;

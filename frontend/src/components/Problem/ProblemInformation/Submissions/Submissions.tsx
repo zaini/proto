@@ -1,5 +1,5 @@
-import { Heading } from "@chakra-ui/react";
 import React, { useContext } from "react";
+import { Heading, Text } from "@chakra-ui/react";
 import { Submission } from "../../../../gql-types";
 import { ProblemContext } from "../../../../views/Problem/Problem";
 
@@ -16,13 +16,15 @@ const Submissions = ({
 
   return (
     <>
-      <Heading>Latest Submissions</Heading>
+      <Heading>Latest Submission</Heading>
       {JSON.stringify(latestSubmission)}
       <Heading>Your Submissions</Heading>
       {userSubmissions.map((submission: Submission, i: number) => {
         const results = submission.submissionResults;
         return (
-          <>{submission.createdAt} and then some stats about this submission</>
+          <Text>
+            {submission.createdAt} and then some stats about this submission
+          </Text>
         );
       })}
     </>

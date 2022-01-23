@@ -65,6 +65,30 @@ const SUBMIT_PROBLEM = gql`
   }
 `;
 
+const GET_SUBMISSIONS = gql`
+  query GetUserSubmissionsForProblem($problemId: ID!) {
+    getUserSubmissionsForProblem(problemId: $problemId) {
+      submissionResults {
+        stdout
+        id
+        testCase {
+          id
+          stdin
+          expectedOutput
+          isHidden
+        }
+        passed
+        stderr
+        time
+        memory
+      }
+      userId
+      problemId
+      createdAt
+    }
+  }
+`;
+
 const Problem = () => {
   const params = useParams();
   const [latestSubmission, setLatestSubmission] = useState<Submission | null>(
@@ -73,6 +97,21 @@ const Problem = () => {
   const [userSubmissions, setUserSubmissions] = useState<Submission[]>([]);
 
   const { loading, error, data } = useQuery(GET_PROBLEM, {
+    variables: {
+      problemId: params.problemId,
+    },
+  });
+
+  // Use query is automatically called when we had a new submissions since the state changes
+  // Could add caching to this
+  const {
+    loading: submissionsLoading,
+    error: submissionsError,
+    data: submissionsData,
+  } = useQuery(GET_SUBMISSIONS, {
+    onCompleted: ({ getUserSubmissionsForProblem }) => {
+      setUserSubmissions(getUserSubmissionsForProblem);
+    },
     variables: {
       problemId: params.problemId,
     },
@@ -90,12 +129,6 @@ const Problem = () => {
       setLatestSubmission(submitProblem);
     },
   });
-
-  useEffect(() => {
-    // TODO implement this
-    console.log("New submission, updating list of user submissions");
-    setUserSubmissions([]);
-  }, [latestSubmission]);
 
   const [tabIndex, setTabIndex] = useState(0);
 

@@ -4,8 +4,21 @@ import { ProblemContext } from "../../../views/Problem/Problem";
 import { Tabs, Tab, TabList, TabPanels, TabPanel } from "@chakra-ui/react";
 import ProblemDescription from "./ProblemDescription/ProblemDescription";
 import Submissions from "./Submissions/Submissions";
+import { Submission } from "../../../gql-types";
 
-const ProblemInformation = ({ tabIndex, setTabIndex }: any) => {
+type ProblemInformationProps = {
+  tabIndex: number;
+  setTabIndex: any;
+  userSubmissions: Submission[];
+  latestSubmission: Submission | null;
+};
+
+const ProblemInformation = ({
+  tabIndex,
+  setTabIndex,
+  userSubmissions,
+  latestSubmission,
+}: ProblemInformationProps) => {
   const problem = useContext(ProblemContext);
 
   return (
@@ -28,7 +41,10 @@ const ProblemInformation = ({ tabIndex, setTabIndex }: any) => {
             <ProblemDescription />
           </TabPanel>
           <TabPanel>
-            <Submissions />
+            <Submissions
+              userSubmissions={userSubmissions}
+              latestSubmission={latestSubmission}
+            />
           </TabPanel>
           <TabPanel>TODO maybe make a leaderboard?</TabPanel>
         </TabPanels>

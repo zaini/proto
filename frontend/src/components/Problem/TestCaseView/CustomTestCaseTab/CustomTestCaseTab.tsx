@@ -28,14 +28,12 @@ const SUBMIT_TESTS = gql`
     $code: String
     $language: Int
     $testCases: [TestCaseInput!]
-    $submissionType: SubmissionType
   ) {
     submitTests(
       problemId: $problemId
       code: $code
       language: $language
       testCases: $testCases
-      submissionType: $submissionType
     ) {
       results {
         id
@@ -50,7 +48,6 @@ const SUBMIT_TESTS = gql`
           isHidden
         }
       }
-      submissionType
     }
   }
 `;

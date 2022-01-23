@@ -39,7 +39,8 @@ async function main() {
       specification: {
         title: "Addition",
         description: "Add two numbers together and return the result",
-        initialCode: `
+        initialCode: `#!/bin/python3
+
 def add(a, b):
   return a + b
 

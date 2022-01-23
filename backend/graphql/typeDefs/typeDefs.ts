@@ -6,11 +6,6 @@ module.exports = gql`
   #   TEACHER
   #   ADMIN
   # }
-  enum SubmissionType {
-    CUSTOM
-    PROBLEM
-    ALL
-  }
   type TestCase {
     id: ID!
     stdin: String!
@@ -34,7 +29,6 @@ module.exports = gql`
   }
   type TestSubmissionResult {
     results: [TestCaseResult]
-    submissionType: SubmissionType
   }
   type Specification {
     title: String!
@@ -78,6 +72,12 @@ module.exports = gql`
     dislikes: Int!
     specification: Specification!
   }
+  type Submission {
+    userId: ID!
+    problemId: ID!
+    submissionResults: [TestCaseResult]
+    createdAt: String
+  }
 
   type Mutation {
     # User Mutations
@@ -99,8 +99,8 @@ module.exports = gql`
       code: String
       language: Int
       testCases: [TestCaseInput!]
-      submissionType: SubmissionType
     ): TestSubmissionResult!
+    submitProblem(problemId: ID!, code: String, language: Int): Submission!
     # End of Problem Mutations
   }
 

@@ -25,6 +25,7 @@ model User {
   classrooms        Classroom[] // Classrooms the User has created
   problems          Problem[] // Problems the User has created
   UsersOnClassrooms UsersOnClassrooms[] // Rename this. Classrooms the User is a LEARNER in
+  Submission        Submission[]
 }
 
 model Classroom {
@@ -64,6 +65,17 @@ model Problem {
   dislikes              Int                     @default(0)
   specification         Json
   ProblemsOnAssignments ProblemsOnAssignments[]
+  Submission            Submission[]
+}
+
+model Submission {
+  id                Int      @id @default(autoincrement())
+  user              User     @relation(fields: [userId], references: [id])
+  userId            Int
+  problem           Problem  @relation(fields: [problemId], references: [id])
+  submissionResults Json
+  problemId         Int
+  createdAt         DateTime @default(now())
 }
 
 model ProblemsOnAssignments {

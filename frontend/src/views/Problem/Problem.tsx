@@ -1,11 +1,11 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { Box, SimpleGrid } from "@chakra-ui/layout";
 import { useParams } from "react-router-dom";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { CodeEditor } from "../../components/Problem/CodeEditor/CodeEditor";
 import ProblemInformation from "../../components/Problem/ProblemInformation/ProblemInformation";
 import { Spinner, Center } from "@chakra-ui/react";
-import { Problem as ProblemType, User } from "../../gql-types";
+import { Problem as ProblemType, Submission, User } from "../../gql-types";
 
 const ProblemContext = createContext<ProblemType>({
   creator: {} as User,
@@ -44,22 +44,10 @@ const GET_PROBLEM = gql`
   }
 `;
 
-const SUBMIT_TESTS = gql`
-  mutation submitTests(
-    $problemId: ID!
-    $code: String
-    $language: Int
-    $testCases: [TestCaseInput!]
-    $submissionType: SubmissionType
-  ) {
-    submitTests(
-      problemId: $problemId
-      code: $code
-      language: $language
-      testCases: $testCases
-      submissionType: $submissionType
-    ) {
-      results {
+const SUBMIT_PROBLEM = gql`
+  mutation submitProblem($problemId: ID!, $code: String, $language: Int) {
+    submitProblem(problemId: $problemId, code: $code, language: $language) {
+      submissionResults {
         id
         passed
         stdout
@@ -72,27 +60,42 @@ const SUBMIT_TESTS = gql`
           isHidden
         }
       }
-      submissionType
+      createdAt
     }
   }
 `;
 
 const Problem = () => {
   const params = useParams();
+  const [latestSubmission, setLatestSubmission] = useState<Submission | null>(
+    null
+  );
+  const [userSubmissions, setUserSubmissions] = useState<Submission[]>([]);
+
   const { loading, error, data } = useQuery(GET_PROBLEM, {
     variables: {
       problemId: params.problemId,
     },
   });
 
-  const [submitTests, { loading: submissionLoading }] = useMutation(
-    SUBMIT_TESTS,
+  const [
+    submitProblem,
     {
-      onCompleted: ({ submitTests }) => {
-        console.log("res:", submitTests);
-      },
-    }
-  );
+      loading: submissionLoading,
+      error: submissionError,
+      data: submissionData,
+    },
+  ] = useMutation(SUBMIT_PROBLEM, {
+    onCompleted: ({ submitProblem }) => {
+      setLatestSubmission(submitProblem);
+    },
+  });
+
+  useEffect(() => {
+    // TODO implement this
+    console.log("New submission, updating list of user submissions");
+    setUserSubmissions([]);
+  }, [latestSubmission]);
 
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -115,11 +118,16 @@ const Problem = () => {
     <ProblemContext.Provider value={data.getProblem}>
       <SimpleGrid columns={2}>
         <Box className="leftPanel" p="4px">
-          <ProblemInformation tabIndex={tabIndex} setTabIndex={setTabIndex} />
+          <ProblemInformation
+            tabIndex={tabIndex}
+            setTabIndex={setTabIndex}
+            latestSubmission={latestSubmission}
+            userSubmissions={userSubmissions}
+          />
         </Box>
         <Box className="rightPanel">
           <CodeEditor
-            submitTests={submitTests}
+            submitProblem={submitProblem}
             openSubmissionsTab={() => setTabIndex(1)}
             loading={submissionLoading}
           />

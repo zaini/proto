@@ -16,7 +16,7 @@ const EditorContext = createContext({
   code: "",
 });
 
-const CodeEditor = ({ submitTests, loading, openSubmissionsTab }: any) => {
+const CodeEditor = ({ submitProblem, loading, openSubmissionsTab }: any) => {
   const problem = useContext(ProblemContext);
 
   const [code, setCode] = useState(problem.specification.initialCode);
@@ -59,22 +59,11 @@ const CodeEditor = ({ submitTests, loading, openSubmissionsTab }: any) => {
         isLoading={loading}
         float="right"
         onClick={() => {
-          submitTests({
+          submitProblem({
             variables: {
               problemId: problem.id as String,
               language: selectedLanguage,
               code: code,
-              // I have to do this mapping before for some reason the mutation does not work because testCases have properly "__typename"
-              testCases: problem.specification.testCases!.map(
-                (e: TestCaseInput) => {
-                  return {
-                    id: e.id,
-                    expectedOutput: e.expectedOutput,
-                    isHidden: e.isHidden,
-                    stdin: e.stdin,
-                  };
-                }
-              ),
             },
           });
           openSubmissionsTab();

@@ -16,6 +16,7 @@ const ProblemContext = createContext<ProblemType>({
     title: "",
     description: "",
     initialCode: "",
+    testCases: [],
   },
 });
 
@@ -32,6 +33,12 @@ const GET_PROBLEM = gql`
         title
         description
         initialCode
+        testCases {
+          id
+          stdin
+          expectedOutput
+          isHidden
+        }
       }
     }
   }
@@ -57,6 +64,7 @@ const Problem = () => {
         />
       </Center>
     );
+  // TODO have an actual error page and log this
   if (error) return <>Error! ${error.message}</>;
 
   return (

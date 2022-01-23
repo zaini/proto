@@ -40,6 +40,7 @@ module.exports = gql`
     title: String!
     description: String!
     initialCode: String!
+    testCases: [TestCase!]
   }
   type AuthResponse {
     accessToken: String

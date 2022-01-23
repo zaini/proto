@@ -141,7 +141,7 @@ const CustomTestCaseTab = () => {
                 <h2>
                   <AccordionButton>
                     <Box flex="1" textAlign="left">
-                      Custom Test #{e.id}
+                      Custom Test #{i + 1}
                     </Box>
                     <AccordionIcon />
                   </AccordionButton>

@@ -62,16 +62,7 @@ const CodeEditor = () => {
 
   const [submitTests, { data, loading, error }] = useMutation(SUBMIT_TESTS, {
     onCompleted: ({ submitTests }) => {
-      switch (submitTests.submissionType) {
-        case "CUSTOM":
-          // setCustomTestResults(submitTests.results);
-          break;
-        case "PROBLEM":
-          // setProblemTestResults(submitTests.results);
-          break;
-        default:
-          break;
-      }
+      console.log(submitTests);
     },
   });
 
@@ -100,27 +91,9 @@ const CodeEditor = () => {
       />
       <TestCaseView tabIndex={tabIndex} setTabIndex={setTabIndex} />
       <EditorSettings />
-      <ButtonGroup my={2}>
-        <Button
-          colorScheme={"teal"}
-          isLoading={loading}
-          onClick={() => {
-            submitTests({
-              variables: {
-                problemId: problem.id as String,
-                language: selectedLanguage,
-                code: code,
-                testCases: [],
-                submissionType: "PROBLEM", // ideally I would use the Enum here but getting import errors
-              },
-            });
-            setTabIndex(0);
-          }}
-        >
-          Run All Tests
-        </Button>
-        <Button colorScheme={"green"}>Submit</Button>
-      </ButtonGroup>
+      <Button colorScheme={"green"} my={2} mr={8} float="right">
+        Submit
+      </Button>
     </EditorContext.Provider>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -6,31 +6,110 @@ import {
   AccordionPanel,
   AccordionIcon,
   Box,
-  Tabs,
-  Tab,
-  TabList,
-  TabPanels,
-  TabPanel,
   Code,
+  ButtonGroup,
+  Button,
+  InputGroup,
+  InputLeftAddon,
+  Input,
+  Stack,
+  Text,
+  Textarea,
+  Center,
 } from "@chakra-ui/react";
-import { TestCaseInput, TestCaseResult } from "../../../../gql-types";
+import { TestCase, TestCaseInput, TestCaseResult } from "../../../../gql-types";
+import { ProblemContext } from "../../../../views/Problem/Problem";
+import { gql, useMutation } from "@apollo/client";
+import { EditorContext } from "../../CodeEditor/CodeEditor";
+
+const SUBMIT_TESTS = gql`
+  mutation submitTests(
+    $problemId: ID!
+    $code: String
+    $language: Int
+    $testCases: [TestCaseInput!]
+    $submissionType: SubmissionType
+  ) {
+    submitTests(
+      problemId: $problemId
+      code: $code
+      language: $language
+      testCases: $testCases
+      submissionType: $submissionType
+    ) {
+      results {
+        id
+        passed
+        stdout
+        stderr
+        time
+        memory
+        testCase {
+          stdin
+          expectedOutput
+          isHidden
+        }
+      }
+      submissionType
+    }
+  }
+`;
 
 const ProblemTestCaseTab = () => {
-  const [problemTestCases, setProblemTestCases] = useState<TestCaseInput[]>([
-    { id: "1", stdin: "10 22", expectedOutput: "32\n", isHidden: false },
-    { id: "2", stdin: "10 20", expectedOutput: "30\n", isHidden: false },
-    { id: "3", stdin: "70 20", expectedOutput: "90\n", isHidden: true },
-  ]);
-  const [problemTestResults, setProblemTestResults] = useState<
-    TestCaseResult[]
-  >([]);
+  const problem = useContext(ProblemContext);
+  const { selectedLanguage, code } = useContext(EditorContext);
 
-  const testData: TestCaseResult[] = [];
+  const [testCaseData, setTestCaseData] = useState<TestCaseResult[]>([]);
+
+  useEffect(() => {
+    const testCases: TestCase[] = problem.specification.testCases!;
+    setTestCaseData(
+      testCases.map((e: TestCase) => {
+        return {
+          id: e.id,
+          testCase: {
+            id: e.id,
+            expectedOutput: e.expectedOutput,
+            isHidden: e.isHidden,
+            stdin: e.stdin,
+          },
+          passed: false,
+        };
+      })
+    );
+  }, []);
+
+  const [submitTests, { data, loading, error }] = useMutation(SUBMIT_TESTS, {
+    onCompleted: ({ submitTests }) => {
+      let results: TestCaseResult[] = submitTests.results;
+      setTestCaseData(results);
+    },
+  });
 
   return (
     <>
+      You must pass all these test cases before submitting.
+      <br />
+      Hidden testcases mean you cannot see the input or expected output.
+      <br />
+      <Button
+        colorScheme={"teal"}
+        isLoading={loading}
+        onClick={() => {
+          submitTests({
+            variables: {
+              problemId: problem.id as String,
+              language: selectedLanguage,
+              code: code,
+              testCases: testCaseData.map((e) => e.testCase),
+            },
+          });
+        }}
+      >
+        Run All Tests
+      </Button>
       <Accordion allowMultiple>
-        {testData
+        {testCaseData
           .sort((a, b) => parseInt(a.id) - parseInt(b.id))
           .map((e: TestCaseResult, i: number) => {
             return (
@@ -38,25 +117,16 @@ const ProblemTestCaseTab = () => {
                 <h2>
                   <AccordionButton>
                     <Box flex="1" textAlign="left">
-                      Test #{e.id}{" "}
-                      <Code>{e.testCase.isHidden && "hidden"}</Code>
+                      Test #{i + 1}
                     </Box>
                     <AccordionIcon />
                   </AccordionButton>
                 </h2>
                 <AccordionPanel pb={4}>
                   <Box>
-                    Input:{" "}
-                    <Code>
-                      {e.testCase.isHidden ? "hidden" : e.testCase.stdin}
-                    </Code>
+                    Input: <Code>{e.testCase.stdin}</Code>
                     <br />
-                    Expected Output:{" "}
-                    <Code>
-                      {e.testCase.isHidden
-                        ? "hidden"
-                        : e.testCase.expectedOutput}
-                    </Code>
+                    Expected Output: <Code>{e.testCase.expectedOutput}</Code>
                     <br />
                     💾 <Code>{e.memory ? e.memory + " bytes" : "N/A"}</Code> |
                     🕓 <Code>{e.time ? e.time + " ms" : "N/A"}</Code>
@@ -66,6 +136,25 @@ const ProblemTestCaseTab = () => {
                     Errors: <Code>{e.stderr || "N/A"}</Code>
                     <br />
                     Passed: {e.passed ? "✔" : "❌"}
+                    {/* TODO run only a specific test rather than all the required tests */}
+                    {/* <Button
+                      float={"right"}
+                      colorScheme={"teal"}
+                      isLoading={loading}
+                      onClick={() => {
+                        submitTests({
+                          variables: {
+                            problemId: problem.id as String,
+                            language: selectedLanguage,
+                            code,
+                            testCases: [e.testCase],
+                          },
+                        });
+                      }}
+                    >
+                      Run
+                    </Button> */}
+                    <br />
                   </Box>
                 </AccordionPanel>
               </AccordionItem>

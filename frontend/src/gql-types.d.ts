@@ -98,6 +98,7 @@ export type Specification = {
   __typename?: 'Specification';
   description: Scalars['String'];
   initialCode: Scalars['String'];
+  testCases?: Maybe<Array<TestCase>>;
   title: Scalars['String'];
 };
 

@@ -30,9 +30,6 @@ const TestCaseView = ({ tabIndex, setTabIndex }: TestCaseViewProps) => {
       </TabList>
       <TabPanels>
         <TabPanel>
-          You must pass all these test cases before submitting.
-          <br />
-          Hidden testcases mean you cannot see the input or expected output.
           <ProblemTestCaseTab />
         </TabPanel>
         <TabPanel>

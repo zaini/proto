@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
-import { Box, IconButton, Select, Stack, Text } from "@chakra-ui/react";
+import { Box, IconButton, Select, Stack } from "@chakra-ui/react";
 import { EditorContext } from "../CodeEditor";
 
 const EditorSettings = () => {

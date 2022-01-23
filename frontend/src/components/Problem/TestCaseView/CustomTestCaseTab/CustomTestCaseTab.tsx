@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -17,7 +17,7 @@ import {
   Textarea,
   Center,
 } from "@chakra-ui/react";
-import { TestCaseInput, TestCaseResult } from "../../../../gql-types";
+import { TestCaseResult } from "../../../../gql-types";
 import { ProblemContext } from "../../../../views/Problem/Problem";
 import { gql, useMutation } from "@apollo/client";
 import { EditorContext } from "../../CodeEditor/CodeEditor";

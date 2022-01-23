@@ -8,7 +8,6 @@ import {
   useColorModeValue,
   useBreakpointValue,
   Collapse,
-  Text,
   Link,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";

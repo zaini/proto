@@ -7,17 +7,9 @@ import {
   AccordionIcon,
   Box,
   Code,
-  ButtonGroup,
   Button,
-  InputGroup,
-  InputLeftAddon,
-  Input,
-  Stack,
-  Text,
-  Textarea,
-  Center,
 } from "@chakra-ui/react";
-import { TestCase, TestCaseInput, TestCaseResult } from "../../../../gql-types";
+import { TestCase, TestCaseResult } from "../../../../gql-types";
 import { ProblemContext } from "../../../../views/Problem/Problem";
 import { gql, useMutation } from "@apollo/client";
 import { EditorContext } from "../../CodeEditor/CodeEditor";

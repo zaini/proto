@@ -8,7 +8,6 @@ import {
   MenuItem,
   MenuDivider,
   Center,
-  Link,
 } from "@chakra-ui/react";
 import { AuthContext } from "../../../context/Auth";
 

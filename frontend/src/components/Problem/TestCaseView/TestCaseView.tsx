@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Tabs,
-  Tab,
-  TabList,
-  TabPanels,
-  TabPanel,
-  Code,
-} from "@chakra-ui/react";
-import { TestCaseInput, TestCaseResult } from "../../../gql-types";
+import { Tabs, Tab, TabList, TabPanels, TabPanel } from "@chakra-ui/react";
 import ProblemTestCaseTab from "./ProblemTestCaseTab/ProblemTestCaseTab";
 import CustomTestCaseTab from "./CustomTestCaseTab/CustomTestCaseTab";
 

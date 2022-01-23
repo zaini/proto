@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
-import { javascript } from "@codemirror/lang-javascript";
-import { Box, Button, ButtonGroup } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import TestCaseView from "../TestCaseView/TestCaseView";
 import { gql, useMutation } from "@apollo/client";
 import EditorSettings from "./EditorSettings/EditorSettings";

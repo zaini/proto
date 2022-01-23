@@ -1,4 +1,4 @@
-import React, { createContext } from "react";
+import React, { createContext, useState } from "react";
 import { Box, SimpleGrid } from "@chakra-ui/layout";
 import { useParams } from "react-router-dom";
 import { gql, useMutation, useQuery } from "@apollo/client";
@@ -85,11 +85,16 @@ const Problem = () => {
     },
   });
 
-  const [submitTests] = useMutation(SUBMIT_TESTS, {
-    onCompleted: ({ submitTests }) => {
-      console.log("res:", submitTests);
-    },
-  });
+  const [submitTests, { loading: submissionLoading }] = useMutation(
+    SUBMIT_TESTS,
+    {
+      onCompleted: ({ submitTests }) => {
+        console.log("res:", submitTests);
+      },
+    }
+  );
+
+  const [tabIndex, setTabIndex] = useState(0);
 
   if (loading)
     return (
@@ -110,10 +115,14 @@ const Problem = () => {
     <ProblemContext.Provider value={data.getProblem}>
       <SimpleGrid columns={2}>
         <Box className="leftPanel" p="4px">
-          <ProblemInformation />
+          <ProblemInformation tabIndex={tabIndex} setTabIndex={setTabIndex} />
         </Box>
         <Box className="rightPanel">
-          <CodeEditor submitTests={submitTests} />
+          <CodeEditor
+            submitTests={submitTests}
+            openSubmissionsTab={() => setTabIndex(1)}
+            loading={submissionLoading}
+          />
         </Box>
       </SimpleGrid>
     </ProblemContext.Provider>

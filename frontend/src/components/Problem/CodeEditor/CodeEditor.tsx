@@ -16,7 +16,7 @@ const EditorContext = createContext({
   code: "",
 });
 
-const CodeEditor = ({ submitTests }: any) => {
+const CodeEditor = ({ submitTests, loading, openSubmissionsTab }: any) => {
   const problem = useContext(ProblemContext);
 
   const [code, setCode] = useState(problem.specification.initialCode);
@@ -56,6 +56,7 @@ const CodeEditor = ({ submitTests }: any) => {
         colorScheme={"green"}
         my={2}
         mr={8}
+        isLoading={loading}
         float="right"
         onClick={() => {
           submitTests({
@@ -76,6 +77,7 @@ const CodeEditor = ({ submitTests }: any) => {
               ),
             },
           });
+          openSubmissionsTab();
         }}
       >
         Submit

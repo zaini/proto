@@ -5,10 +5,8 @@ import { Tabs, Tab, TabList, TabPanels, TabPanel } from "@chakra-ui/react";
 import ProblemDescription from "./ProblemDescription/ProblemDescription";
 import Submissions from "./Submissions/Submissions";
 
-const ProblemInformation = () => {
+const ProblemInformation = ({ tabIndex, setTabIndex }: any) => {
   const problem = useContext(ProblemContext);
-
-  const [tabIndex, setTabIndex] = useState(0);
 
   return (
     <>

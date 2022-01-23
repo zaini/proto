@@ -1,13 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { Box, IconButton, Select, Stack, Text } from "@chakra-ui/react";
+import { EditorContext } from "../CodeEditor";
 
-const EditorSettings = ({
-  selectedLanguage,
-  setSelectedLanguage,
-  editorTheme,
-  setEditorTheme,
-}: any) => {
+const EditorSettings = () => {
+  const { editorTheme, selectedLanguage, setSelectedLanguage, setEditorTheme } =
+    useContext(EditorContext);
   return (
     <Box my={2}>
       {/* <Text>Editor Settings</Text> */}

@@ -2,7 +2,7 @@ import React, { createContext } from "react";
 import { Box, SimpleGrid } from "@chakra-ui/layout";
 import { useParams } from "react-router-dom";
 import { gql, useQuery } from "@apollo/client";
-import CodeEditor from "../../components/Problem/CodeEditor/CodeEditor";
+import { CodeEditor } from "../../components/Problem/CodeEditor/CodeEditor";
 import ProblemInformation from "../../components/Problem/ProblemInformation/ProblemInformation";
 import { Spinner, Center } from "@chakra-ui/react";
 import { Problem as ProblemType, User } from "../../gql-types";

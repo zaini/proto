@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -19,34 +19,121 @@ import {
 } from "@chakra-ui/react";
 import { TestCaseInput, TestCaseResult } from "../../../../gql-types";
 import { ProblemContext } from "../../../../views/Problem/Problem";
+import { gql, useMutation } from "@apollo/client";
+import { EditorContext } from "../../CodeEditor/CodeEditor";
+
+const SUBMIT_TESTS = gql`
+  mutation submitTests(
+    $problemId: ID!
+    $code: String
+    $language: Int
+    $testCases: [TestCaseInput!]
+    $submissionType: SubmissionType
+  ) {
+    submitTests(
+      problemId: $problemId
+      code: $code
+      language: $language
+      testCases: $testCases
+      submissionType: $submissionType
+    ) {
+      results {
+        id
+        passed
+        stdout
+        stderr
+        time
+        memory
+        testCase {
+          stdin
+          expectedOutput
+          isHidden
+        }
+      }
+      submissionType
+    }
+  }
+`;
 
 const CustomTestCaseTab = () => {
   const problem = useContext(ProblemContext);
+  const { selectedLanguage, code } = useContext(EditorContext);
 
   const [customInput, setCustomInput] = useState("");
   const [customOutput, setCustomOutput] = useState("");
 
-  const [customTestCases, setCustomTestCases] = useState<TestCaseInput[]>([]);
-  const [customTestResults, setCustomTestResults] = useState<TestCaseResult[]>(
-    []
-  );
+  const [testCaseData, setTestCaseData] = useState<TestCaseResult[]>([]);
 
   const addToCustomTestCases = () => {
-    console.log("addToCustomTestCases", customInput, customOutput);
-    // setCustomTestCases()
+    if (testCaseData.length >= 10) {
+      window.alert(
+        "You can only have up to 10 custom tests. You must remove a test before adding another."
+      );
+      return;
+    }
+    let cases = testCaseData;
+    cases.push({
+      id: `${cases.length + 1}`,
+      testCase: {
+        id: `${cases.length + 1}`,
+        expectedOutput: customOutput,
+        isHidden: false,
+        stdin: customInput,
+      },
+      passed: false,
+    });
+    setTestCaseData([...cases]);
+    setCustomInput("");
+    setCustomOutput("");
   };
 
-  const removeFromCustomTestCases = () => {
-    console.log("removeFromCustomTestCases", customInput, customOutput);
-    // setCustomTestCases()
+  const removeFromCustomTestCases = (i: number) => {
+    let cases = testCaseData;
+    cases.splice(i, 1);
+    cases.forEach((e, i) => (e.id = `${i + 1}`));
+    setTestCaseData([...cases]);
   };
 
-  const testData: TestCaseResult[] = [];
+  const [submitTests, { data, loading, error }] = useMutation(SUBMIT_TESTS, {
+    onCompleted: ({ submitTests }) => {
+      let results: TestCaseResult[] = submitTests.results;
+      let merged: TestCaseResult[] = [];
+      // TODO major bug: testCaseData for some reason isn't the actual state at this point. It's just the first value that is part of the state or empty
+      testCaseData.forEach((testCase: TestCaseResult, i: number) => {
+        const result = results.find((e) => e.id === testCase.id);
+        if (result === undefined) {
+          merged.push(testCase);
+        } else {
+          merged.push(result);
+        }
+      });
+      // setTestCaseData(merged);
+      setTestCaseData(results);
+    },
+  });
 
   return (
     <>
+      You can create and run up to 10 of your own test cases here.
+      <br />
+      <Button
+        colorScheme={"teal"}
+        isLoading={loading}
+        onClick={() => {
+          submitTests({
+            variables: {
+              problemId: problem.id as String,
+              language: selectedLanguage,
+              code: code,
+              testCases: testCaseData.map((e) => e.testCase),
+            },
+          });
+        }}
+      >
+        Run Custom Tests
+      </Button>
       <Accordion allowMultiple>
-        {testData
+        {testCaseData
           .sort((a, b) => parseInt(a.id) - parseInt(b.id))
           .map((e: TestCaseResult, i: number) => {
             return (
@@ -74,10 +161,26 @@ const CustomTestCaseTab = () => {
                     <br />
                     Passed: {e.passed ? "✔" : "❌"}
                     <ButtonGroup float={"right"}>
-                      <Button colorScheme={"teal"}>Run</Button>
                       <Button
+                        colorScheme={"teal"}
+                        isLoading={loading}
+                        onClick={() => {
+                          submitTests({
+                            variables: {
+                              problemId: problem.id as String,
+                              language: selectedLanguage,
+                              code,
+                              testCases: [e.testCase],
+                            },
+                          });
+                        }}
+                      >
+                        Run
+                      </Button>
+                      <Button
+                        isLoading={loading}
                         colorScheme={"red"}
-                        onClick={removeFromCustomTestCases}
+                        onClick={() => removeFromCustomTestCases(i)}
                       >
                         Remove
                       </Button>
@@ -115,8 +218,9 @@ const CustomTestCaseTab = () => {
           </InputGroup>
           <Center>
             <Button
-              disabled={testData.length >= 10}
-              onClick={addToCustomTestCases}
+              isLoading={loading}
+              disabled={testCaseData.length >= 10}
+              onClick={() => addToCustomTestCases()}
             >
               Add Test
             </Button>

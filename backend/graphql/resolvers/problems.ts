@@ -76,7 +76,7 @@ module.exports = {
           const result: TestCaseResult = {
             id: testCase.id,
             testCase,
-            passed: x.data.stdout === testCase.expectedOutput,
+            passed: x.data.stdout === testCase.expectedOutput + "\n",
             stdout: x.data.stdout,
             stderr: x.data.stderr,
             time: x.data.time,

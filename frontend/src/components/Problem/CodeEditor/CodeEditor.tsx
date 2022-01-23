@@ -1,13 +1,20 @@
-import React, { useContext, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { Box, Button, ButtonGroup } from "@chakra-ui/react";
 import TestCaseView from "../TestCaseView/TestCaseView";
 import { gql, useMutation } from "@apollo/client";
-import { Problem, TestCaseInput, TestCaseResult } from "../../../gql-types";
 import EditorSettings from "./EditorSettings/EditorSettings";
 import { ProblemContext } from "../../../views/Problem/Problem";
+
+const EditorContext = createContext({
+  selectedLanguage: -1,
+  setSelectedLanguage: (x: any) => {},
+  editorTheme: "",
+  setEditorTheme: (x: any) => {},
+  code: "",
+});
 
 const SUBMIT_TESTS = gql`
   mutation submitTests(
@@ -69,7 +76,19 @@ const CodeEditor = () => {
   });
 
   return (
-    <Box>
+    <EditorContext.Provider
+      value={{
+        selectedLanguage,
+        setSelectedLanguage: (x: any) => {
+          setSelectedLanguage(x);
+        },
+        editorTheme,
+        setEditorTheme: (x: any) => {
+          setSelectedLanguage(x);
+        },
+        code,
+      }}
+    >
       <CodeMirror
         value={code}
         height="600px"
@@ -80,12 +99,7 @@ const CodeEditor = () => {
         }}
       />
       <TestCaseView tabIndex={tabIndex} setTabIndex={setTabIndex} />
-      <EditorSettings
-        selectedLanguage={selectedLanguage}
-        setSelectedLanguage={setSelectedLanguage}
-        editorTheme={editorTheme}
-        setEditorTheme={setEditorTheme}
-      />
+      <EditorSettings />
       <ButtonGroup my={2}>
         <Button
           colorScheme={"teal"}
@@ -105,28 +119,10 @@ const CodeEditor = () => {
         >
           Run All Tests
         </Button>
-        <Button
-          colorScheme={"teal"}
-          isLoading={loading}
-          onClick={() => {
-            submitTests({
-              variables: {
-                problemId: problem.id as String,
-                language: selectedLanguage,
-                code: code,
-                testCases: [],
-                submissionType: "CUSTOM", // ideally I would use the Enum here but getting import errors
-              },
-            });
-            setTabIndex(1);
-          }}
-        >
-          Run Custom Tests
-        </Button>
         <Button colorScheme={"green"}>Submit</Button>
       </ButtonGroup>
-    </Box>
+    </EditorContext.Provider>
   );
 };
 
-export default CodeEditor;
+export { CodeEditor, EditorContext };

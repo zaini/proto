@@ -36,7 +36,7 @@ const CodeEditor = ({ submitTests }: any) => {
         },
         editorTheme,
         setEditorTheme: (x: any) => {
-          setSelectedLanguage(x);
+          setEditorTheme(x);
         },
         code,
       }}

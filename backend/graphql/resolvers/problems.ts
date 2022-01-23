@@ -87,8 +87,8 @@ module.exports = {
             passed: x.data.stdout === testCase.expectedOutput + "\n",
             stdout: x.data.stdout,
             stderr: x.data.stderr,
-            time: x.data.time,
-            memory: x.data.memory,
+            time: x.data.time * 1000,
+            memory: x.data.memory / 1024,
           };
 
           res.push(result);
@@ -164,8 +164,8 @@ module.exports = {
             passed: x.data.stdout === testCase.expectedOutput + "\n",
             stdout: x.data.stdout,
             stderr: x.data.stderr,
-            time: x.data.time,
-            memory: x.data.memory,
+            time: x.data.time * 1000,
+            memory: x.data.memory / 1024,
           };
 
           res.push(result);

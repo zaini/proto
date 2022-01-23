@@ -22,10 +22,12 @@ const Submissions = ({
       <Heading>Latest Submission</Heading>
       {latestSubmission
         ? JSON.stringify({
-            time: latestSubmission.createdAt,
+            time: new Date(
+              parseInt(latestSubmission.createdAt)
+            ).toLocaleString(),
             passed: `${latestSubmission.passed}`,
-            avgTime: latestSubmission.avgTime,
-            avgMemory: latestSubmission.avgMemory,
+            avgTime: latestSubmission.avgTime.toFixed(2) + " ms",
+            avgMemory: latestSubmission.avgMemory.toFixed(2) + " MB",
             language: latestSubmission.language,
           })
         : "You haven't made a submissions yet."}
@@ -33,10 +35,10 @@ const Submissions = ({
       <CustomTable
         data={userSubmissions.map((submission: Submission, i: number) => {
           return {
-            time: submission.createdAt,
+            time: new Date(parseInt(submission.createdAt)).toLocaleString(),
             passed: `${submission.passed}`,
-            avgTime: submission.avgTime,
-            avgMemory: submission.avgMemory,
+            avgTime: submission.avgTime.toFixed(2) + " ms",
+            avgMemory: submission.avgMemory.toFixed(2) + " MB",
             language: submission.language,
           };
         })}

@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import { Box, SimpleGrid } from "@chakra-ui/layout";
 import { useParams } from "react-router-dom";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { CodeEditor } from "../../components/Problem/CodeEditor/CodeEditor";
 import ProblemInformation from "../../components/Problem/ProblemInformation/ProblemInformation";
 import { Spinner, Center } from "@chakra-ui/react";
@@ -85,12 +85,14 @@ const Problem = () => {
 
   // Use query is automatically called when we had a new submissions since the state changes
   // Could add caching to this
-  console.log("getting submissions");
-  const {
-    loading: submissionsLoading,
-    error: submissionsError,
-    data: submissionsData,
-  } = useQuery(GET_SUBMISSIONS, {
+  const [
+    getUserSubmissions,
+    {
+      loading: submissionsLoading,
+      error: submissionsError,
+      data: submissionsData,
+    },
+  ] = useLazyQuery(GET_SUBMISSIONS, {
     onCompleted: ({ getUserSubmissionsForProblem }) => {
       console.log("finished getting submissions again");
       setUserSubmissions(getUserSubmissionsForProblem);
@@ -112,6 +114,10 @@ const Problem = () => {
       setLatestSubmission(submitProblem);
     },
   });
+
+  useEffect(() => {
+    getUserSubmissions();
+  }, [latestSubmission]);
 
   const [tabIndex, setTabIndex] = useState(0);
 

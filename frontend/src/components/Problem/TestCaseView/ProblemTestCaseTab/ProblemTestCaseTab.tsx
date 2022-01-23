@@ -117,8 +117,12 @@ const ProblemTestCaseTab = () => {
                     <br />
                     Expected Output: <Code>{e.testCase.expectedOutput}</Code>
                     <br />
-                    💾 <Code>{e.memory ? e.memory + " bytes" : "N/A"}</Code> |
-                    🕓 <Code>{e.time ? e.time + " ms" : "N/A"}</Code>
+                    💾{" "}
+                    <Code>
+                      {e.memory ? e.memory.toFixed(2) + " MB" : "N/A"}
+                    </Code>{" "}
+                    | 🕓{" "}
+                    <Code>{e.time ? e.time.toFixed(2) + " ms" : "N/A"}</Code>
                     <br />
                     Your Output: <Code>{e.stdout || "N/A"}</Code>
                     <br />

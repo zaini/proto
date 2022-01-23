@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Container,
-  Heading,
-  Button,
-  Text,
-  HStack,
-} from "@chakra-ui/react";
+import { Box, Heading, HStack } from "@chakra-ui/react";
 import ContentBox from "../../ContentBox/ContentBox";
 
 const ProblemCatalogues = () => {

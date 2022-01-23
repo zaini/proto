@@ -39,7 +39,8 @@ async function main() {
       specification: {
         title: "Addition",
         description: "Add two numbers together and return the result",
-        initialCode: `
+        initialCode: `#!/bin/python3
+
 def add(a, b):
   return a + b
 
@@ -49,6 +50,17 @@ if __name__ == "__main__":
   a, b = int(a), int(b)
   print(add(a, b))
 `,
+        testCases: [
+          { id: "1", stdin: "10 22", expectedOutput: "32", isHidden: false },
+          { id: "2", stdin: "10 20", expectedOutput: "30", isHidden: false },
+          { id: "3", stdin: "70 20", expectedOutput: "90", isHidden: true },
+          {
+            id: "4",
+            stdin: "242323 22342340",
+            expectedOutput: "22584663",
+            isHidden: true,
+          },
+        ],
       },
       likes: 27,
       dislikes: 3,
@@ -61,6 +73,9 @@ if __name__ == "__main__":
         title: "Two Sum",
         description: "Add two numbers together and return the result",
         initialCode: "def add(a, b):\n  return a + b",
+        testCases: [
+          { id: "1", stdin: "10 22", expectedOutput: "32", isHidden: false },
+        ],
       },
     },
   });
@@ -71,6 +86,9 @@ if __name__ == "__main__":
         title: "Three Sum",
         description: "Add two numbers together and return the result",
         initialCode: "def add(a, b):\n  return a + b",
+        testCases: [
+          { id: "1", stdin: "10 22", expectedOutput: "32", isHidden: false },
+        ],
       },
     },
   });

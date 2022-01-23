@@ -6,20 +6,17 @@ module.exports = gql`
   #   TEACHER
   #   ADMIN
   # }
-  enum SubmissionType {
-    CUSTOM
-    PROBLEM
-    ALL
-  }
   type TestCase {
     id: ID!
     stdin: String!
     expectedOutput: String!
+    isHidden: Boolean!
   }
   input TestCaseInput {
     id: ID!
     stdin: String!
     expectedOutput: String!
+    isHidden: Boolean!
   }
   type TestCaseResult {
     id: ID!
@@ -32,12 +29,12 @@ module.exports = gql`
   }
   type TestSubmissionResult {
     results: [TestCaseResult]
-    submissionType: SubmissionType
   }
   type Specification {
-    title: String
-    description: String
-    initialCode: String
+    title: String!
+    description: String!
+    initialCode: String!
+    testCases: [TestCase!]
   }
   type AuthResponse {
     accessToken: String
@@ -71,9 +68,20 @@ module.exports = gql`
   type Problem {
     id: ID!
     creator: User!
-    likes: Int
-    dislikes: Int
-    specification: Specification
+    likes: Int!
+    dislikes: Int!
+    specification: Specification!
+  }
+  type Submission {
+    id: ID!
+    userId: ID!
+    problemId: ID!
+    submissionResults: [TestCaseResult!]
+    createdAt: String!
+    passed: Boolean!
+    avgMemory: Float!
+    avgTime: Float!
+    language: Int!
   }
 
   type Mutation {
@@ -96,8 +104,8 @@ module.exports = gql`
       code: String
       language: Int
       testCases: [TestCaseInput!]
-      submissionType: SubmissionType
-    ): TestSubmissionResult
+    ): TestSubmissionResult!
+    submitProblem(problemId: ID!, code: String, language: Int): Submission!
     # End of Problem Mutations
   }
 
@@ -119,5 +127,9 @@ module.exports = gql`
     getProblems: [Problem!]
     getProblem(problemId: ID!): Problem
     # End of Problem Queries
+
+    # Submission Queries
+    getUserSubmissionsForProblem(problemId: ID!): [Submission!]
+    # End of Submission Queries
   }
 `;

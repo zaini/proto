@@ -41,7 +41,8 @@ export type Mutation = {
   createAssignment?: Maybe<Assignment>;
   createClassroom?: Maybe<Classroom>;
   createProblem?: Maybe<Problem>;
-  submitTests?: Maybe<TestSubmissionResult>;
+  submitProblem: Submission;
+  submitTests: TestSubmissionResult;
 };
 
 
@@ -62,21 +63,27 @@ export type MutationCreateProblemArgs = {
 };
 
 
+export type MutationSubmitProblemArgs = {
+  code?: InputMaybe<Scalars['String']>;
+  language?: InputMaybe<Scalars['Int']>;
+  problemId: Scalars['ID'];
+};
+
+
 export type MutationSubmitTestsArgs = {
   code?: InputMaybe<Scalars['String']>;
   language?: InputMaybe<Scalars['Int']>;
   problemId: Scalars['ID'];
-  submissionType?: InputMaybe<SubmissionType>;
   testCases?: InputMaybe<Array<TestCaseInput>>;
 };
 
 export type Problem = {
   __typename?: 'Problem';
   creator: User;
-  dislikes?: Maybe<Scalars['Int']>;
+  dislikes: Scalars['Int'];
   id: Scalars['ID'];
-  likes?: Maybe<Scalars['Int']>;
-  specification?: Maybe<Specification>;
+  likes: Scalars['Int'];
+  specification: Specification;
 };
 
 export type Query = {
@@ -85,6 +92,7 @@ export type Query = {
   getClassrooms?: Maybe<Array<Classroom>>;
   getProblem?: Maybe<Problem>;
   getProblems?: Maybe<Array<Problem>>;
+  getUserSubmissionsForProblem?: Maybe<Array<Submission>>;
   getUsers?: Maybe<Array<User>>;
   isLoggedIn: Scalars['String'];
 };
@@ -94,29 +102,44 @@ export type QueryGetProblemArgs = {
   problemId: Scalars['ID'];
 };
 
-export type Specification = {
-  __typename?: 'Specification';
-  description?: Maybe<Scalars['String']>;
-  initialCode?: Maybe<Scalars['String']>;
-  title?: Maybe<Scalars['String']>;
+
+export type QueryGetUserSubmissionsForProblemArgs = {
+  problemId: Scalars['ID'];
 };
 
-export enum SubmissionType {
-  All = 'ALL',
-  Custom = 'CUSTOM',
-  Problem = 'PROBLEM'
-}
+export type Specification = {
+  __typename?: 'Specification';
+  description: Scalars['String'];
+  initialCode: Scalars['String'];
+  testCases?: Maybe<Array<TestCase>>;
+  title: Scalars['String'];
+};
+
+export type Submission = {
+  __typename?: 'Submission';
+  avgMemory: Scalars['Float'];
+  avgTime: Scalars['Float'];
+  createdAt: Scalars['String'];
+  id: Scalars['ID'];
+  language: Scalars['Int'];
+  passed: Scalars['Boolean'];
+  problemId: Scalars['ID'];
+  submissionResults?: Maybe<Array<TestCaseResult>>;
+  userId: Scalars['ID'];
+};
 
 export type TestCase = {
   __typename?: 'TestCase';
   expectedOutput: Scalars['String'];
   id: Scalars['ID'];
+  isHidden: Scalars['Boolean'];
   stdin: Scalars['String'];
 };
 
 export type TestCaseInput = {
   expectedOutput: Scalars['String'];
   id: Scalars['ID'];
+  isHidden: Scalars['Boolean'];
   stdin: Scalars['String'];
 };
 
@@ -134,7 +157,6 @@ export type TestCaseResult = {
 export type TestSubmissionResult = {
   __typename?: 'TestSubmissionResult';
   results?: Maybe<Array<Maybe<TestCaseResult>>>;
-  submissionType?: Maybe<SubmissionType>;
 };
 
 export type User = {

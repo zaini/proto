@@ -47,20 +47,12 @@ const GET_PROBLEM = gql`
 const SUBMIT_PROBLEM = gql`
   mutation submitProblem($problemId: ID!, $code: String, $language: Int) {
     submitProblem(problemId: $problemId, code: $code, language: $language) {
-      submissionResults {
-        id
-        passed
-        stdout
-        stderr
-        time
-        memory
-        testCase {
-          stdin
-          expectedOutput
-          isHidden
-        }
-      }
+      id
       createdAt
+      passed
+      avgTime
+      avgMemory
+      language
     }
   }
 `;
@@ -68,23 +60,12 @@ const SUBMIT_PROBLEM = gql`
 const GET_SUBMISSIONS = gql`
   query GetUserSubmissionsForProblem($problemId: ID!) {
     getUserSubmissionsForProblem(problemId: $problemId) {
-      submissionResults {
-        stdout
-        id
-        testCase {
-          id
-          stdin
-          expectedOutput
-          isHidden
-        }
-        passed
-        stderr
-        time
-        memory
-      }
-      userId
-      problemId
+      id
       createdAt
+      passed
+      avgTime
+      avgMemory
+      language
     }
   }
 `;
@@ -104,12 +85,14 @@ const Problem = () => {
 
   // Use query is automatically called when we had a new submissions since the state changes
   // Could add caching to this
+  console.log("getting submissions");
   const {
     loading: submissionsLoading,
     error: submissionsError,
     data: submissionsData,
   } = useQuery(GET_SUBMISSIONS, {
     onCompleted: ({ getUserSubmissionsForProblem }) => {
+      console.log("finished getting submissions again");
       setUserSubmissions(getUserSubmissionsForProblem);
     },
     variables: {

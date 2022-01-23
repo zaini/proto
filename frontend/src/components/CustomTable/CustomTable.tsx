@@ -9,9 +9,9 @@ type CustomTableProps = {
 };
 
 const CustomTable = ({ data, columns }: CustomTableProps) => {
-  const tableData: any = useMemo(() => data, []);
+  const tableData: any = useMemo(() => data, [data]);
 
-  const tableColumns: any = useMemo(() => columns, []);
+  const tableColumns: any = useMemo(() => columns, [columns]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns: tableColumns, data: tableData }, useSortBy);

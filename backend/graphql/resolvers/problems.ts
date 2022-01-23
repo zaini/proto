@@ -3,11 +3,13 @@ import axios from "axios";
 import {
   MutationSubmitTestsArgs,
   Specification,
+  Submission,
   TestCaseResult,
 } from "../../gql-types";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { isAuth } from "../../utils/isAuth";
+import { getSubmissionStatistics } from "../../utils/problem";
 
 const JUDGE_API_URL = process.env.JUDGE_API_URL as string;
 const TEST_TIMELIMIT = 60 * 1000;
@@ -178,14 +180,17 @@ module.exports = {
           problemId: parseInt(problemId),
           submissionResults: res,
           createdAt: new Date(),
+          language: parseInt(language),
         },
       });
 
+      const submissionWithStats = getSubmissionStatistics(submission);
+
       logger.info("Submission results: ", {
-        meta: [JSON.stringify(submission)],
+        meta: [JSON.stringify(submissionWithStats)],
       });
 
-      return submission;
+      return submissionWithStats;
     },
   },
 };

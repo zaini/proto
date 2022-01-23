@@ -73,10 +73,15 @@ module.exports = gql`
     specification: Specification!
   }
   type Submission {
+    id: ID!
     userId: ID!
     problemId: ID!
-    submissionResults: [TestCaseResult]
-    createdAt: String
+    submissionResults: [TestCaseResult!]
+    createdAt: String!
+    passed: Boolean!
+    avgMemory: Float!
+    avgTime: Float!
+    language: Int!
   }
 
   type Mutation {

@@ -76,6 +76,7 @@ model Submission {
   submissionResults Json
   problemId         Int
   createdAt         DateTime @default(now())
+  language          Int
 }
 
 model ProblemsOnAssignments {

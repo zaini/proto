@@ -92,12 +92,18 @@ export type Query = {
   getClassrooms?: Maybe<Array<Classroom>>;
   getProblem?: Maybe<Problem>;
   getProblems?: Maybe<Array<Problem>>;
+  getUserSubmissionsForProblem?: Maybe<Array<Submission>>;
   getUsers?: Maybe<Array<User>>;
   isLoggedIn: Scalars['String'];
 };
 
 
 export type QueryGetProblemArgs = {
+  problemId: Scalars['ID'];
+};
+
+
+export type QueryGetUserSubmissionsForProblemArgs = {
   problemId: Scalars['ID'];
 };
 
@@ -111,9 +117,14 @@ export type Specification = {
 
 export type Submission = {
   __typename?: 'Submission';
-  createdAt?: Maybe<Scalars['String']>;
+  avgMemory: Scalars['Float'];
+  avgTime: Scalars['Float'];
+  createdAt: Scalars['String'];
+  id: Scalars['ID'];
+  language: Scalars['Int'];
+  passed: Scalars['Boolean'];
   problemId: Scalars['ID'];
-  submissionResults?: Maybe<Array<Maybe<TestCaseResult>>>;
+  submissionResults?: Maybe<Array<TestCaseResult>>;
   userId: Scalars['ID'];
 };
 

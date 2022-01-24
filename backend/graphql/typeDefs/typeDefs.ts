@@ -52,6 +52,7 @@ module.exports = gql`
   }
   type Classroom {
     id: ID!
+    name: String!
     creator: User!
     createdAt: String!
     users: [User!]!
@@ -90,7 +91,7 @@ module.exports = gql`
     # End of User Mutations
 
     # Classroom Mutations
-    createClassroom(creatorId: ID!): Classroom
+    createClassroom(classroomName: String!): Classroom
     # End of Classroom Mutations
 
     # Assignment Mutations

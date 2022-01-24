@@ -49,6 +49,7 @@ const GET_CLASSROOM = gql`
 
 const Classroom = () => {
   const { classroomId } = useParams();
+
   const [tabIndex, setTabIndex] = useState(0);
 
   const { loading, error, data } = useQuery(GET_CLASSROOM, {

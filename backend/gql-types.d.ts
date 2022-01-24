@@ -20,7 +20,7 @@ export type Assignment = {
   id: Scalars['ID'];
   problems?: Maybe<Array<Problem>>;
   setDate: Scalars['String'];
-  submissions?: Maybe<Array<Submission>>;
+  submissions: Array<Submission>;
 };
 
 export type AuthResponse = {
@@ -34,6 +34,7 @@ export type Classroom = {
   createdAt: Scalars['String'];
   creator: User;
   id: Scalars['ID'];
+  name: Scalars['String'];
   users: Array<User>;
 };
 
@@ -54,7 +55,7 @@ export type MutationCreateAssignmentArgs = {
 
 
 export type MutationCreateClassroomArgs = {
-  creatorId: Scalars['ID'];
+  classroomName: Scalars['String'];
 };
 
 

@@ -15,11 +15,15 @@ import {
   InputGroup,
   InputLeftAddon,
   Input,
+  Spinner,
+  Center,
+  Text,
 } from "@chakra-ui/react";
 import CustomTable from "../../../components/CustomTable/CustomTable";
 import { Link } from "react-router-dom";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import gql from "graphql-tag";
+import { Classroom } from "../../../gql-types";
 
 const CREATE_CLASSROOM = gql`
   mutation createClassroom($classroomName: String!) {
@@ -30,23 +34,55 @@ const CREATE_CLASSROOM = gql`
   }
 `;
 
+const GET_CLASSROOMS = gql`
+  query getClassrooms {
+    getClassrooms {
+      id
+      name
+      createdAt
+      users {
+        id
+      }
+    }
+  }
+`;
+
 const Classrooms = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [classroomName, setClassroomName] = useState("");
-  const [createClassroom, { loading, error, data }] = useMutation(
-    CREATE_CLASSROOM,
-    {
-      onCompleted: ({ createClassroom }) => {
-        console.log("created new classroom", createClassroom);
-        // redirect to the page for this classroom
-      },
-      onError(err) {
-        window.alert(
-          "Failed to create classroom. \n\nYou must not own another classroom with the same name."
-        );
-      },
-    }
-  );
+
+  const { loading, error, data } = useQuery(GET_CLASSROOMS);
+
+  const [createClassroom] = useMutation(CREATE_CLASSROOM, {
+    onCompleted: ({ createClassroom }) => {
+      window.location.href = `/dashboard/classrooms/${createClassroom.id}`;
+    },
+    onError(err) {
+      const message =
+        (err.graphQLErrors &&
+          err.graphQLErrors[0] &&
+          err.graphQLErrors[0].message) ||
+        err.message;
+      window.alert(`Failed to create classroom. \n\n${message}`);
+    },
+  });
+
+  if (loading)
+    return (
+      <Center h="1000px">
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="blue.500"
+          size="xl"
+        />
+      </Center>
+    );
+  // TODO have an actual error page and log this
+  if (error) return <>Error! ${error.message}</>;
+
+  const classrooms: Classroom[] = data.getClassrooms;
 
   return (
     <Box mx={4}>
@@ -91,56 +127,50 @@ const Classrooms = () => {
       </Modal>
 
       <Box mt={4}>
-        <CustomTable
-          columns={[
-            {
-              Header: "Classroom Name",
-              accessor: "classroomName",
-            },
-            {
-              Header: "# of Students",
-              accessor: "numberOfStudents",
-            },
-            {
-              Header: "Created",
-              accessor: "createdAt",
-            },
-            {
-              Header: "Options",
-              accessor: "options",
-            },
-          ]}
-          data={[
-            {
-              classroomName: "FC2",
-              numberOfStudents: 30,
-              createdAt: new Date().toLocaleString(),
-              options: (
-                <ButtonGroup>
-                  <Link to={`/dashboard/classrooms/${1}`}>
-                    <Button colorScheme={"blue"}>View</Button>
-                  </Link>
-                  <Button colorScheme={"blue"}>Set Assignment</Button>
-                  <Button colorScheme={"blue"}>Copy Invite Link</Button>
-                </ButtonGroup>
-              ),
-            },
-            {
-              classroomName: "PPA",
-              numberOfStudents: 24,
-              createdAt: new Date().toLocaleString(),
-              options: (
-                <ButtonGroup>
-                  <Link to={`/dashboard/classrooms/${2}`}>
-                    <Button colorScheme={"blue"}>View</Button>
-                  </Link>
-                  <Button colorScheme={"blue"}>Set Assignment</Button>
-                  <Button colorScheme={"blue"}>Copy Invite Link</Button>
-                </ButtonGroup>
-              ),
-            },
-          ]}
-        />
+        {classrooms.length > 0 ? (
+          <CustomTable
+            columns={[
+              {
+                Header: "Classroom Name",
+                accessor: "classroomName",
+              },
+              {
+                Header: "# of Students",
+                accessor: "numberOfStudents",
+              },
+              {
+                Header: "Created",
+                accessor: "createdAt",
+              },
+              {
+                Header: "Options",
+                accessor: "options",
+              },
+            ]}
+            data={classrooms.map((classroom: Classroom) => {
+              return {
+                classroomName: classroom.name,
+                numberOfStudents: classroom.users.length,
+                createdAt: new Date(
+                  parseInt(classroom.createdAt)
+                ).toLocaleString(),
+                options: (
+                  <ButtonGroup>
+                    <Link to={`/dashboard/classrooms/${classroom.id}`}>
+                      <Button colorScheme={"blue"}>View</Button>
+                    </Link>
+                    <Button colorScheme={"blue"}>Set Assignment</Button>
+                    <Button colorScheme={"blue"}>Copy Invite Link</Button>
+                  </ButtonGroup>
+                ),
+              };
+            })}
+          />
+        ) : (
+          <Center mb={8}>
+            <Text>You do not have any classrooms!</Text>
+          </Center>
+        )}
       </Box>
     </Box>
   );

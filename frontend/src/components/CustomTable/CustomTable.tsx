@@ -4,8 +4,8 @@ import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import { useTable, useSortBy } from "react-table";
 
 type CustomTableProps = {
-  data: any[];
-  columns: any[];
+  data: {}[];
+  columns: { Header: string; accessor: string }[];
 };
 
 const CustomTable = ({ data, columns }: CustomTableProps) => {

@@ -5,22 +5,26 @@ import { isAuth } from "../../utils/isAuth";
 
 module.exports = {
   Query: {
-    getClassrooms: async () => {
+    getClassrooms: async (_: any, __: any, context: any) => {
       logger.info("GraphQL classrooms/getClassrooms");
+      const user = isAuth(context);
+
       let classrooms = await prisma.classroom.findMany({
+        where: {
+          userId: user.id,
+        },
         include: {
-          assignments: true,
           creator: true,
           UsersOnClassrooms: { include: { user: true } },
         },
       });
 
-      const parsedClassrooms = classrooms.map((classroom) => {
-        const usersInClassroom = classroom.UsersOnClassrooms.map((x) => x.user);
-        return { ...classroom, users: usersInClassroom };
+      return classrooms.map((classroom) => {
+        return {
+          ...classroom,
+          users: classroom.UsersOnClassrooms,
+        };
       });
-
-      return parsedClassrooms;
     },
     getClassroom: async (_: any, { classroomId }: any, context: any) => {
       logger.info("GraphQL classrooms/getClassroom");
@@ -58,9 +62,11 @@ module.exports = {
   },
   Mutation: {
     createClassroom: async (_: any, { classroomName }: any, context: any) => {
-      const user = isAuth(context);
+      if (classroomName === "") {
+        throw new ApolloError("Classroom name cannot be empty.");
+      }
 
-      // Add validation
+      const user = isAuth(context);
 
       const existingClassroom = await prisma.classroom.findFirst({
         where: {
@@ -71,7 +77,7 @@ module.exports = {
 
       if (existingClassroom) {
         throw new ApolloError(
-          "Cannot create classroom as this user already has a classroom with the same name."
+          "Cannot create classroom as you already have a classroom with the same name."
         );
       }
 

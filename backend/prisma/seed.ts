@@ -15,7 +15,10 @@ async function main() {
   logger.debug(JSON.stringify(allUsers));
 
   await prisma.classroom.createMany({
-    data: [{ userId: 1 }, { userId: 2 }],
+    data: [
+      { userId: 1, name: "Classroom A" },
+      { userId: 2, name: "Classroom B" },
+    ],
   });
   const allClassrooms = await prisma.classroom.findMany();
   logger.info("Successfully seeded classrooms");

@@ -52,15 +52,16 @@ module.exports = gql`
   }
   type Classroom {
     id: ID!
-    creator: User
+    creator: User!
     createdAt: String!
-    users: [User]!
-    assignments: [Assignment]!
+    users: [User!]!
+    assignments: [Assignment!]!
   }
   type Assignment {
     id: ID!
     classroom: Classroom!
     problems: [Problem!]
+    submissions: [Submission!]!
     createdAt: String!
     setDate: String!
     dueDate: String!
@@ -117,6 +118,7 @@ module.exports = gql`
 
     # Classroom Queries
     getClassrooms: [Classroom!]
+    getClassroom(classroomId: ID!): Classroom
     # End of Classroom Queries
 
     # Assignment Queries

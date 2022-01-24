@@ -20,6 +20,7 @@ export type Assignment = {
   id: Scalars['ID'];
   problems?: Maybe<Array<Problem>>;
   setDate: Scalars['String'];
+  submissions?: Maybe<Array<Submission>>;
 };
 
 export type AuthResponse = {
@@ -29,11 +30,11 @@ export type AuthResponse = {
 
 export type Classroom = {
   __typename?: 'Classroom';
-  assignments: Array<Maybe<Assignment>>;
+  assignments: Array<Assignment>;
   createdAt: Scalars['String'];
-  creator?: Maybe<User>;
+  creator: User;
   id: Scalars['ID'];
-  users: Array<Maybe<User>>;
+  users: Array<User>;
 };
 
 export type Mutation = {
@@ -89,12 +90,18 @@ export type Problem = {
 export type Query = {
   __typename?: 'Query';
   getAssignments?: Maybe<Array<Assignment>>;
+  getClassroom?: Maybe<Classroom>;
   getClassrooms?: Maybe<Array<Classroom>>;
   getProblem?: Maybe<Problem>;
   getProblems?: Maybe<Array<Problem>>;
   getUserSubmissionsForProblem?: Maybe<Array<Submission>>;
   getUsers?: Maybe<Array<User>>;
   isLoggedIn: Scalars['String'];
+};
+
+
+export type QueryGetClassroomArgs = {
+  classroomId: Scalars['ID'];
 };
 
 

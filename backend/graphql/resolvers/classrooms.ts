@@ -1,5 +1,7 @@
+import { ApolloError } from "apollo-server";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
+import { isAuth } from "../../utils/isAuth";
 
 module.exports = {
   Query: {
@@ -55,6 +57,32 @@ module.exports = {
     },
   },
   Mutation: {
-    createClassroom: (_: any, data: any, context: any) => {},
+    createClassroom: async (_: any, { classroomName }: any, context: any) => {
+      const user = isAuth(context);
+
+      // Add validation
+
+      const existingClassroom = await prisma.classroom.findFirst({
+        where: {
+          name: classroomName,
+          userId: user.id,
+        },
+      });
+
+      if (existingClassroom) {
+        throw new ApolloError(
+          "Cannot create classroom as this user already has a classroom with the same name."
+        );
+      }
+
+      const classroom = await prisma.classroom.create({
+        data: {
+          userId: user.id,
+          name: classroomName,
+        },
+      });
+
+      return classroom;
+    },
   },
 };

@@ -27,6 +27,7 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery } from "@apollo/client";
 import gql from "graphql-tag";
 import { Classroom } from "../../../gql-types";
+import CopyLink from "../../../components/CopyLink/CopyLink";
 
 const CREATE_CLASSROOM = gql`
   mutation createClassroom($classroomName: String!, $password: String) {
@@ -186,7 +187,7 @@ const Classrooms = () => {
             ]}
             data={classrooms.map((classroom: Classroom) => {
               return {
-                classroomName: classroom.name,
+                classroomName: `#${classroom.id} ${classroom.name}`,
                 numberOfStudents: classroom.users
                   ? 0
                   : classroom!.users!.length,
@@ -201,7 +202,14 @@ const Classrooms = () => {
                       <Button colorScheme={"blue"}>View</Button>
                     </Link>
                     <Button colorScheme={"blue"}>Set Assignment</Button>
-                    <Button colorScheme={"blue"}>Copy Invite Link</Button>
+                    <CopyLink
+                      link={
+                        window.location.origin +
+                        `/dashboard/classrooms/join/${classroom.id}`
+                      }
+                      text={"Copy Invite Link"}
+                      colorScheme="blue"
+                    />
                   </ButtonGroup>
                 ),
               };

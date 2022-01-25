@@ -6,22 +6,17 @@ import {
   Center,
   Heading,
   Spinner,
-  Stack,
-  Text,
 } from "@chakra-ui/react";
 import { Link, useParams } from "react-router-dom";
 import { Tabs, Tab, TabList, TabPanels, TabPanel } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import {
-  Assignment,
-  Classroom as ClassroomType,
-  User,
-} from "../../../../gql-types";
-import CustomTable from "../../../../components/CustomTable/CustomTable";
+import { Classroom as ClassroomType } from "../../../../gql-types";
 import CopyLink from "../../../../components/CopyLink/CopyLink";
+import ClassroomStudentsPanel from "./ClassroomStudentsPanel/ClassroomStudentsPanel";
+import ClassroomAssignmentsPanel from "./ClassroomAssignmentsPanel/ClassroomAssignmentsPanel";
 
-const ClassroomContext = createContext<ClassroomType | any>({});
+const ClassroomContext = createContext<ClassroomType | any>({ classroom: {} });
 
 const GET_CLASSROOM = gql`
   query getClassroom($classroomId: ID!) {
@@ -81,7 +76,7 @@ const Classroom = () => {
   const classroomData: ClassroomType = data.getClassroom;
 
   return (
-    <ClassroomContext.Provider value={classroomData}>
+    <ClassroomContext.Provider value={{ classroom: classroomData }}>
       <Box mx={4}>
         <Link to={`/dashboard/classrooms`}>
           <Button my={4}>&lt;- All Classrooms</Button>
@@ -126,111 +121,10 @@ const Classroom = () => {
           </TabList>
           <TabPanels>
             <TabPanel>
-              {classroomData.users && classroomData.users.length > 0 ? (
-                <CustomTable
-                  columns={[
-                    {
-                      Header: "Username",
-                      accessor: "username",
-                    },
-                    {
-                      Header: "Options",
-                      accessor: "options",
-                    },
-                  ]}
-                  data={classroomData.users.map((student: User, i: number) => {
-                    return {
-                      username: student.username,
-                      options: (
-                        <ButtonGroup>
-                          <Link to={`/dashboard/classrooms/${1}`}>
-                            <Button colorScheme={"blue"}>View</Button>
-                          </Link>
-                          <Button colorScheme={"blue"}>View Submissions</Button>
-                          <Button colorScheme={"red"}>Remove</Button>
-                        </ButtonGroup>
-                      ),
-                    };
-                  })}
-                />
-              ) : (
-                <Center mb={8}>
-                  <Stack spacing={4}>
-                    <Text>This classroom does not have any students!</Text>
-                    <CopyLink
-                      link={
-                        window.location.origin +
-                        `/dashboard/classrooms/join/${classroomId}`
-                      }
-                      text={"Copy Invite Link"}
-                    />
-                  </Stack>
-                </Center>
-              )}
+              <ClassroomStudentsPanel />
             </TabPanel>
             <TabPanel>
-              {classroomData.assignments &&
-              classroomData.assignments.length > 0 ? (
-                <CustomTable
-                  columns={[
-                    {
-                      Header: "Assignment ID",
-                      accessor: "assignmentId",
-                    },
-                    {
-                      Header: "Set Date",
-                      accessor: "setDate",
-                    },
-                    {
-                      Header: "Due Date",
-                      accessor: "dueDate",
-                    },
-                    {
-                      Header: "Submissions",
-                      accessor: "numberOfSubmissions",
-                    },
-
-                    {
-                      Header: "Options",
-                      accessor: "options",
-                    },
-                  ]}
-                  data={classroomData.assignments.map(
-                    (assignment: Assignment, i: number) => {
-                      return {
-                        assignmentId: assignment.id,
-                        setDate: new Date(
-                          parseInt(assignment.setDate)
-                        ).toLocaleString(),
-                        dueDate: new Date(
-                          parseInt(assignment.dueDate)
-                        ).toLocaleString(),
-                        numberOfSubmissions: assignment.submissions
-                          ? assignment.submissions.length
-                          : 0,
-                        options: (
-                          <ButtonGroup>
-                            <Link to={`/dashboard/classrooms/${1}`}>
-                              <Button colorScheme={"blue"}>View</Button>
-                            </Link>
-                            <Button colorScheme={"blue"}>
-                              View Submissions
-                            </Button>
-                            <Button colorScheme={"red"}>Remove</Button>
-                          </ButtonGroup>
-                        ),
-                      };
-                    }
-                  )}
-                />
-              ) : (
-                <Center mb={8}>
-                  <Stack spacing={4}>
-                    <Text>This classroom does not have any assignments!</Text>
-                    <Button>Set Assignment</Button>
-                  </Stack>
-                </Center>
-              )}
+              <ClassroomAssignmentsPanel />
             </TabPanel>
           </TabPanels>
         </Tabs>

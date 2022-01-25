@@ -6,6 +6,7 @@ import {
   Center,
   Heading,
   Spinner,
+  Stack,
   Text,
 } from "@chakra-ui/react";
 import { Link, useParams } from "react-router-dom";
@@ -18,6 +19,7 @@ import {
   User,
 } from "../../../../gql-types";
 import CustomTable from "../../../../components/CustomTable/CustomTable";
+import CopyLink from "../../../../components/CopyLink/CopyLink";
 
 const ClassroomContext = createContext<ClassroomType | any>({});
 
@@ -25,6 +27,7 @@ const GET_CLASSROOM = gql`
   query getClassroom($classroomId: ID!) {
     getClassroom(classroomId: $classroomId) {
       id
+      name
       password
       creator {
         username
@@ -84,7 +87,9 @@ const Classroom = () => {
           <Button my={4}>&lt;- All Classrooms</Button>
         </Link>
 
-        <Heading>Classroom {classroomId}</Heading>
+        <Heading>
+          #{classroomId} {classroomData.name}
+        </Heading>
         <Heading size={"sm"}>Created: {new Date().toLocaleString()}</Heading>
         <Heading fontSize={"0.9em"}>
           {classroomData.password === ""
@@ -98,7 +103,13 @@ const Classroom = () => {
         <Center>
           <ButtonGroup>
             <Button>Set Assignment</Button>
-            <Button>Copy Invite Link</Button>
+            <CopyLink
+              link={
+                window.location.origin +
+                `/dashboard/classrooms/join/${classroomId}`
+              }
+              text={"Copy Invite Link"}
+            />
             <Button colorScheme={"red"}>Delete Classroom</Button>
           </ButtonGroup>
         </Center>
@@ -115,7 +126,7 @@ const Classroom = () => {
           </TabList>
           <TabPanels>
             <TabPanel>
-              {classroomData.users ? (
+              {classroomData.users && classroomData.users.length > 0 ? (
                 <CustomTable
                   columns={[
                     {
@@ -144,63 +155,82 @@ const Classroom = () => {
                 />
               ) : (
                 <Center mb={8}>
-                  <Text>This classroom does not have any students!</Text>
-                  <br /> <br />
-                  <Button>Copy Invite Link</Button>
+                  <Stack spacing={4}>
+                    <Text>This classroom does not have any students!</Text>
+                    <CopyLink
+                      link={
+                        window.location.origin +
+                        `/dashboard/classrooms/join/${classroomId}`
+                      }
+                      text={"Copy Invite Link"}
+                    />
+                  </Stack>
                 </Center>
               )}
             </TabPanel>
             <TabPanel>
-              <CustomTable
-                columns={[
-                  {
-                    Header: "Assignment ID",
-                    accessor: "assignmentId",
-                  },
-                  {
-                    Header: "Set Date",
-                    accessor: "setDate",
-                  },
-                  {
-                    Header: "Due Date",
-                    accessor: "dueDate",
-                  },
-                  {
-                    Header: "Submissions",
-                    accessor: "numberOfSubmissions",
-                  },
+              {classroomData.assignments &&
+              classroomData.assignments.length > 0 ? (
+                <CustomTable
+                  columns={[
+                    {
+                      Header: "Assignment ID",
+                      accessor: "assignmentId",
+                    },
+                    {
+                      Header: "Set Date",
+                      accessor: "setDate",
+                    },
+                    {
+                      Header: "Due Date",
+                      accessor: "dueDate",
+                    },
+                    {
+                      Header: "Submissions",
+                      accessor: "numberOfSubmissions",
+                    },
 
-                  {
-                    Header: "Options",
-                    accessor: "options",
-                  },
-                ]}
-                data={classroomData.assignments.map(
-                  (assignment: Assignment, i: number) => {
-                    return {
-                      assignmentId: assignment.id,
-                      setDate: new Date(
-                        parseInt(assignment.setDate)
-                      ).toLocaleString(),
-                      dueDate: new Date(
-                        parseInt(assignment.dueDate)
-                      ).toLocaleString(),
-                      numberOfSubmissions: assignment.submissions
-                        ? assignment.submissions.length
-                        : 0,
-                      options: (
-                        <ButtonGroup>
-                          <Link to={`/dashboard/classrooms/${1}`}>
-                            <Button colorScheme={"blue"}>View</Button>
-                          </Link>
-                          <Button colorScheme={"blue"}>View Submissions</Button>
-                          <Button colorScheme={"red"}>Remove</Button>
-                        </ButtonGroup>
-                      ),
-                    };
-                  }
-                )}
-              />
+                    {
+                      Header: "Options",
+                      accessor: "options",
+                    },
+                  ]}
+                  data={classroomData.assignments.map(
+                    (assignment: Assignment, i: number) => {
+                      return {
+                        assignmentId: assignment.id,
+                        setDate: new Date(
+                          parseInt(assignment.setDate)
+                        ).toLocaleString(),
+                        dueDate: new Date(
+                          parseInt(assignment.dueDate)
+                        ).toLocaleString(),
+                        numberOfSubmissions: assignment.submissions
+                          ? assignment.submissions.length
+                          : 0,
+                        options: (
+                          <ButtonGroup>
+                            <Link to={`/dashboard/classrooms/${1}`}>
+                              <Button colorScheme={"blue"}>View</Button>
+                            </Link>
+                            <Button colorScheme={"blue"}>
+                              View Submissions
+                            </Button>
+                            <Button colorScheme={"red"}>Remove</Button>
+                          </ButtonGroup>
+                        ),
+                      };
+                    }
+                  )}
+                />
+              ) : (
+                <Center mb={8}>
+                  <Stack spacing={4}>
+                    <Text>This classroom does not have any assignments!</Text>
+                    <Button>Set Assignment</Button>
+                  </Stack>
+                </Center>
+              )}
             </TabPanel>
           </TabPanels>
         </Tabs>

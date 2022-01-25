@@ -1,26 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
   Button,
   ButtonGroup,
   Heading,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
   useDisclosure,
-  InputGroup,
-  InputLeftAddon,
-  Input,
   Spinner,
   Center,
   Text,
-  InputRightElement,
-  Stack,
-  Code,
 } from "@chakra-ui/react";
 import CustomTable from "../../../components/CustomTable/CustomTable";
 import { Link } from "react-router-dom";
@@ -28,6 +15,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import gql from "graphql-tag";
 import { Classroom } from "../../../gql-types";
 import CopyLink from "../../../components/CopyLink/CopyLink";
+import CreateClassroom from "./CreateClassroom/CreateClassroom";
 
 const CREATE_CLASSROOM = gql`
   mutation createClassroom($classroomName: String!, $password: String) {
@@ -54,9 +42,6 @@ const GET_CLASSROOMS = gql`
 
 const Classrooms = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [classroomName, setClassroomName] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
   const { loading, error, data } = useQuery(GET_CLASSROOMS);
 
@@ -96,69 +81,11 @@ const Classrooms = () => {
       <Heading>Classrooms</Heading>
       <Button onClick={onOpen}>Create Classroom</Button>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Create Classroom</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Stack spacing={4}>
-              <InputGroup>
-                <InputLeftAddon children="Name" />
-                <Input
-                  type="text"
-                  placeholder="FC2 Class A"
-                  onChange={(e) => setClassroomName(e.target.value)}
-                />
-              </InputGroup>
-              <InputGroup>
-                <InputLeftAddon children="Password" />
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="(optional)"
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <InputRightElement width="4.5rem">
-                  <Button
-                    h="1.75rem"
-                    size="sm"
-                    onClick={() => {
-                      setShowPassword(!showPassword);
-                    }}
-                  >
-                    {showPassword ? "Hide" : "Show"}
-                  </Button>
-                </InputRightElement>
-              </InputGroup>
-              <Code fontWeight={"bold"} p={2}>
-                Leave the password blank if you want anyone to be able to join.
-                If you include a password, it will be required for people to
-                join.
-              </Code>
-            </Stack>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button
-              colorScheme="blue"
-              mr={3}
-              onClick={() => {
-                createClassroom({
-                  variables: {
-                    classroomName: classroomName,
-                    password: password,
-                  },
-                });
-              }}
-            >
-              Submit
-            </Button>
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <CreateClassroom
+        isOpen={isOpen}
+        onClose={onClose}
+        createClassroom={createClassroom}
+      />
 
       <Box mt={4}>
         {classrooms.length > 0 ? (

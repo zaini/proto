@@ -168,5 +168,58 @@ module.exports = {
 
       return classroom;
     },
+    deleteClassroom: async (
+      _: any,
+      { classroomId, classroomName, password }: any,
+      context: any
+    ) => {
+      const user = isAuth(context);
+
+      const classroom = await prisma.classroom.findFirst({
+        where: {
+          id: parseInt(classroomId),
+          userId: user.id,
+        },
+      });
+
+      if (!classroom) {
+        throw new ApolloError(
+          "Failed to find classroom you are attempting to delete."
+        );
+      }
+
+      if (classroom.password) {
+        const isValidPasword = await argon2.verify(
+          classroom.password,
+          password
+        );
+
+        if (!isValidPasword) {
+          throw new ApolloError(
+            "Cannot delete classroom due to invalid password."
+          );
+        }
+      }
+
+      if (classroom.name !== classroomName) {
+        throw new ApolloError(
+          "Failed to delete classroom as you are not entering the name you entered is not correct."
+        );
+      }
+
+      await prisma.usersOnClassrooms.deleteMany({
+        where: {
+          classroomId: classroom.id,
+        },
+      });
+
+      await prisma.classroom.delete({
+        where: {
+          id: classroom.id,
+        },
+      });
+
+      return true;
+    },
   },
 };

@@ -94,6 +94,11 @@ module.exports = gql`
     # Classroom Mutations
     createClassroom(classroomName: String!, password: String): Classroom
     joinClassroom(classroomId: ID!, password: String): Classroom
+    deleteClassroom(
+      classroomId: ID!
+      classroomName: String!
+      password: String
+    ): Boolean
     # End of Classroom Mutations
 
     # Assignment Mutations

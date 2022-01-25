@@ -20,12 +20,19 @@ module.exports = {
         },
       });
 
-      return classrooms.map((classroom) => {
+      const res = classrooms.map((classroom) => {
         return {
           ...classroom,
-          users: classroom.UsersOnClassrooms,
+          users: classroom.UsersOnClassrooms.map((user) => {
+            return {
+              ...user,
+              ...user.user,
+            };
+          }),
         };
       });
+
+      return res;
     },
     getClassroom: async (_: any, { classroomId }: any, context: any) => {
       logger.info("GraphQL classrooms/getClassroom");
@@ -45,6 +52,7 @@ module.exports = {
 
       const res = {
         id: classroom?.id,
+        name: classroom?.name,
         password: classroom?.password,
         creator: classroom?.creator,
         createdAt: classroom?.createdAt,
@@ -96,6 +104,65 @@ module.exports = {
           userId: user.id,
           name: classroomName,
           password: password,
+        },
+      });
+
+      return classroom;
+    },
+    joinClassroom: async (
+      _: any,
+      { classroomId, password }: any,
+      context: any
+    ) => {
+      const user = isAuth(context);
+
+      const classroom = await prisma.classroom.findUnique({
+        where: {
+          id: parseInt(classroomId),
+        },
+      });
+
+      if (!classroom) {
+        throw new ApolloError(
+          "Failed to find classroom you are attempting to join."
+        );
+      }
+
+      if (classroom.password) {
+        const isValidPasword = await argon2.verify(
+          classroom.password,
+          password
+        );
+
+        if (!isValidPasword) {
+          throw new ApolloError(
+            "Cannot join classroom due to invalid password."
+          );
+        }
+      }
+
+      // Check if the person trying to join is the classroom owner
+      if (classroom.userId === user.id) {
+        throw new ApolloError(
+          "You cannot join a classroom as you are its creator."
+        );
+      }
+
+      // Check if the user is already a member of this classroom
+      const userInClassroom = await prisma.usersOnClassrooms.findFirst({
+        where: {
+          userId: user.id,
+          classroomId: classroom.id,
+        },
+      });
+      if (userInClassroom) {
+        throw new ApolloError("You are already a member of this classroom.");
+      }
+
+      await prisma.usersOnClassrooms.create({
+        data: {
+          userId: user.id,
+          classroomId: classroom.id,
         },
       });
 

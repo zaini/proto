@@ -6,6 +6,7 @@ import {
   Center,
   Heading,
   Spinner,
+  Text,
 } from "@chakra-ui/react";
 import { Link, useParams } from "react-router-dom";
 import { Tabs, Tab, TabList, TabPanels, TabPanel } from "@chakra-ui/react";
@@ -114,32 +115,40 @@ const Classroom = () => {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <CustomTable
-                columns={[
-                  {
-                    Header: "Username",
-                    accessor: "username",
-                  },
-                  {
-                    Header: "Options",
-                    accessor: "options",
-                  },
-                ]}
-                data={classroomData.users.map((student: User, i: number) => {
-                  return {
-                    username: student.username,
-                    options: (
-                      <ButtonGroup>
-                        <Link to={`/dashboard/classrooms/${1}`}>
-                          <Button colorScheme={"blue"}>View</Button>
-                        </Link>
-                        <Button colorScheme={"blue"}>View Submissions</Button>
-                        <Button colorScheme={"red"}>Remove</Button>
-                      </ButtonGroup>
-                    ),
-                  };
-                })}
-              />
+              {classroomData.users ? (
+                <CustomTable
+                  columns={[
+                    {
+                      Header: "Username",
+                      accessor: "username",
+                    },
+                    {
+                      Header: "Options",
+                      accessor: "options",
+                    },
+                  ]}
+                  data={classroomData.users.map((student: User, i: number) => {
+                    return {
+                      username: student.username,
+                      options: (
+                        <ButtonGroup>
+                          <Link to={`/dashboard/classrooms/${1}`}>
+                            <Button colorScheme={"blue"}>View</Button>
+                          </Link>
+                          <Button colorScheme={"blue"}>View Submissions</Button>
+                          <Button colorScheme={"red"}>Remove</Button>
+                        </ButtonGroup>
+                      ),
+                    };
+                  })}
+                />
+              ) : (
+                <Center mb={8}>
+                  <Text>This classroom does not have any students!</Text>
+                  <br /> <br />
+                  <Button>Copy Invite Link</Button>
+                </Center>
+              )}
             </TabPanel>
             <TabPanel>
               <CustomTable

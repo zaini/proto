@@ -16,8 +16,8 @@ async function main() {
 
   await prisma.classroom.createMany({
     data: [
-      { userId: 1, name: "Classroom A" },
-      { userId: 2, name: "Classroom B" },
+      { userId: 1, name: "Classroom A", password: "" },
+      { userId: 2, name: "Classroom B", password: "" },
     ],
   });
   const allClassrooms = await prisma.classroom.findMany();

@@ -35,6 +35,7 @@ export type Classroom = {
   creator: User;
   id: Scalars['ID'];
   name: Scalars['String'];
+  password?: Maybe<Scalars['String']>;
   users: Array<User>;
 };
 
@@ -56,6 +57,7 @@ export type MutationCreateAssignmentArgs = {
 
 export type MutationCreateClassroomArgs = {
   classroomName: Scalars['String'];
+  password?: InputMaybe<Scalars['String']>;
 };
 
 

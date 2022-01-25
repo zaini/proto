@@ -18,6 +18,9 @@ import {
   Spinner,
   Center,
   Text,
+  InputRightElement,
+  Stack,
+  Code,
 } from "@chakra-ui/react";
 import CustomTable from "../../../components/CustomTable/CustomTable";
 import { Link } from "react-router-dom";
@@ -26,8 +29,8 @@ import gql from "graphql-tag";
 import { Classroom } from "../../../gql-types";
 
 const CREATE_CLASSROOM = gql`
-  mutation createClassroom($classroomName: String!) {
-    createClassroom(classroomName: $classroomName) {
+  mutation createClassroom($classroomName: String!, $password: String) {
+    createClassroom(classroomName: $classroomName, password: $password) {
       id
       name
     }
@@ -39,6 +42,7 @@ const GET_CLASSROOMS = gql`
     getClassrooms {
       id
       name
+      password
       createdAt
       users {
         id
@@ -50,6 +54,8 @@ const GET_CLASSROOMS = gql`
 const Classrooms = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [classroomName, setClassroomName] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const { loading, error, data } = useQuery(GET_CLASSROOMS);
 
@@ -95,14 +101,40 @@ const Classrooms = () => {
           <ModalHeader>Create Classroom</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <InputGroup>
-              <InputLeftAddon children="Classroom Name" />
-              <Input
-                type="text"
-                placeholder="FC2 Class A"
-                onChange={(e) => setClassroomName(e.target.value)}
-              />
-            </InputGroup>
+            <Stack spacing={4}>
+              <InputGroup>
+                <InputLeftAddon children="Name" />
+                <Input
+                  type="text"
+                  placeholder="FC2 Class A"
+                  onChange={(e) => setClassroomName(e.target.value)}
+                />
+              </InputGroup>
+              <InputGroup>
+                <InputLeftAddon children="Password" />
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="(optional)"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <InputRightElement width="4.5rem">
+                  <Button
+                    h="1.75rem"
+                    size="sm"
+                    onClick={() => {
+                      setShowPassword(!showPassword);
+                    }}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+              <Code fontWeight={"bold"} p={2}>
+                Leave the password blank if you want anyone to be able to join.
+                If you include a password, it will be required for people to
+                join.
+              </Code>
+            </Stack>
           </ModalBody>
 
           <ModalFooter>
@@ -113,6 +145,7 @@ const Classrooms = () => {
                 createClassroom({
                   variables: {
                     classroomName: classroomName,
+                    password: password,
                   },
                 });
               }}
@@ -139,6 +172,10 @@ const Classrooms = () => {
                 accessor: "numberOfStudents",
               },
               {
+                Header: "Private/Public",
+                accessor: "publicOrPrivate",
+              },
+              {
                 Header: "Created",
                 accessor: "createdAt",
               },
@@ -151,6 +188,8 @@ const Classrooms = () => {
               return {
                 classroomName: classroom.name,
                 numberOfStudents: classroom.users.length,
+                publicOrPrivate:
+                  classroom.password === "" ? "public" : "private",
                 createdAt: new Date(
                   parseInt(classroom.createdAt)
                 ).toLocaleString(),
@@ -169,6 +208,8 @@ const Classrooms = () => {
         ) : (
           <Center mb={8}>
             <Text>You do not have any classrooms!</Text>
+            <br /> <br />
+            <Button onClick={onOpen}>Create Classroom</Button>
           </Center>
         )}
       </Box>

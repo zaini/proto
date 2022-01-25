@@ -36,6 +36,7 @@ model Classroom {
   UsersOnClassrooms UsersOnClassrooms[] // The Users who are in this Classroom
   assignments       Assignment[] // The Assignments set for this Classroom
   createdAt         DateTime            @default(now())
+  password          String
 }
 
 model UsersOnClassrooms {

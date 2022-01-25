@@ -24,6 +24,7 @@ const GET_CLASSROOM = gql`
   query getClassroom($classroomId: ID!) {
     getClassroom(classroomId: $classroomId) {
       id
+      password
       creator {
         username
       }
@@ -84,6 +85,11 @@ const Classroom = () => {
 
         <Heading>Classroom {classroomId}</Heading>
         <Heading size={"sm"}>Created: {new Date().toLocaleString()}</Heading>
+        <Heading fontSize={"0.9em"}>
+          {classroomData.password === ""
+            ? "public"
+            : "private (password required to join)"}
+        </Heading>
         <Heading size={"sm"}>
           Owner: {`${classroomData.creator!.username}`}
         </Heading>

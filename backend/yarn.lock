@@ -1449,7 +1449,7 @@ arg@^4.1.0:
 
 argon2@^0.28.3:
   version "0.28.3"
-  resolved "https://registry.npmjs.org/argon2/-/argon2-0.28.3.tgz"
+  resolved "https://registry.yarnpkg.com/argon2/-/argon2-0.28.3.tgz#e5234eccf20a643ffc3b1bbd1aa9e81092e0d8e9"
   integrity sha512-NkEJOImg+T7nnkx6/Fy8EbjZsF20hbBBKdVP/YUxujuLTAjIODmrFeY4vVpekKwGAGDm6roXxluFQ+CIaoVrbg==
   dependencies:
     "@mapbox/node-pre-gyp" "^1.0.7"

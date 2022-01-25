@@ -2,6 +2,7 @@ import { ApolloError } from "apollo-server";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { isAuth } from "../../utils/isAuth";
+import * as argon2 from "argon2";
 
 module.exports = {
   Query: {
@@ -44,6 +45,7 @@ module.exports = {
 
       const res = {
         id: classroom?.id,
+        password: classroom?.password,
         creator: classroom?.creator,
         createdAt: classroom?.createdAt,
         users: classroom?.UsersOnClassrooms.map((e) => e.user),
@@ -61,7 +63,11 @@ module.exports = {
     },
   },
   Mutation: {
-    createClassroom: async (_: any, { classroomName }: any, context: any) => {
+    createClassroom: async (
+      _: any,
+      { classroomName, password }: any,
+      context: any
+    ) => {
       if (classroomName === "") {
         throw new ApolloError("Classroom name cannot be empty.");
       }
@@ -81,10 +87,15 @@ module.exports = {
         );
       }
 
+      if (password) {
+        password = await argon2.hash(password);
+      }
+
       const classroom = await prisma.classroom.create({
         data: {
           userId: user.id,
           name: classroomName,
+          password: password,
         },
       });
 

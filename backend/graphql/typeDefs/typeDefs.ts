@@ -57,6 +57,7 @@ module.exports = gql`
     createdAt: String!
     users: [User!]!
     assignments: [Assignment!]!
+    password: String
   }
   type Assignment {
     id: ID!
@@ -91,7 +92,7 @@ module.exports = gql`
     # End of User Mutations
 
     # Classroom Mutations
-    createClassroom(classroomName: String!): Classroom
+    createClassroom(classroomName: String!, password: String): Classroom
     # End of Classroom Mutations
 
     # Assignment Mutations

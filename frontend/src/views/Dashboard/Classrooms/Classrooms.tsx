@@ -187,7 +187,9 @@ const Classrooms = () => {
             data={classrooms.map((classroom: Classroom) => {
               return {
                 classroomName: classroom.name,
-                numberOfStudents: classroom.users.length,
+                numberOfStudents: classroom.users
+                  ? 0
+                  : classroom!.users!.length,
                 publicOrPrivate:
                   classroom.password === "" ? "public" : "private",
                 createdAt: new Date(

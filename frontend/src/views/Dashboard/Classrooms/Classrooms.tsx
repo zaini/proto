@@ -128,7 +128,11 @@ const Classrooms = () => {
                     <Link to={`/dashboard/classrooms/${classroom.id}`}>
                       <Button colorScheme={"blue"}>View</Button>
                     </Link>
-                    <Button colorScheme={"blue"}>Set Assignment</Button>
+                    <Link
+                      to={`/dashboard/classrooms/${classroom.id}/assignments`}
+                    >
+                      <Button colorScheme={"blue"}>Set Assignment</Button>
+                    </Link>
                     <CopyLink
                       link={
                         window.location.origin +

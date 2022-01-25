@@ -32,7 +32,7 @@ const AuthContext = createContext({
 });
 
 const AuthProvider = (props: any) => {
-  const [user, setUser] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [accountType, setAccountTypeState] = useState<AccountType | null>(null);
 
   // Login
@@ -43,7 +43,7 @@ const AuthProvider = (props: any) => {
         const accessToken = res.data;
         if (res.data) {
           localStorage.setItem(TOKEN_STORE_KEY, accessToken);
-          const userData = decode(accessToken) as string;
+          const userData = decode(accessToken);
           setUser(userData);
           setAccountTypeState(initialAccountType);
         }

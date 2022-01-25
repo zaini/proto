@@ -1,9 +1,10 @@
 import { useContext } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Assignments from "../components/Dashboard/Assignments/Assignments";
 import { AuthContext } from "../context/Auth";
 import Login from "../views/Accounts/Login/Login";
 import Logout from "../views/Accounts/Logout/Logout";
+import Assignment from "../views/Dashboard/Classrooms/Classroom/Assignments/Assignment/Assignment";
+import Assignments from "../views/Dashboard/Classrooms/Classroom/Assignments/Assignments";
 import { Classroom } from "../views/Dashboard/Classrooms/Classroom/Classroom";
 import Classrooms from "../views/Dashboard/Classrooms/Classrooms";
 import JoinClassroom from "../views/Dashboard/Classrooms/JoinClassroom/JoinClassroom";
@@ -36,10 +37,15 @@ const IndexRouter = () => {
               path={"/dashboard/classrooms/:classroomId"}
               element={<Classroom />}
             />
-            <Route path={"/dashboard/assignments"} element={<Assignments />} />
             <Route
-              path={"/dashboard/assignments/:assignmentId"}
+              path={"/dashboard/classrooms/:classroomId/assignments"}
               element={<Assignments />}
+            />
+            <Route
+              path={
+                "/dashboard/classrooms/:classroomId/assignments/:assignmentId"
+              }
+              element={<Assignment />}
             />
             <Route path={"/problems/:problemId"} element={<Problem />} />
           </>

@@ -135,7 +135,9 @@ const Classroom = () => {
 
         <Center>
           <ButtonGroup>
-            <Button>Set Assignment</Button>
+            <Link to={`/dashboard/classrooms/${classroomId}/assignments`}>
+              <Button>Set Assignment</Button>
+            </Link>
             <CopyLink
               link={
                 window.location.origin +

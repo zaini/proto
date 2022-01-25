@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Heading, HStack } from "@chakra-ui/react";
 import ContentBox from "../../ContentBox/ContentBox";
 
-const Assignments = () => {
+const AssignmentsPreview = () => {
   return (
     <Box>
       <Heading size="lg" mb={12}>
@@ -20,4 +20,4 @@ const Assignments = () => {
   );
 };
 
-export default Assignments;
+export default AssignmentsPreview;

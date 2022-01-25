@@ -66,7 +66,9 @@ const ClassroomAssignmentsPanel = () => {
         <Center mb={8}>
           <Stack spacing={4}>
             <Text>This classroom does not have any assignments!</Text>
-            <Button>Set Assignment</Button>
+            <Link to={`/dashboard/classrooms/${classroom.id}/assignments`}>
+              <Button>Set Assignment</Button>
+            </Link>
           </Stack>
         </Center>
       )}

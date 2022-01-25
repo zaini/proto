@@ -98,8 +98,8 @@ const LEANER_NAV_ITEMS: Array<NavItem> = [
     href: "/dashboard",
   },
   {
-    label: "View Assignments",
-    href: "/dashboard/assignments",
+    label: "View Classrooms",
+    href: "/dashboard/classrooms",
   },
 ];
 
@@ -107,10 +107,6 @@ const TEACHER_NAV_ITEMS: Array<NavItem> = [
   {
     label: "Dashboard",
     href: "/dashboard",
-  },
-  {
-    label: "Set Assignments",
-    href: "/dashboard/assignments",
   },
   {
     label: "Classrooms",

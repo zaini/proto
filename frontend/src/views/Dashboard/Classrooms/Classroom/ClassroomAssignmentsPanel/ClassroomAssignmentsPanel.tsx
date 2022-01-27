@@ -49,9 +49,13 @@ const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
                 dueDate: new Date(
                   parseInt(assignment.dueDate)
                 ).toLocaleString(),
-                numberOfSubmissions: assignment.submissions
-                  ? assignment.submissions.length
-                  : 0,
+                numberOfSubmissions:
+                  assignment.submissions &&
+                  assignment.submissions !== [] &&
+                  classroom.users &&
+                  classroom.users !== []
+                    ? `${assignment.submissions.length}/${classroom.users.length}`
+                    : "0/0",
                 numberOfProblems: assignment.problems
                   ? assignment.problems.length
                   : 0,
@@ -62,7 +66,11 @@ const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
                     >
                       <Button colorScheme={"blue"}>View</Button>
                     </Link>
-                    <Button colorScheme={"blue"}>View Submissions</Button>
+                    <Link
+                      to={`/dashboard/classrooms/${classroom.id}/assignments/${assignment.id}/submissions`}
+                    >
+                      <Button colorScheme={"blue"}>Submissions</Button>
+                    </Link>
                     <Button colorScheme={"red"}>Remove</Button>
                   </ButtonGroup>
                 ),

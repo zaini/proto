@@ -8,6 +8,7 @@ async function main() {
       { githubId: "11", username: "ali" },
       { githubId: "22", username: "bob" },
       { githubId: "33", username: "cathy" },
+      { githubId: "51179189", username: "zaini" },
     ],
   });
   const allUsers = await prisma.user.findMany();
@@ -18,6 +19,7 @@ async function main() {
     data: [
       { userId: 1, name: "Classroom A", password: "" },
       { userId: 2, name: "Classroom B", password: "" },
+      { userId: 4, name: "Classroom Test", password: "" },
     ],
   });
   const allClassrooms = await prisma.classroom.findMany();
@@ -30,6 +32,7 @@ async function main() {
       { userId: 2, classroomId: 1 },
       { userId: 3, classroomId: 1 },
       { userId: 3, classroomId: 2 },
+      { userId: 3, classroomId: 3 },
     ],
   });
   const allUsersOnClassrooms = await prisma.usersOnClassrooms.findMany();
@@ -104,6 +107,7 @@ if __name__ == "__main__":
       { classroomId: 1, setDate: new Date(), dueDate: new Date() },
       { classroomId: 1, setDate: new Date(), dueDate: new Date() },
       { classroomId: 2, setDate: new Date(), dueDate: new Date() },
+      { classroomId: 3, setDate: new Date(), dueDate: new Date() },
     ],
   });
   const allAssignments = await prisma.assignment.findMany();
@@ -115,6 +119,7 @@ if __name__ == "__main__":
       { problemId: problem1.id, assignmentId: 1 },
       { problemId: problem3.id, assignmentId: 2 },
       { problemId: problem2.id, assignmentId: 3 },
+      { problemId: problem1.id, assignmentId: 4 },
     ],
   });
   const allProblemsOnAssignments =

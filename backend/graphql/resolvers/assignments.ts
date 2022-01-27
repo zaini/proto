@@ -1,5 +1,7 @@
+import { ApolloError } from "apollo-server";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
+import { isAuth } from "../../utils/isAuth";
 
 module.exports = {
   Query: {
@@ -25,6 +27,26 @@ module.exports = {
     },
   },
   Mutation: {
-    createAssignment: (_: any, data: any, context: any) => {},
+    createAssignment: async (
+      _: any,
+      { classroomId, problems }: any,
+      context: any
+    ) => {
+      // check if the current user owns this classroom
+      // find the problems
+      // create the assignments and assign them with these problems and to the relavent classroom
+      // return the new assignment and the classrooms
+
+      const classroom = await prisma.classroom.findUnique({
+        where: {
+          id: classroomId,
+        },
+      });
+
+      return {
+        assignments: [],
+        classroom: classroom,
+      };
+    },
   },
 };

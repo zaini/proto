@@ -1,11 +1,11 @@
 import React, { useContext } from "react";
-import { Assignment, Classroom, User } from "../../../../../gql-types";
+import { Assignment, Classroom } from "../../../../../gql-types";
 import { Button, ButtonGroup, Center, Stack, Text } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import CustomTable from "../../../../../components/CustomTable/CustomTable";
 import { ClassroomContext } from "../Classroom";
 
-const ClassroomAssignmentsPanel = () => {
+const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
   const { classroom: x } = useContext(ClassroomContext);
   const classroom: Classroom = x;
 
@@ -30,7 +30,10 @@ const ClassroomAssignmentsPanel = () => {
               Header: "Submissions",
               accessor: "numberOfSubmissions",
             },
-
+            {
+              Header: "Problems",
+              accessor: "numberOfProblems",
+            },
             {
               Header: "Options",
               accessor: "options",
@@ -49,9 +52,14 @@ const ClassroomAssignmentsPanel = () => {
                 numberOfSubmissions: assignment.submissions
                   ? assignment.submissions.length
                   : 0,
+                numberOfProblems: assignment.problems
+                  ? assignment.problems.length
+                  : 0,
                 options: (
                   <ButtonGroup>
-                    <Link to={`/dashboard/classrooms/${1}`}>
+                    <Link
+                      to={`/dashboard/classrooms/${classroom.id}/assignments/${assignment.id}`}
+                    >
                       <Button colorScheme={"blue"}>View</Button>
                     </Link>
                     <Button colorScheme={"blue"}>View Submissions</Button>
@@ -66,9 +74,7 @@ const ClassroomAssignmentsPanel = () => {
         <Center mb={8}>
           <Stack spacing={4}>
             <Text>This classroom does not have any assignments!</Text>
-            <Link to={`/dashboard/classrooms/${classroom.id}/assignments`}>
-              <Button>Set Assignment</Button>
-            </Link>
+            <Button onClick={onOpen}>Set Assignment</Button>
           </Stack>
         </Center>
       )}

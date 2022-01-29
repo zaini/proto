@@ -204,7 +204,7 @@ module.exports = {
 
       if (classroom.name !== classroomName) {
         throw new ApolloError(
-          "Failed to delete classroom as you are not entering the name you entered is not correct."
+          "Failed to delete classroom as the name you entered is not correct."
         );
       }
 

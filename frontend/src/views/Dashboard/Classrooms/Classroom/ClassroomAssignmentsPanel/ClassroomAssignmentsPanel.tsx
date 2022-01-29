@@ -1,16 +1,36 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Assignment, Classroom } from "../../../../../gql-types";
-import { Button, ButtonGroup, Center, Stack, Text } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  Center,
+  Stack,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import CustomTable from "../../../../../components/CustomTable/CustomTable";
 import { ClassroomContext } from "../Classroom";
+import DeleteAssignment from "../Assignment/DeleteAssignment/DeleteAssignment";
 
 const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
   const { classroom: x } = useContext(ClassroomContext);
   const classroom: Classroom = x;
+  const [assignmentToDelete, setAssignmentToDelete] =
+    useState<Assignment | null>();
+  const {
+    isOpen: isOpenDeleteAssignment,
+    onOpen: onOpenDeleteAssignment,
+    onClose: onCloseDeleteAssignment,
+  } = useDisclosure();
 
   return (
     <>
+      <DeleteAssignment
+        isOpen={isOpenDeleteAssignment}
+        onClose={onCloseDeleteAssignment}
+        assignment={assignmentToDelete}
+      />
       {classroom.assignments && classroom.assignments.length > 0 ? (
         <CustomTable
           columns={[
@@ -76,7 +96,15 @@ const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
                     >
                       <Button colorScheme={"blue"}>Submissions</Button>
                     </Link>
-                    <Button colorScheme={"red"}>Remove</Button>
+                    <Button
+                      colorScheme={"red"}
+                      onClick={() => {
+                        setAssignmentToDelete(assignment);
+                        onOpenDeleteAssignment();
+                      }}
+                    >
+                      Remove
+                    </Button>
                   </ButtonGroup>
                 ),
               };

@@ -109,6 +109,7 @@ module.exports = gql`
       problemIds: [ID!]
       dueDate: String!
     ): Assignment
+    removeAssignment(assignmentId: ID!, assignmentName: String!): Boolean
     # End of Assignment Mutations
 
     # Problem Mutations

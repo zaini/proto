@@ -47,6 +47,7 @@ export type Mutation = {
   createProblem?: Maybe<Problem>;
   deleteClassroom?: Maybe<Scalars['Boolean']>;
   joinClassroom?: Maybe<Classroom>;
+  removeAssignment?: Maybe<Scalars['Boolean']>;
   submitProblem: Submission;
   submitTests: TestSubmissionResult;
 };
@@ -82,6 +83,12 @@ export type MutationDeleteClassroomArgs = {
 export type MutationJoinClassroomArgs = {
   classroomId: Scalars['ID'];
   password?: InputMaybe<Scalars['String']>;
+};
+
+
+export type MutationRemoveAssignmentArgs = {
+  assignmentId: Scalars['ID'];
+  assignmentName: Scalars['String'];
 };
 
 

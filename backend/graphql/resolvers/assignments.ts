@@ -104,5 +104,49 @@ module.exports = {
 
       return assignments;
     },
+    removeAssignment: async (
+      _: any,
+      { assignmentId, assignmentName }: any,
+      context: any
+    ) => {
+      const assignment = await prisma.assignment.findFirst({
+        where: {
+          id: parseInt(assignmentId),
+        },
+      });
+
+      if (!assignment) {
+        throw new ApolloError(
+          "Failed to find assignment you are attempting to remove."
+        );
+      }
+
+      if (assignment.name !== assignmentName) {
+        throw new ApolloError(
+          "Failed to remove assignment as the name you entered is not correct."
+        );
+      }
+
+      // TODO: once a mechanism for creating submissions is added, we might decide to also delete submissions related to this assignment
+      // await prisma.submissionsOnAssignment.deleteMany({
+      //   where: {
+      //     assignmentId: assignment.id,
+      //   },
+      // });
+
+      await prisma.problemsOnAssignments.deleteMany({
+        where: {
+          assignmentId: assignment.id,
+        },
+      });
+
+      await prisma.assignment.delete({
+        where: {
+          id: assignment.id,
+        },
+      });
+
+      return true;
+    },
   },
 };

@@ -60,6 +60,7 @@ module.exports = {
         assignments: classroom?.assignments.map((assignment) => {
           return {
             id: assignment.id,
+            name: assignment.name,
             problems: assignment.ProblemsOnAssignments.map((e) => e.problem),
             setDate: assignment.setDate,
             dueDate: assignment.dueDate,

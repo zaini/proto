@@ -61,12 +61,13 @@ module.exports = gql`
   }
   type Assignment {
     id: ID!
+    name: String!
     classroom: Classroom!
     problems: [Problem!]
-    submissions: [Submission!]!
     createdAt: String!
     setDate: String!
     dueDate: String!
+    submissions: [Submission]
   }
   type Problem {
     id: ID!
@@ -102,8 +103,12 @@ module.exports = gql`
     # End of Classroom Mutations
 
     # Assignment Mutations
-    # REMOVE THIS COMMENT: assuming only the owner can create assignments for a classroom
-    createAssignment(classroomId: ID!, problemIds: [ID!]): Assignment
+    createAssignment(
+      classroomId: ID!
+      assignmentName: String!
+      problemIds: [ID!]
+      dueDate: String!
+    ): Assignment
     # End of Assignment Mutations
 
     # Problem Mutations

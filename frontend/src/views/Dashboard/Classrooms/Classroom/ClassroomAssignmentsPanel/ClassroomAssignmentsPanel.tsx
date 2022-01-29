@@ -15,8 +15,12 @@ const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
         <CustomTable
           columns={[
             {
-              Header: "Assignment ID",
+              Header: "ID",
               accessor: "assignmentId",
+            },
+            {
+              Header: "Name",
+              accessor: "assignmentName",
             },
             {
               Header: "Set Date",
@@ -43,6 +47,7 @@ const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
             (assignment: Assignment, i: number) => {
               return {
                 assignmentId: assignment.id,
+                assignmentName: assignment.name,
                 setDate: new Date(
                   parseInt(assignment.setDate)
                 ).toLocaleString(),

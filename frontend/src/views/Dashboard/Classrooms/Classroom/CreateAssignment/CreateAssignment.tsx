@@ -10,21 +10,49 @@ import {
   ModalCloseButton,
   InputGroup,
   InputLeftAddon,
-  InputRightElement,
   Stack,
   Code,
   Input,
+  InputRightElement,
+  IconButton,
+  Box,
+  List,
+  ListItem,
+  UnorderedList,
+  Text,
 } from "@chakra-ui/react";
+import { AddIcon } from "@chakra-ui/icons";
 
-const CreateAssignment = ({ isOpen, onClose, createAssignment }: any) => {
+const CreateAssignment = ({
+  isOpen,
+  onClose,
+  classroom,
+  createAssignment,
+}: any) => {
   const [assignmentName, setAssignmentName] = useState("");
-  const [problems, setProblems] = useState("");
+  const [problems, setProblems] = useState<string[]>([]);
+  const [problemId, setProblemId] = useState("");
+  const [dueDate, setDueDate] = useState("");
+
+  const addProblem = (problemId: string) => {
+    if (problemId) {
+      setProblems([...problems, problemId]);
+      setProblemId("");
+    }
+  };
+
+  const removeProblem = (problemId: string) => {
+    if (problemId) {
+      let problemsCopy = problems.filter((e) => e !== problemId);
+      setProblems(problemsCopy);
+    }
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Create Assignment (incomplete)</ModalHeader>
+        <ModalHeader>Create Assignment</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Stack spacing={4}>
@@ -46,18 +74,48 @@ const CreateAssignment = ({ isOpen, onClose, createAssignment }: any) => {
                 onChange={(e) => setAssignmentName(e.target.value)}
               />
             </InputGroup>
+            {/* TODO: improve how to add problems with a proper search */}
             <InputGroup>
               <InputLeftAddon children="Problems" />
               <Input
                 type="text"
                 placeholder="Two Sum"
-                onChange={(e) => setProblems(e.target.value)}
+                value={problemId}
+                onChange={(e) => setProblemId(e.target.value)}
+              />
+              <InputRightElement
+                children={
+                  <IconButton
+                    aria-label="Add problem"
+                    icon={<AddIcon />}
+                    onClick={() => addProblem(problemId)}
+                  />
+                }
               />
             </InputGroup>
             <InputGroup>
               <InputLeftAddon children="Due Date" />
-              <Input type="datetime-local" />
+              <Input
+                type="datetime-local"
+                onChange={(e) =>
+                  setDueDate(new Date(e.target.value).toUTCString())
+                }
+              />
             </InputGroup>
+            {problems.length > 0 && (
+              <Box>
+                <Text>Click on a problem to remove it.</Text>
+                <UnorderedList>
+                  {problems.map((problemId) => {
+                    return (
+                      <ListItem onClick={() => removeProblem(problemId)}>
+                        {problemId}
+                      </ListItem>
+                    );
+                  })}
+                </UnorderedList>
+              </Box>
+            )}
           </Stack>
         </ModalBody>
 
@@ -68,7 +126,10 @@ const CreateAssignment = ({ isOpen, onClose, createAssignment }: any) => {
             onClick={() => {
               createAssignment({
                 variables: {
+                  classroomId: classroom.id,
                   assignmentName: assignmentName,
+                  dueDate: dueDate,
+                  problemIds: problems,
                 },
               });
             }}

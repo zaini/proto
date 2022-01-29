@@ -29,24 +29,80 @@ module.exports = {
   Mutation: {
     createAssignment: async (
       _: any,
-      { classroomId, problems }: any,
+      { classroomId, assignmentName, dueDate, problemIds }: any,
       context: any
     ) => {
+      logger.info("GraphQL assignments/createAssignment");
+
       // check if the current user owns this classroom
       // find the problems
-      // create the assignments and assign them with these problems and to the relavent classroom
-      // return the new assignment and the classrooms
+      // create the assignment and return it
+
+      const user = isAuth(context);
 
       const classroom = await prisma.classroom.findUnique({
         where: {
-          id: classroomId,
+          id: parseInt(classroomId),
         },
       });
 
-      return {
-        assignments: [],
-        classroom: classroom,
-      };
+      if (!classroom || user.id === classroom.id) {
+        new ApolloError(
+          "You cannot create an assignment for a classroom you do not own."
+        );
+      }
+
+      const existingAssignment = await prisma.assignment.findFirst({
+        where: {
+          name: assignmentName,
+          classroomId: classroom!.id,
+        },
+      });
+
+      if (existingAssignment) {
+        throw new ApolloError(
+          "Cannot create assignment as you already have an assignment with the same name."
+        );
+      }
+
+      const problems = await prisma.problem.findMany({
+        where: {
+          id: {
+            in: problemIds.map((e: any) => parseInt(e)),
+          },
+        },
+      });
+
+      const assignment = await prisma.assignment.create({
+        data: {
+          name: assignmentName,
+          classroomId: classroom!.id,
+          setDate: new Date(),
+          createdAt: new Date(),
+          dueDate: new Date(dueDate),
+        },
+      });
+
+      await prisma.problemsOnAssignments.createMany({
+        data: [
+          ...problems.map((problem) => {
+            return {
+              assignmentId: assignment.id,
+              problemId: problem.id,
+            };
+          }),
+        ],
+      });
+
+      const assignments = await prisma.assignment.findMany({
+        where: {
+          id: assignment.id,
+        },
+      });
+
+      logger.info("Created assignments", { meta: assignment });
+
+      return assignments;
     },
   },
 };

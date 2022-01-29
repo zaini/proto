@@ -37,8 +37,12 @@ const GET_CLASSROOM = gql`
       }
       assignments {
         id
+        name
         setDate
         dueDate
+        submissions {
+          id
+        }
         problems {
           id
           specification {
@@ -65,12 +69,28 @@ const DELETE_CLASSROOM = gql`
 `;
 
 const CREATE_ASSIGNMENT = gql`
-  mutation createAssignment($classroomId: String!, $problems: [ID!]) {
-    createAssignment(classroomId: $classroomId, problems: $problems) {
+  mutation createAssignment(
+    $classroomId: ID!
+    $assignmentName: String!
+    $dueDate: String!
+    $problemIds: [ID!]
+  ) {
+    createAssignment(
+      classroomId: $classroomId
+      assignmentName: $assignmentName
+      dueDate: $dueDate
+      problemIds: $problemIds
+    ) {
       id
-      #   return assignment stuff
+      name
       createdAt
       dueDate
+      problems {
+        id
+        specification {
+          title
+        }
+      }
     }
   }
 `;
@@ -114,6 +134,7 @@ const Classroom = () => {
 
   const [createAssignment] = useMutation(CREATE_ASSIGNMENT, {
     onCompleted: ({ createAssignment }) => {
+      console.log(createAssignment);
       window.location.href = `/dashboard/classrooms/${classroomId}/assignments/${createAssignment.id}`;
     },
     onError(err) {
@@ -154,6 +175,7 @@ const Classroom = () => {
       <CreateAssignment
         isOpen={isOpenSetAssignment}
         onClose={onCloseSetAssignment}
+        classroom={classroomData}
         createAssignment={createAssignment}
       />
 

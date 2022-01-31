@@ -17,6 +17,7 @@ import CopyLink from "../../../../components/CopyLink/CopyLink";
 import ClassroomStudentsPanel from "./ClassroomStudentsPanel/ClassroomStudentsPanel";
 import ClassroomAssignmentsPanel from "./ClassroomAssignmentsPanel/ClassroomAssignmentsPanel";
 import DeleteClassroom from "../DeleteClassroom/DeleteClassroom";
+import CreateAssignment from "./CreateAssignment/CreateAssignment";
 
 const ClassroomContext = createContext<ClassroomType | any>({ classroom: {} });
 
@@ -36,8 +37,12 @@ const GET_CLASSROOM = gql`
       }
       assignments {
         id
+        name
         setDate
         dueDate
+        submissions {
+          id
+        }
         problems {
           id
           specification {
@@ -63,10 +68,47 @@ const DELETE_CLASSROOM = gql`
   }
 `;
 
+const CREATE_ASSIGNMENT = gql`
+  mutation createAssignment(
+    $classroomId: ID!
+    $assignmentName: String!
+    $dueDate: String!
+    $problemIds: [ID!]
+  ) {
+    createAssignment(
+      classroomId: $classroomId
+      assignmentName: $assignmentName
+      dueDate: $dueDate
+      problemIds: $problemIds
+    ) {
+      id
+      name
+      createdAt
+      dueDate
+      problems {
+        id
+        specification {
+          title
+        }
+      }
+    }
+  }
+`;
+
 const Classroom = () => {
   const { classroomId } = useParams();
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isOpenDeleteClassroom,
+    onOpen: onOpenDeleteClassroom,
+    onClose: onCloseDeleteClassroom,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenSetAssignment,
+    onOpen: onOpenSetAssignment,
+    onClose: onCloseSetAssignment,
+  } = useDisclosure();
 
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -90,6 +132,21 @@ const Classroom = () => {
     },
   });
 
+  const [createAssignment] = useMutation(CREATE_ASSIGNMENT, {
+    onCompleted: ({ createAssignment }) => {
+      console.log(createAssignment);
+      window.location.href = `/dashboard/classrooms/${classroomId}/assignments/${createAssignment.id}`;
+    },
+    onError(err) {
+      const message =
+        (err.graphQLErrors &&
+          err.graphQLErrors[0] &&
+          err.graphQLErrors[0].message) ||
+        err.message;
+      window.alert(`Failed to create assignment. \n\n${message}`);
+    },
+  });
+
   if (loading)
     return (
       <Center h="1000px">
@@ -110,9 +167,16 @@ const Classroom = () => {
   return (
     <ClassroomContext.Provider value={{ classroom: classroomData }}>
       <DeleteClassroom
-        isOpen={isOpen}
-        onClose={onClose}
+        isOpen={isOpenDeleteClassroom}
+        onClose={onCloseDeleteClassroom}
         deleteClassroom={deleteClassroom}
+      />
+
+      <CreateAssignment
+        isOpen={isOpenSetAssignment}
+        onClose={onCloseSetAssignment}
+        classroom={classroomData}
+        createAssignment={createAssignment}
       />
 
       <Box mx={4}>
@@ -135,9 +199,7 @@ const Classroom = () => {
 
         <Center>
           <ButtonGroup>
-            <Link to={`/dashboard/classrooms/${classroomId}/assignments`}>
-              <Button>Set Assignment</Button>
-            </Link>
+            <Button onClick={onOpenSetAssignment}>Set Assignment</Button>
             <CopyLink
               link={
                 window.location.origin +
@@ -145,7 +207,7 @@ const Classroom = () => {
               }
               text={"Copy Invite Link"}
             />
-            <Button colorScheme={"red"} onClick={onOpen}>
+            <Button colorScheme={"red"} onClick={onOpenDeleteClassroom}>
               Delete Classroom
             </Button>
           </ButtonGroup>
@@ -166,7 +228,7 @@ const Classroom = () => {
               <ClassroomStudentsPanel />
             </TabPanel>
             <TabPanel>
-              <ClassroomAssignmentsPanel />
+              <ClassroomAssignmentsPanel onOpen={onOpenSetAssignment} />
             </TabPanel>
           </TabPanels>
         </Tabs>

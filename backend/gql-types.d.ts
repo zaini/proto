@@ -18,9 +18,10 @@ export type Assignment = {
   createdAt: Scalars['String'];
   dueDate: Scalars['String'];
   id: Scalars['ID'];
+  name: Scalars['String'];
   problems?: Maybe<Array<Problem>>;
   setDate: Scalars['String'];
-  submissions: Array<Submission>;
+  submissions?: Maybe<Array<Maybe<Submission>>>;
 };
 
 export type AuthResponse = {
@@ -44,14 +45,18 @@ export type Mutation = {
   createAssignment?: Maybe<Assignment>;
   createClassroom?: Maybe<Classroom>;
   createProblem?: Maybe<Problem>;
+  deleteClassroom?: Maybe<Scalars['Boolean']>;
   joinClassroom?: Maybe<Classroom>;
+  removeAssignment?: Maybe<Scalars['Boolean']>;
   submitProblem: Submission;
   submitTests: TestSubmissionResult;
 };
 
 
 export type MutationCreateAssignmentArgs = {
+  assignmentName: Scalars['String'];
   classroomId: Scalars['ID'];
+  dueDate: Scalars['String'];
   problemIds?: InputMaybe<Array<Scalars['ID']>>;
 };
 
@@ -68,9 +73,22 @@ export type MutationCreateProblemArgs = {
 };
 
 
+export type MutationDeleteClassroomArgs = {
+  classroomId: Scalars['ID'];
+  classroomName: Scalars['String'];
+  password?: InputMaybe<Scalars['String']>;
+};
+
+
 export type MutationJoinClassroomArgs = {
   classroomId: Scalars['ID'];
   password?: InputMaybe<Scalars['String']>;
+};
+
+
+export type MutationRemoveAssignmentArgs = {
+  assignmentId: Scalars['ID'];
+  assignmentName: Scalars['String'];
 };
 
 

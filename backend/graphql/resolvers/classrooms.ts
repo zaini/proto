@@ -60,6 +60,7 @@ module.exports = {
         assignments: classroom?.assignments.map((assignment) => {
           return {
             id: assignment.id,
+            name: assignment.name,
             problems: assignment.ProblemsOnAssignments.map((e) => e.problem),
             setDate: assignment.setDate,
             dueDate: assignment.dueDate,
@@ -203,7 +204,7 @@ module.exports = {
 
       if (classroom.name !== classroomName) {
         throw new ApolloError(
-          "Failed to delete classroom as you are not entering the name you entered is not correct."
+          "Failed to delete classroom as the name you entered is not correct."
         );
       }
 

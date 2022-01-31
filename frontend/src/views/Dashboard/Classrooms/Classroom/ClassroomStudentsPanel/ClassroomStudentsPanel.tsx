@@ -29,10 +29,12 @@ const ClassroomStudentsPanel = () => {
               username: student.username,
               options: (
                 <ButtonGroup>
-                  <Link to={`/dashboard/classrooms/${1}`}>
+                  <Link to={`/users/${student.id}`}>
                     <Button colorScheme={"blue"}>View</Button>
                   </Link>
-                  <Button colorScheme={"blue"}>View Submissions</Button>
+                  <Link to={`/users/${student.id}/submissions`}>
+                    <Button colorScheme={"blue"}>Submissions</Button>
+                  </Link>
                   <Button colorScheme={"red"}>Remove</Button>
                 </ButtonGroup>
               ),

@@ -51,6 +51,7 @@ model UsersOnClassrooms {
 
 model Assignment {
   id                    Int                     @id @default(autoincrement())
+  name                  String
   classroom             Classroom               @relation(fields: [classroomId], references: [id])
   classroomId           Int
   createdAt             DateTime                @default(now())

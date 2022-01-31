@@ -47,8 +47,8 @@ module.exports = gql`
     # accountType: AccountType!
     createdAt: String! # These could all be Date scalar
     problems: [Problem]!
-    classrooms: [Classroom]!
-    UsersOnClassrooms: [Classroom] # Rename to this something more clear - this is a list of the classrooms the user is a LEARNER in
+    classrooms: [Classroom]! # Classrooms this user owns
+    UsersOnClassrooms: [Classroom] # Classrooms this user is a student in
   }
   type Classroom {
     id: ID!
@@ -61,12 +61,13 @@ module.exports = gql`
   }
   type Assignment {
     id: ID!
+    name: String!
     classroom: Classroom!
     problems: [Problem!]
-    submissions: [Submission!]!
     createdAt: String!
     setDate: String!
     dueDate: String!
+    submissions: [Submission]
   }
   type Problem {
     id: ID!
@@ -102,8 +103,13 @@ module.exports = gql`
     # End of Classroom Mutations
 
     # Assignment Mutations
-    # REMOVE THIS COMMENT: assuming only the owner can create assignments for a classroom
-    createAssignment(classroomId: ID!, problemIds: [ID!]): Assignment
+    createAssignment(
+      classroomId: ID!
+      assignmentName: String!
+      problemIds: [ID!]
+      dueDate: String!
+    ): Assignment
+    removeAssignment(assignmentId: ID!, assignmentName: String!): Boolean
     # End of Assignment Mutations
 
     # Problem Mutations
@@ -121,6 +127,7 @@ module.exports = gql`
   type Query {
     # User Queries
     getUsers: [User!]
+    getUser(userId: ID!): User
     isLoggedIn: String!
     # End of User Queries
 
@@ -130,6 +137,7 @@ module.exports = gql`
     # End of Classroom Queries
 
     # Assignment Queries
+    getAssignment(assignmentId: ID!): Assignment
     getAssignments: [Assignment!]
     # End of Assignment Queries
 

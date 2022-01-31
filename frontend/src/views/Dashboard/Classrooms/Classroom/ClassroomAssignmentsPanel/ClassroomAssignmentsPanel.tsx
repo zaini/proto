@@ -1,22 +1,47 @@
-import React, { useContext } from "react";
-import { Assignment, Classroom, User } from "../../../../../gql-types";
-import { Button, ButtonGroup, Center, Stack, Text } from "@chakra-ui/react";
+import React, { useContext, useState } from "react";
+import { Assignment, Classroom } from "../../../../../gql-types";
+import {
+  Button,
+  ButtonGroup,
+  Center,
+  Stack,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import CustomTable from "../../../../../components/CustomTable/CustomTable";
 import { ClassroomContext } from "../Classroom";
+import DeleteAssignment from "../Assignment/DeleteAssignment/DeleteAssignment";
 
-const ClassroomAssignmentsPanel = () => {
+const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
   const { classroom: x } = useContext(ClassroomContext);
   const classroom: Classroom = x;
+  const [assignmentToDelete, setAssignmentToDelete] =
+    useState<Assignment | null>(null);
+  const {
+    isOpen: isOpenDeleteAssignment,
+    onOpen: onOpenDeleteAssignment,
+    onClose: onCloseDeleteAssignment,
+  } = useDisclosure();
 
   return (
     <>
+      <DeleteAssignment
+        isOpen={isOpenDeleteAssignment}
+        onClose={onCloseDeleteAssignment}
+        assignment={assignmentToDelete}
+        classroom={classroom}
+      />
       {classroom.assignments && classroom.assignments.length > 0 ? (
         <CustomTable
           columns={[
             {
-              Header: "Assignment ID",
+              Header: "ID",
               accessor: "assignmentId",
+            },
+            {
+              Header: "Name",
+              accessor: "assignmentName",
             },
             {
               Header: "Set Date",
@@ -30,7 +55,10 @@ const ClassroomAssignmentsPanel = () => {
               Header: "Submissions",
               accessor: "numberOfSubmissions",
             },
-
+            {
+              Header: "Problems",
+              accessor: "numberOfProblems",
+            },
             {
               Header: "Options",
               accessor: "options",
@@ -40,22 +68,44 @@ const ClassroomAssignmentsPanel = () => {
             (assignment: Assignment, i: number) => {
               return {
                 assignmentId: assignment.id,
+                assignmentName: assignment.name,
                 setDate: new Date(
                   parseInt(assignment.setDate)
                 ).toLocaleString(),
                 dueDate: new Date(
                   parseInt(assignment.dueDate)
                 ).toLocaleString(),
-                numberOfSubmissions: assignment.submissions
-                  ? assignment.submissions.length
+                numberOfSubmissions:
+                  assignment.submissions &&
+                  assignment.submissions !== [] &&
+                  classroom.users &&
+                  classroom.users !== []
+                    ? `${assignment.submissions.length}/${classroom.users.length}`
+                    : "0/0",
+                numberOfProblems: assignment.problems
+                  ? assignment.problems.length
                   : 0,
                 options: (
                   <ButtonGroup>
-                    <Link to={`/dashboard/classrooms/${1}`}>
+                    <Link
+                      to={`/dashboard/classrooms/${classroom.id}/assignments/${assignment.id}`}
+                    >
                       <Button colorScheme={"blue"}>View</Button>
                     </Link>
-                    <Button colorScheme={"blue"}>View Submissions</Button>
-                    <Button colorScheme={"red"}>Remove</Button>
+                    <Link
+                      to={`/dashboard/classrooms/${classroom.id}/assignments/${assignment.id}/submissions`}
+                    >
+                      <Button colorScheme={"blue"}>Submissions</Button>
+                    </Link>
+                    <Button
+                      colorScheme={"red"}
+                      onClick={() => {
+                        setAssignmentToDelete(assignment);
+                        onOpenDeleteAssignment();
+                      }}
+                    >
+                      Remove
+                    </Button>
                   </ButtonGroup>
                 ),
               };
@@ -66,9 +116,7 @@ const ClassroomAssignmentsPanel = () => {
         <Center mb={8}>
           <Stack spacing={4}>
             <Text>This classroom does not have any assignments!</Text>
-            <Link to={`/dashboard/classrooms/${classroom.id}/assignments`}>
-              <Button>Set Assignment</Button>
-            </Link>
+            <Button onClick={onOpen}>Set Assignment</Button>
           </Stack>
         </Center>
       )}

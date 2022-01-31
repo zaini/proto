@@ -3,8 +3,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthContext } from "../context/Auth";
 import Login from "../views/Accounts/Login/Login";
 import Logout from "../views/Accounts/Logout/Logout";
-import Assignment from "../views/Dashboard/Classrooms/Classroom/Assignments/Assignment/Assignment";
-import Assignments from "../views/Dashboard/Classrooms/Classroom/Assignments/Assignments";
+import Settings from "../views/Profile/Settings/Settings";
+import Assignment from "../views/Dashboard/Classrooms/Classroom/Assignment/Assignment";
+import Submission from "../views/Dashboard/Classrooms/Classroom/Assignment/Submission/Submission";
+import Submissions from "../views/Dashboard/Classrooms/Classroom/Assignment/Submissions/Submissions";
 import { Classroom } from "../views/Dashboard/Classrooms/Classroom/Classroom";
 import Classrooms from "../views/Dashboard/Classrooms/Classrooms";
 import JoinClassroom from "../views/Dashboard/Classrooms/JoinClassroom/JoinClassroom";
@@ -12,6 +14,7 @@ import DashboardHome from "../views/Dashboard/Home/Home";
 import Home from "../views/Home/Home";
 import NotFound from "../views/NotFound/NotFound";
 import { Problem } from "../views/Problem/Problem";
+import Profile from "../views/Profile/Profile";
 
 const IndexRouter = () => {
   const { user } = useContext(AuthContext);
@@ -38,20 +41,34 @@ const IndexRouter = () => {
               element={<Classroom />}
             />
             <Route
-              path={"/dashboard/classrooms/:classroomId/assignments"}
-              element={<Assignments />}
-            />
-            <Route
               path={
                 "/dashboard/classrooms/:classroomId/assignments/:assignmentId"
               }
               element={<Assignment />}
             />
+            <Route
+              path={
+                "/dashboard/classrooms/:classroomId/assignments/:assignmentId/submissions"
+              }
+              element={<Submissions />}
+            />
+            <Route
+              path={
+                "/dashboard/classrooms/:classroomId/assignments/:assignmentId/submissions/:submissionId"
+              }
+              element={<Submission />}
+            />
             <Route path={"/problems/:problemId"} element={<Problem />} />
+            <Route path={"/profile/settings"} element={<Settings />} />
+            <Route path={"/profile/:userId"} element={<Profile />} />
           </>
         )}
 
-        {/* catch all */}
+        {/* catch all or corrective routes */}
+        <Route
+          path={"/dashboard/classrooms/:classroomId/assignments"}
+          element={<Classroom />}
+        />
         <Route path={"*"} element={<NotFound />} />
       </Routes>
     </BrowserRouter>

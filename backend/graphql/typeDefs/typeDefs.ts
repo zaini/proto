@@ -100,6 +100,7 @@ module.exports = gql`
       classroomName: String!
       password: String
     ): Boolean
+    removeStudent(studentId: ID!, classroomId: ID!): Boolean
     # End of Classroom Mutations
 
     # Assignment Mutations

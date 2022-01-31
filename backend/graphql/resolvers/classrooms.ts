@@ -222,5 +222,49 @@ module.exports = {
 
       return true;
     },
+    removeStudent: async (
+      _: any,
+      { studentId, classroomId }: any,
+      context: any
+    ) => {
+      const user = isAuth(context);
+
+      const classroom = await prisma.classroom.findFirst({
+        where: {
+          id: parseInt(classroomId),
+          userId: user.id,
+        },
+      });
+
+      if (!classroom) {
+        throw new ApolloError(
+          "Failed to find classroom you are attempting to remove student from."
+        );
+      }
+
+      const student = await prisma.usersOnClassrooms.findFirst({
+        where: {
+          classroomId: classroom.id,
+          userId: parseInt(studentId),
+        },
+      });
+
+      if (!student) {
+        throw new ApolloError(
+          "Failed to find student you are attempting to remove."
+        );
+      }
+
+      await prisma.usersOnClassrooms.delete({
+        where: {
+          userId_classroomId: {
+            userId: student?.userId,
+            classroomId: classroom.id,
+          },
+        },
+      });
+
+      return true;
+    },
   },
 };

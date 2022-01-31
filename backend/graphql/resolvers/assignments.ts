@@ -94,15 +94,15 @@ module.exports = {
         ],
       });
 
-      const assignments = await prisma.assignment.findMany({
+      const res = await prisma.assignment.findUnique({
         where: {
           id: assignment.id,
         },
       });
 
-      logger.info("Created assignments", { meta: assignment });
+      logger.info("Created assignment", { meta: JSON.stringify(res) });
 
-      return assignments;
+      return res;
     },
     removeAssignment: async (
       _: any,

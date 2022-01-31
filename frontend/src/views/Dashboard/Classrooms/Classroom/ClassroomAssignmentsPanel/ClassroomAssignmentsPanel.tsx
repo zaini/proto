@@ -17,7 +17,7 @@ const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
   const { classroom: x } = useContext(ClassroomContext);
   const classroom: Classroom = x;
   const [assignmentToDelete, setAssignmentToDelete] =
-    useState<Assignment | null>();
+    useState<Assignment | null>(null);
   const {
     isOpen: isOpenDeleteAssignment,
     onOpen: onOpenDeleteAssignment,
@@ -30,6 +30,7 @@ const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
         isOpen={isOpenDeleteAssignment}
         onClose={onCloseDeleteAssignment}
         assignment={assignmentToDelete}
+        classroom={classroom}
       />
       {classroom.assignments && classroom.assignments.length > 0 ? (
         <CustomTable

@@ -106,9 +106,12 @@ const CreateAssignment = ({
               <Box>
                 <Text>Click on a problem to remove it.</Text>
                 <UnorderedList>
-                  {problems.map((problemId) => {
+                  {problems.map((problemId, i) => {
                     return (
-                      <ListItem onClick={() => removeProblem(problemId)}>
+                      <ListItem
+                        key={i}
+                        onClick={() => removeProblem(problemId)}
+                      >
                         {problemId}
                       </ListItem>
                     );

@@ -29,10 +29,7 @@ const DELETE_ASSIGNMENT = gql`
   }
 `;
 
-const DeleteAssignment = ({ isOpen, onClose, assignment }: any) => {
-  const { classroom: x } = useContext(ClassroomContext);
-  const classroom: Classroom = x;
-
+const DeleteAssignment = ({ isOpen, onClose, assignment, classroom }: any) => {
   const [assignmentName, setAssignmentName] = useState("");
 
   const [removeAssignment] = useMutation(DELETE_ASSIGNMENT, {

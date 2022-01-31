@@ -136,6 +136,7 @@ module.exports = gql`
     # End of Classroom Queries
 
     # Assignment Queries
+    getAssignment(assignmentId: ID!): Assignment
     getAssignments: [Assignment!]
     # End of Assignment Queries
 

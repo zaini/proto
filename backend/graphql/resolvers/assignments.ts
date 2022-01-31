@@ -25,6 +25,22 @@ module.exports = {
 
       return parsedAssignments;
     },
+    getAssignment: async (_: any, { assignmentId }: any, context: any) => {
+      logger.info("GraphQL assignment/assignmentId");
+
+      // TODO add return stats
+      let assignment = await prisma.assignment.findUnique({
+        where: {
+          id: parseInt(assignmentId),
+        },
+        include: {
+          classroom: true,
+          ProblemsOnAssignments: { include: { problem: true } },
+        },
+      });
+
+      return assignment;
+    },
   },
   Mutation: {
     createAssignment: async (

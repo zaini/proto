@@ -39,8 +39,12 @@ const ProfileIcon = () => {
         </Center>
         <br />
         <MenuDivider />
-        <MenuItem>Profile</MenuItem>
-        <MenuItem>Account Settings</MenuItem>
+        <a href={`/profile/${user.id}`}>
+          <MenuItem>Profile</MenuItem>
+        </a>
+        <a href={`/profile/settings`}>
+          <MenuItem>Account Settings</MenuItem>
+        </a>
         <a href="/accounts/log-out">
           <MenuItem>Logout</MenuItem>
         </a>

@@ -1,17 +1,36 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Classroom, User } from "../../../../../gql-types";
-import { Button, ButtonGroup, Center, Stack, Text } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  Center,
+  Stack,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import CustomTable from "../../../../../components/CustomTable/CustomTable";
 import CopyLink from "../../../../../components/CopyLink/CopyLink";
 import { ClassroomContext } from "../Classroom";
+import RemoveStudent from "../RemoveStudent/RemoveStudent";
 
 const ClassroomStudentsPanel = () => {
   const { classroom: x } = useContext(ClassroomContext);
   const classroom: Classroom = x;
 
+  const [studentToView, setStudentToView] = useState<User | null>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <>
+      <RemoveStudent
+        isOpen={isOpen}
+        onClose={onOpen}
+        assignment={onClose}
+        student={studentToView}
+        classroom={classroom}
+      />
+
       {classroom.users && classroom.users.length > 0 ? (
         <CustomTable
           columns={[
@@ -35,7 +54,15 @@ const ClassroomStudentsPanel = () => {
                   <Link to={`/users/${student.id}/submissions`}>
                     <Button colorScheme={"blue"}>Submissions</Button>
                   </Link>
-                  <Button colorScheme={"red"}>Remove</Button>
+                  <Button
+                    onClick={() => {
+                      setStudentToView(student);
+                      onOpen();
+                    }}
+                    colorScheme={"red"}
+                  >
+                    Remove
+                  </Button>
                 </ButtonGroup>
               ),
             };

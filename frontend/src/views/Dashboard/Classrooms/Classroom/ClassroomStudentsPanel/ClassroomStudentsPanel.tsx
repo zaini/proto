@@ -48,11 +48,8 @@ const ClassroomStudentsPanel = () => {
               username: student.username,
               options: (
                 <ButtonGroup>
-                  <Link to={`/users/${student.id}`}>
+                  <Link to={`/profile/${student.id}`}>
                     <Button colorScheme={"blue"}>View</Button>
-                  </Link>
-                  <Link to={`/users/${student.id}/submissions`}>
-                    <Button colorScheme={"blue"}>Submissions</Button>
                   </Link>
                   <Button
                     onClick={() => {

@@ -127,9 +127,10 @@ export type Query = {
   getAssignment?: Maybe<Assignment>;
   getAssignments?: Maybe<Array<Assignment>>;
   getClassroom?: Maybe<Classroom>;
-  getClassrooms?: Maybe<Array<Classroom>>;
+  getLearnerClassrooms?: Maybe<Array<Classroom>>;
   getProblem?: Maybe<Problem>;
   getProblems?: Maybe<Array<Problem>>;
+  getTeacherClassrooms?: Maybe<Array<Classroom>>;
   getUser?: Maybe<User>;
   getUserSubmissionsForProblem?: Maybe<Array<Submission>>;
   getUsers?: Maybe<Array<User>>;

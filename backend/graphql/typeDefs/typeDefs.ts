@@ -133,7 +133,8 @@ module.exports = gql`
     # End of User Queries
 
     # Classroom Queries
-    getClassrooms: [Classroom!]
+    getTeacherClassrooms: [Classroom!]
+    getLearnerClassrooms: [Classroom!]
     getClassroom(classroomId: ID!): Classroom
     # End of Classroom Queries
 

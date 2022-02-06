@@ -5,6 +5,7 @@ import {
   ButtonGroup,
   Center,
   Heading,
+  Text,
   useDisclosure,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
@@ -14,10 +15,11 @@ import { useMutation } from "@apollo/client";
 import { Classroom } from "../../../../gql-types";
 import CopyLink from "../../../../components/CopyLink/CopyLink";
 import ClassroomStudentsPanel from "./ClassroomStudentsPanel/ClassroomStudentsPanel";
-import ClassroomAssignmentsPanel from "./ClassroomAssignmentsPanel/ClassroomAssignmentsPanel";
 import DeleteClassroom from "../DeleteClassroom/DeleteClassroom";
 import CreateAssignment from "./CreateAssignment/CreateAssignment";
 import { ClassroomContext } from "./Classroom";
+import TeacherClassroomAssignmentsPanel from "./ClassroomAssignmentsPanel/TeacherClassroomAssignmentsPanel";
+import { AuthContext } from "../../../../context/Auth";
 
 const DELETE_CLASSROOM = gql`
   mutation DeleteClassroom(
@@ -62,6 +64,8 @@ const CREATE_ASSIGNMENT = gql`
 
 const TeacherClassroom = () => {
   const { classroom }: { classroom: Classroom } = useContext(ClassroomContext);
+
+  const { user }: any = useContext(AuthContext);
 
   const {
     isOpen: isOpenDeleteClassroom,
@@ -126,54 +130,67 @@ const TeacherClassroom = () => {
           <Button my={4}>&lt;- All Classrooms</Button>
         </Link>
 
-        <Heading>
-          #{classroom.id} {classroom.name}
-        </Heading>
-        <Heading size={"sm"}>
-          Created: {new Date(parseInt(classroom.createdAt)).toLocaleString()}
-        </Heading>
-        <Heading fontSize={"0.9em"}>
-          {classroom.password === ""
-            ? "public"
-            : "private (password required to join)"}
-        </Heading>
-        <Heading size={"sm"}>Owner: {`${classroom.creator!.username}`}</Heading>
+        {user.id === parseInt(classroom.creator.id) ? (
+          <>
+            <Heading>
+              #{classroom.id} {classroom.name}
+            </Heading>
+            <Heading size={"sm"}>
+              Created:{" "}
+              {new Date(parseInt(classroom.createdAt)).toLocaleString()}
+            </Heading>
+            <Heading fontSize={"0.9em"}>
+              {classroom.password === ""
+                ? "public"
+                : "private (password required to join)"}
+            </Heading>
+            <Heading size={"sm"}>
+              Owner: {`${classroom.creator!.username}`}
+            </Heading>
 
-        <Center>
-          <ButtonGroup>
-            <Button onClick={onOpenSetAssignment}>Set Assignment</Button>
-            <CopyLink
-              link={
-                window.location.origin +
-                `/dashboard/classrooms/join/${classroom.id}`
-              }
-              text={"Copy Invite Link"}
-            />
-            <Button colorScheme={"red"} onClick={onOpenDeleteClassroom}>
-              Delete Classroom
-            </Button>
-          </ButtonGroup>
-        </Center>
+            <Center>
+              <ButtonGroup>
+                <Button onClick={onOpenSetAssignment}>Set Assignment</Button>
+                <CopyLink
+                  link={
+                    window.location.origin +
+                    `/dashboard/classrooms/join/${classroom.id}`
+                  }
+                  text={"Copy Invite Link"}
+                />
+                <Button colorScheme={"red"} onClick={onOpenDeleteClassroom}>
+                  Delete Classroom
+                </Button>
+              </ButtonGroup>
+            </Center>
 
-        <Tabs
-          index={tabIndex}
-          onChange={(index) => {
-            setTabIndex(index);
-          }}
-        >
-          <TabList>
-            <Tab>Students</Tab>
-            <Tab>Assignments</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <ClassroomStudentsPanel />
-            </TabPanel>
-            <TabPanel>
-              <ClassroomAssignmentsPanel onOpen={onOpenSetAssignment} />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+            <Tabs
+              index={tabIndex}
+              onChange={(index) => {
+                setTabIndex(index);
+              }}
+            >
+              <TabList>
+                <Tab>Students</Tab>
+                <Tab>Assignments</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  <ClassroomStudentsPanel />
+                </TabPanel>
+                <TabPanel>
+                  <TeacherClassroomAssignmentsPanel
+                    onOpen={onOpenSetAssignment}
+                  />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </>
+        ) : (
+          <Text textAlign={"center"}>
+            You cannot view this classroom as you are not it's creator.
+          </Text>
+        )}
       </Box>
     </>
   );

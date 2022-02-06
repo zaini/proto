@@ -18,6 +18,7 @@ const GET_CLASSROOM = gql`
       name
       password
       creator {
+        id
         username
       }
       createdAt

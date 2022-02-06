@@ -1,37 +1,16 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { Assignment, Classroom } from "../../../../../gql-types";
-import {
-  Button,
-  ButtonGroup,
-  Center,
-  Stack,
-  Text,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Button, ButtonGroup, Center, Stack, Text } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import CustomTable from "../../../../../components/CustomTable/CustomTable";
 import { ClassroomContext } from "../Classroom";
-import DeleteAssignment from "../Assignment/DeleteAssignment/DeleteAssignment";
 
-const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
+const LearnerClassroomAssignmentsPanel = () => {
   const { classroom: x } = useContext(ClassroomContext);
   const classroom: Classroom = x;
-  const [assignmentToDelete, setAssignmentToDelete] =
-    useState<Assignment | null>(null);
-  const {
-    isOpen: isOpenDeleteAssignment,
-    onOpen: onOpenDeleteAssignment,
-    onClose: onCloseDeleteAssignment,
-  } = useDisclosure();
 
   return (
     <>
-      <DeleteAssignment
-        isOpen={isOpenDeleteAssignment}
-        onClose={onCloseDeleteAssignment}
-        assignment={assignmentToDelete}
-        classroom={classroom}
-      />
       {classroom.assignments && classroom.assignments.length > 0 ? (
         <CustomTable
           columns={[
@@ -50,10 +29,6 @@ const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
             {
               Header: "Due Date",
               accessor: "dueDate",
-            },
-            {
-              Header: "Submissions",
-              accessor: "numberOfSubmissions",
             },
             {
               Header: "Problems",
@@ -75,13 +50,6 @@ const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
                 dueDate: new Date(
                   parseInt(assignment.dueDate)
                 ).toLocaleString(),
-                numberOfSubmissions:
-                  assignment.submissions &&
-                  assignment.submissions !== [] &&
-                  classroom.users &&
-                  classroom.users !== []
-                    ? `${assignment.submissions.length}/${classroom.users.length}`
-                    : "0/0",
                 numberOfProblems: assignment.problems
                   ? assignment.problems.length
                   : 0,
@@ -97,15 +65,6 @@ const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
                     >
                       <Button colorScheme={"blue"}>Submissions</Button>
                     </Link>
-                    <Button
-                      colorScheme={"red"}
-                      onClick={() => {
-                        setAssignmentToDelete(assignment);
-                        onOpenDeleteAssignment();
-                      }}
-                    >
-                      Remove
-                    </Button>
                   </ButtonGroup>
                 ),
               };
@@ -116,7 +75,6 @@ const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
         <Center mb={8}>
           <Stack spacing={4}>
             <Text>This classroom does not have any assignments!</Text>
-            <Button onClick={onOpen}>Set Assignment</Button>
           </Stack>
         </Center>
       )}
@@ -124,4 +82,4 @@ const ClassroomAssignmentsPanel = ({ onOpen }: any) => {
   );
 };
 
-export default ClassroomAssignmentsPanel;
+export default LearnerClassroomAssignmentsPanel;

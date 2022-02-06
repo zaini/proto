@@ -6,8 +6,8 @@ import * as argon2 from "argon2";
 
 module.exports = {
   Query: {
-    getClassrooms: async (_: any, __: any, context: any) => {
-      logger.info("GraphQL classrooms/getClassrooms");
+    getTeacherClassrooms: async (_: any, __: any, context: any) => {
+      logger.info("GraphQL classrooms/getTeacherClassrooms");
       const user = isAuth(context);
 
       let classrooms = await prisma.classroom.findMany({
@@ -33,6 +33,21 @@ module.exports = {
       });
 
       return res;
+    },
+    getLearnerClassrooms: async (_: any, __: any, context: any) => {
+      logger.info("GraphQL classrooms/getLearnerClassrooms");
+      const user = isAuth(context);
+
+      const classrooms = await prisma.usersOnClassrooms.findMany({
+        where: {
+          userId: user.id,
+        },
+        include: {
+          classroom: true,
+        },
+      });
+
+      return classrooms;
     },
     getClassroom: async (_: any, { classroomId }: any, context: any) => {
       logger.info("GraphQL classrooms/getClassroom");

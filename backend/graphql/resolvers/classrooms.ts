@@ -38,7 +38,7 @@ module.exports = {
       logger.info("GraphQL classrooms/getLearnerClassrooms");
       const user = isAuth(context);
 
-      const classrooms = await prisma.usersOnClassrooms.findMany({
+      const usersOnClassrooms = await prisma.usersOnClassrooms.findMany({
         where: {
           userId: user.id,
         },
@@ -47,7 +47,7 @@ module.exports = {
         },
       });
 
-      return classrooms;
+      return usersOnClassrooms.map((e) => e.classroom);
     },
     getClassroom: async (_: any, { classroomId }: any, context: any) => {
       logger.info("GraphQL classrooms/getClassroom");

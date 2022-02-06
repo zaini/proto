@@ -1,23 +1,13 @@
-import React, { createContext, useState } from "react";
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Center,
-  Heading,
-  Spinner,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { Link, useParams } from "react-router-dom";
-import { Tabs, Tab, TabList, TabPanels, TabPanel } from "@chakra-ui/react";
+import React, { createContext, useContext } from "react";
+import { Center, Spinner } from "@chakra-ui/react";
+import { useParams } from "react-router-dom";
 import gql from "graphql-tag";
-import { useMutation, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { Classroom as ClassroomType } from "../../../../gql-types";
-import CopyLink from "../../../../components/CopyLink/CopyLink";
-import ClassroomStudentsPanel from "./ClassroomStudentsPanel/ClassroomStudentsPanel";
-import ClassroomAssignmentsPanel from "./ClassroomAssignmentsPanel/ClassroomAssignmentsPanel";
-import DeleteClassroom from "../DeleteClassroom/DeleteClassroom";
-import CreateAssignment from "./CreateAssignment/CreateAssignment";
+import { AuthContext } from "../../../../context/Auth";
+import { AccountType } from "../../../../utils";
+import TeacherClassroom from "./TeacherClassroom";
+import LearnerClassroom from "./LearnerClassroom";
 
 const ClassroomContext = createContext<ClassroomType | any>({ classroom: {} });
 
@@ -54,96 +44,14 @@ const GET_CLASSROOM = gql`
   }
 `;
 
-const DELETE_CLASSROOM = gql`
-  mutation DeleteClassroom(
-    $classroomId: ID!
-    $classroomName: String!
-    $password: String
-  ) {
-    deleteClassroom(
-      classroomId: $classroomId
-      classroomName: $classroomName
-      password: $password
-    )
-  }
-`;
-
-const CREATE_ASSIGNMENT = gql`
-  mutation createAssignment(
-    $classroomId: ID!
-    $assignmentName: String!
-    $dueDate: String!
-    $problemIds: [ID!]
-  ) {
-    createAssignment(
-      classroomId: $classroomId
-      assignmentName: $assignmentName
-      dueDate: $dueDate
-      problemIds: $problemIds
-    ) {
-      id
-      name
-      createdAt
-      dueDate
-      problems {
-        id
-        specification {
-          title
-        }
-      }
-    }
-  }
-`;
-
 const Classroom = () => {
   const { classroomId } = useParams();
 
-  const {
-    isOpen: isOpenDeleteClassroom,
-    onOpen: onOpenDeleteClassroom,
-    onClose: onCloseDeleteClassroom,
-  } = useDisclosure();
-
-  const {
-    isOpen: isOpenSetAssignment,
-    onOpen: onOpenSetAssignment,
-    onClose: onCloseSetAssignment,
-  } = useDisclosure();
-
-  const [tabIndex, setTabIndex] = useState(0);
+  const { accountType }: any = useContext(AuthContext);
 
   const { loading, error, data } = useQuery(GET_CLASSROOM, {
     variables: {
       classroomId: classroomId,
-    },
-  });
-
-  const [deleteClassroom] = useMutation(DELETE_CLASSROOM, {
-    onCompleted: ({ deleteClassroom }) => {
-      window.location.href = `/dashboard/classrooms/`;
-    },
-    onError(err) {
-      const message =
-        (err.graphQLErrors &&
-          err.graphQLErrors[0] &&
-          err.graphQLErrors[0].message) ||
-        err.message;
-      window.alert(`Failed to delete classroom. \n\n${message}`);
-    },
-  });
-
-  const [createAssignment] = useMutation(CREATE_ASSIGNMENT, {
-    onCompleted: ({ createAssignment }) => {
-      console.log(createAssignment);
-      window.location.href = `/dashboard/classrooms/${classroomId}/assignments/${createAssignment.id}`;
-    },
-    onError(err) {
-      const message =
-        (err.graphQLErrors &&
-          err.graphQLErrors[0] &&
-          err.graphQLErrors[0].message) ||
-        err.message;
-      window.alert(`Failed to create assignment. \n\n${message}`);
     },
   });
 
@@ -166,76 +74,11 @@ const Classroom = () => {
 
   return (
     <ClassroomContext.Provider value={{ classroom: classroomData }}>
-      <DeleteClassroom
-        isOpen={isOpenDeleteClassroom}
-        onClose={onCloseDeleteClassroom}
-        deleteClassroom={deleteClassroom}
-      />
-
-      <CreateAssignment
-        isOpen={isOpenSetAssignment}
-        onClose={onCloseSetAssignment}
-        classroom={classroomData}
-        createAssignment={createAssignment}
-      />
-
-      <Box mx={4}>
-        <Link to={`/dashboard/classrooms`}>
-          <Button my={4}>&lt;- All Classrooms</Button>
-        </Link>
-
-        <Heading>
-          #{classroomId} {classroomData.name}
-        </Heading>
-        <Heading size={"sm"}>
-          Created:{" "}
-          {new Date(parseInt(classroomData.createdAt)).toLocaleString()}
-        </Heading>
-        <Heading fontSize={"0.9em"}>
-          {classroomData.password === ""
-            ? "public"
-            : "private (password required to join)"}
-        </Heading>
-        <Heading size={"sm"}>
-          Owner: {`${classroomData.creator!.username}`}
-        </Heading>
-
-        <Center>
-          <ButtonGroup>
-            <Button onClick={onOpenSetAssignment}>Set Assignment</Button>
-            <CopyLink
-              link={
-                window.location.origin +
-                `/dashboard/classrooms/join/${classroomId}`
-              }
-              text={"Copy Invite Link"}
-            />
-            <Button colorScheme={"red"} onClick={onOpenDeleteClassroom}>
-              Delete Classroom
-            </Button>
-          </ButtonGroup>
-        </Center>
-
-        <Tabs
-          index={tabIndex}
-          onChange={(index) => {
-            setTabIndex(index);
-          }}
-        >
-          <TabList>
-            <Tab>Students</Tab>
-            <Tab>Assignments</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <ClassroomStudentsPanel />
-            </TabPanel>
-            <TabPanel>
-              <ClassroomAssignmentsPanel onOpen={onOpenSetAssignment} />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Box>
+      {accountType === AccountType.Teacher ? (
+        <TeacherClassroom />
+      ) : (
+        <LearnerClassroom />
+      )}
     </ClassroomContext.Provider>
   );
 };

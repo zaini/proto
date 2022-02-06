@@ -25,16 +25,23 @@ module.exports = {
       return parsedUsers;
     },
     getUser: async (_: any, { userId }: any, context: any) => {
-      const user = await prisma.user.findUnique({
+      let user = await prisma.user.findUnique({
         where: { id: parseInt(userId) },
         include: {
           problems: true,
           classrooms: true,
-          UsersOnClassrooms: true,
+          UsersOnClassrooms: {
+            include: {
+              classroom: true,
+            },
+          },
         },
       });
 
-      return user;
+      return {
+        ...user,
+        UsersOnClassrooms: user?.UsersOnClassrooms.map((e) => e.classroom),
+      };
     },
     isLoggedIn: (_: any, __: any, context: any) => {
       logger.info("GraphQL users/isLoggedIn");

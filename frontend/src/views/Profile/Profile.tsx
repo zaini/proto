@@ -50,7 +50,7 @@ const Profile = () => {
       </Center>
     );
   // TODO have an actual error page and log this
-  if (error) return <>Could not find user.</>;
+  if (error) return <>Could not find user. {error.message}</>;
 
   const profile: User = data.getUser;
 
@@ -58,7 +58,8 @@ const Profile = () => {
     <div>
       Profile {profile.id} {profile.username}
       <br />
-      {profile.username} owns {profile.classrooms.length} classrooms.
+      {profile.username} owns{" "}
+      {profile.classrooms ? profile.classrooms.length : 0} classrooms.
       <br />
       {profile.username} is a student in{" "}
       {profile.UsersOnClassrooms ? profile.UsersOnClassrooms.length : 0}{" "}

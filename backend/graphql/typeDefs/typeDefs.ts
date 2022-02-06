@@ -46,8 +46,8 @@ module.exports = gql`
     username: String!
     # accountType: AccountType!
     createdAt: String! # These could all be Date scalar
-    problems: [Problem]!
-    classrooms: [Classroom]! # Classrooms this user owns
+    problems: [Problem]
+    classrooms: [Classroom] # Classrooms this user owns
     UsersOnClassrooms: [Classroom] # Classrooms this user is a student in
   }
   type Classroom {

@@ -25,8 +25,7 @@ const ClassroomStudentsPanel = () => {
     <>
       <RemoveStudent
         isOpen={isOpen}
-        onClose={onOpen}
-        assignment={onClose}
+        onClose={onClose}
         student={studentToView}
         classroom={classroom}
       />

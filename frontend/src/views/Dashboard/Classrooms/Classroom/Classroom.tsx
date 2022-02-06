@@ -187,7 +187,10 @@ const Classroom = () => {
         <Heading>
           #{classroomId} {classroomData.name}
         </Heading>
-        <Heading size={"sm"}>Created: {new Date().toLocaleString()}</Heading>
+        <Heading size={"sm"}>
+          Created:{" "}
+          {new Date(parseInt(classroomData.createdAt)).toLocaleString()}
+        </Heading>
         <Heading fontSize={"0.9em"}>
           {classroomData.password === ""
             ? "public"

@@ -60,11 +60,6 @@ const LearnerClassroomAssignmentsPanel = () => {
                     >
                       <Button colorScheme={"blue"}>View</Button>
                     </Link>
-                    <Link
-                      to={`/dashboard/classrooms/${classroom.id}/assignments/${assignment.id}/submissions`}
-                    >
-                      <Button colorScheme={"blue"}>Submissions</Button>
-                    </Link>
                   </ButtonGroup>
                 ),
               };

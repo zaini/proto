@@ -46,7 +46,7 @@ const IndexRouter = () => {
               }
               element={<Assignment />}
             />
-            <Route
+            {/* <Route
               path={
                 "/dashboard/classrooms/:classroomId/assignments/:assignmentId/submissions"
               }
@@ -57,7 +57,7 @@ const IndexRouter = () => {
                 "/dashboard/classrooms/:classroomId/assignments/:assignmentId/submissions/:submissionId"
               }
               element={<Submission />}
-            />
+            /> */}
             <Route path={"/problems/:problemId"} element={<Problem />} />
             <Route path={"/profile/settings"} element={<Settings />} />
             <Route path={"/profile/:userId"} element={<Profile />} />

@@ -140,6 +140,7 @@ export type Query = {
 
 export type QueryGetAssignmentArgs = {
   assignmentId: Scalars['ID'];
+  classroomId: Scalars['ID'];
 };
 
 

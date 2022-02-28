@@ -1,29 +1,20 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Center,
-  Heading,
-  Spinner,
-  useDisclosure,
-  Tabs,
-  Tab,
-  TabList,
-  TabPanels,
-  TabPanel,
-} from "@chakra-ui/react";
-import { Link, useParams } from "react-router-dom";
+import React, { createContext, useContext, useState } from "react";
+import { Center, Spinner } from "@chakra-ui/react";
+import { useParams } from "react-router-dom";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { Assignment as AssignmentType } from "../../../../../gql-types";
-import DeleteAssignment from "./DeleteAssignment/DeleteAssignment";
-import AssignmentGeneralPanel from "./AssignmentGeneralPanel/AssignmentGeneralPanel";
-import AssignmentSubmissionsPanel from "./AssignmentSubmissionsPanel/AssignmentSubmissionsPanel";
+import { AuthContext } from "../../../../../context/Auth";
+import TeacherAssignment from "./TeacherAssignment";
+import LearnerAssignment from "./LearnerAssignment";
+
+const AssignmentContext = createContext<AssignmentType | any>({
+  assignment: {},
+});
 
 const GET_ASSIGNMENT = gql`
-  query getAssignment($assignmentId: ID!) {
-    getAssignment(assignmentId: $assignmentId) {
+  query getAssignment($assignmentId: ID!, $classroomId: ID!) {
+    getAssignment(assignmentId: $assignmentId, classroomId: $classroomId) {
       id
       name
       setDate
@@ -31,6 +22,9 @@ const GET_ASSIGNMENT = gql`
       classroom {
         id
         name
+        creator {
+          id
+        }
       }
       submissions {
         id
@@ -48,17 +42,12 @@ const GET_ASSIGNMENT = gql`
 const Assignment = () => {
   const { classroomId, assignmentId } = useParams();
 
-  const {
-    isOpen: isOpenDeleteAssignment,
-    onOpen: onOpenDeleteAssignment,
-    onClose: onCloseDeleteAssignment,
-  } = useDisclosure();
-
-  const [tabIndex, setTabIndex] = useState(0);
+  const { user }: any = useContext(AuthContext);
 
   const { loading, error, data } = useQuery(GET_ASSIGNMENT, {
     variables: {
       assignmentId: assignmentId,
+      classroomId: classroomId,
     },
   });
 
@@ -79,60 +68,18 @@ const Assignment = () => {
 
   const assignmentData: AssignmentType = data.getAssignment;
 
+  // If you created the classroom you can only view it as a teacher, your selected account type doesn't matter.
   return (
     <>
-      <DeleteAssignment
-        isOpen={isOpenDeleteAssignment}
-        onClose={onCloseDeleteAssignment}
-        assignment={assignmentData}
-        classroom={assignmentData.classroom}
-      />
-      <Box mx={4}>
-        <Link to={`/dashboard/classrooms/${classroomId}/assignments`}>
-          <Button my={4}>&lt;- All Assignments</Button>
-        </Link>
-
-        <Heading>
-          Classroom: {assignmentData.classroom.name} | Assignment:{" "}
-          {assignmentData.name}
-        </Heading>
-        <Heading size={"sm"}>
-          Set: {new Date(parseInt(assignmentData.setDate)).toLocaleString()}
-        </Heading>
-        <Heading size={"sm"}>
-          Due: {new Date(parseInt(assignmentData.dueDate)).toLocaleString()}
-        </Heading>
-
-        <Center>
-          <ButtonGroup>
-            <Button colorScheme={"red"} onClick={onOpenDeleteAssignment}>
-              Delete Assignment
-            </Button>
-          </ButtonGroup>
-        </Center>
-
-        <Tabs
-          index={tabIndex}
-          onChange={(index) => {
-            setTabIndex(index);
-          }}
-        >
-          <TabList>
-            <Tab>General</Tab>
-            <Tab>Submissions</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <AssignmentGeneralPanel assignment={assignmentData} />
-            </TabPanel>
-            <TabPanel>
-              <AssignmentSubmissionsPanel assignment={assignmentData} />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Box>
+      <AssignmentContext.Provider value={{ assignment: assignmentData }}>
+        {parseInt(assignmentData.classroom.creator.id) === parseInt(user.id) ? (
+          <TeacherAssignment />
+        ) : (
+          <LearnerAssignment />
+        )}
+      </AssignmentContext.Provider>
     </>
   );
 };
 
-export default Assignment;
+export { Assignment, AssignmentContext };

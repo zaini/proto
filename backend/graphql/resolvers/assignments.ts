@@ -25,8 +25,14 @@ module.exports = {
 
       return parsedAssignments;
     },
-    getAssignment: async (_: any, { assignmentId }: any, context: any) => {
+    getAssignment: async (
+      _: any,
+      { assignmentId, classroomId }: any,
+      context: any
+    ) => {
       logger.info("GraphQL assignment/assignmentId");
+
+      const user = isAuth(context);
 
       // TODO add return stats
       let assignment = await prisma.assignment.findUnique({
@@ -34,10 +40,37 @@ module.exports = {
           id: parseInt(assignmentId),
         },
         include: {
-          classroom: true,
+          classroom: { include: { creator: true } },
           ProblemsOnAssignments: { include: { problem: true } },
         },
       });
+
+      if (assignment?.classroomId !== parseInt(classroomId)) {
+        throw new ApolloError(
+          "Cannot find that assignment for that classroom."
+        );
+      }
+
+      const usersInClassroom = await prisma.usersOnClassrooms.findMany({
+        where: {
+          classroomId: assignment?.classroom.id,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+      // If you don't own the classroom or are not a student in the classroom, you cannot view this assignment
+      if (
+        !(
+          assignment?.classroom.creator.id === user.id ||
+          usersInClassroom.some((x) => x.user.id === user.id)
+        )
+      ) {
+        throw new ApolloError(
+          "You cannot get an assignment you are not associated with."
+        );
+      }
 
       return assignment;
     },
@@ -63,7 +96,7 @@ module.exports = {
       });
 
       if (!classroom || user.id === classroom.id) {
-        new ApolloError(
+        throw new ApolloError(
           "You cannot create an assignment for a classroom you do not own."
         );
       }

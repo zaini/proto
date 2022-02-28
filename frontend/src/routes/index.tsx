@@ -4,7 +4,6 @@ import { AuthContext } from "../context/Auth";
 import Login from "../views/Accounts/Login/Login";
 import Logout from "../views/Accounts/Logout/Logout";
 import Settings from "../views/Profile/Settings/Settings";
-import Assignment from "../views/Dashboard/Classrooms/Classroom/Assignment/Assignment";
 import Submission from "../views/Dashboard/Classrooms/Classroom/Assignment/Submission/Submission";
 import Submissions from "../views/Dashboard/Classrooms/Classroom/Assignment/Submissions/Submissions";
 import { Classroom } from "../views/Dashboard/Classrooms/Classroom/Classroom";
@@ -15,6 +14,7 @@ import Home from "../views/Home/Home";
 import NotFound from "../views/NotFound/NotFound";
 import { Problem } from "../views/Problem/Problem";
 import Profile from "../views/Profile/Profile";
+import { Assignment } from "../views/Dashboard/Classrooms/Classroom/Assignment/Assignment";
 
 const IndexRouter = () => {
   const { user } = useContext(AuthContext);

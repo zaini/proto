@@ -24,6 +24,12 @@ export type Assignment = {
   submissions?: Maybe<Array<Maybe<Submission>>>;
 };
 
+export type AssignmentProblemSubmissions = {
+  __typename?: 'AssignmentProblemSubmissions';
+  problem: Problem;
+  submissions?: Maybe<Array<Submission>>;
+};
+
 export type AuthResponse = {
   __typename?: 'AuthResponse';
   accessToken?: Maybe<Scalars['String']>;
@@ -130,6 +136,7 @@ export type Query = {
   getLearnerClassrooms?: Maybe<Array<Classroom>>;
   getProblem?: Maybe<Problem>;
   getProblems?: Maybe<Array<Problem>>;
+  getSubmissionsForAssignment?: Maybe<Array<Maybe<AssignmentProblemSubmissions>>>;
   getTeacherClassrooms?: Maybe<Array<Classroom>>;
   getUser?: Maybe<User>;
   getUserSubmissionsForProblem?: Maybe<Array<Submission>>;
@@ -151,6 +158,11 @@ export type QueryGetClassroomArgs = {
 
 export type QueryGetProblemArgs = {
   problemId: Scalars['ID'];
+};
+
+
+export type QueryGetSubmissionsForAssignmentArgs = {
+  assignmentId: Scalars['ID'];
 };
 
 
@@ -179,7 +191,7 @@ export type Submission = {
   id: Scalars['ID'];
   language: Scalars['Int'];
   passed: Scalars['Boolean'];
-  problemId: Scalars['ID'];
+  problem: Problem;
   submissionResults?: Maybe<Array<TestCaseResult>>;
   userId: Scalars['ID'];
 };

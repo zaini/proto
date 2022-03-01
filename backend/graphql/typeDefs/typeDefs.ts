@@ -79,13 +79,17 @@ module.exports = gql`
   type Submission {
     id: ID!
     userId: ID!
-    problemId: ID!
+    problem: Problem!
     submissionResults: [TestCaseResult!]
     createdAt: String!
     passed: Boolean!
     avgMemory: Float!
     avgTime: Float!
     language: Int!
+  }
+  type AssignmentProblemSubmissions {
+    problem: Problem!
+    submissions: [Submission!]
   }
 
   type Mutation {
@@ -150,6 +154,9 @@ module.exports = gql`
 
     # Submission Queries
     getUserSubmissionsForProblem(problemId: ID!): [Submission!]
+    getSubmissionsForAssignment(
+      assignmentId: ID!
+    ): [AssignmentProblemSubmissions]
     # End of Submission Queries
   }
 `;

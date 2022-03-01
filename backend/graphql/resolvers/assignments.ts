@@ -72,7 +72,12 @@ module.exports = {
         );
       }
 
-      return assignment;
+      return {
+        ...assignment,
+        problems: assignment.ProblemsOnAssignments.map((x) => {
+          return { ...x.problem };
+        }),
+      };
     },
   },
   Mutation: {

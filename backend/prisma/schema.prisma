@@ -17,15 +17,16 @@ datasource db {
 // }
 
 model User {
-  id                Int                 @id @default(autoincrement())
-  githubId          String              @unique
-  username          String              @unique
+  id                   Int                    @id @default(autoincrement())
+  githubId             String                 @unique
+  username             String                 @unique
   // accountType       AccountType         @default(LEARNER)
-  createdAt         DateTime            @default(now())
-  classrooms        Classroom[] // Classrooms the User has created
-  problems          Problem[] // Problems the User has created
-  UsersOnClassrooms UsersOnClassrooms[] // Rename this. Classrooms the User is a LEARNER in
-  Submission        Submission[]
+  createdAt            DateTime               @default(now())
+  classrooms           Classroom[] // Classrooms the User has created
+  problems             Problem[] // Problems the User has created
+  UsersOnClassrooms    UsersOnClassrooms[] // Rename this. Classrooms the User is a LEARNER in
+  Submission           Submission[]
+  AssignmentSubmission AssignmentSubmission[]
 }
 
 model Classroom {
@@ -58,6 +59,7 @@ model Assignment {
   setDate               DateTime
   dueDate               DateTime
   ProblemsOnAssignments ProblemsOnAssignments[]
+  AssignmentSubmission  AssignmentSubmission[]
 }
 
 model Problem {
@@ -69,17 +71,33 @@ model Problem {
   specification         Json
   ProblemsOnAssignments ProblemsOnAssignments[]
   Submission            Submission[]
+  AssignmentSubmission  AssignmentSubmission[]
 }
 
 model Submission {
-  id                Int      @id @default(autoincrement())
-  user              User     @relation(fields: [userId], references: [id])
-  userId            Int
-  problem           Problem  @relation(fields: [problemId], references: [id])
-  submissionResults Json
-  problemId         Int
-  createdAt         DateTime @default(now())
-  language          Int
+  id                   Int                    @id @default(autoincrement())
+  user                 User                   @relation(fields: [userId], references: [id])
+  userId               Int
+  problem              Problem                @relation(fields: [problemId], references: [id])
+  submissionResults    Json
+  problemId            Int
+  createdAt            DateTime               @default(now())
+  language             Int
+  AssignmentSubmission AssignmentSubmission[]
+}
+
+model AssignmentSubmission {
+  user         User       @relation(fields: [userId], references: [id])
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  problem      Problem    @relation(fields: [problemId], references: [id])
+  submission   Submission @relation(fields: [submissionId], references: [id])
+  userId       Int
+  assignmentId Int
+  problemId    Int
+  submissionId Int
+  createdAt    DateTime   @default(now())
+
+  @@id([userId, assignmentId, problemId])
 }
 
 model ProblemsOnAssignments {

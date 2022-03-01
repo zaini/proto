@@ -11,13 +11,11 @@ const AssignmentGeneralPanel = () => {
     <>
       Problems:
       <br />
-      {assignment.problems?.map((problem: Problem, i: number) => {
+      {assignment.problems?.map((problem: Problem) => {
         return (
-          <>
-            <Link href={`/problems/${problem.id}`}>
-              #{problem.id} {problem.specification.title}
-            </Link>
-          </>
+          <Link key={problem.id} href={`/problems/${problem.id}`}>
+            #{problem.id} {problem.specification.title}
+          </Link>
         );
       })}
       Stats go here like average times, average memory, total submissions made,

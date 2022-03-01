@@ -3,13 +3,38 @@ import { AuthContext } from "../../../../../../context/Auth";
 import {
   Assignment,
   AssignmentProblemSubmissions,
+  AssignmentSubmission,
   Submission,
 } from "../../../../../../gql-types";
 import { AccountType } from "../../../../../../utils";
 import { AssignmentContext } from "../Assignment";
 import gql from "graphql-tag";
-import { useLazyQuery, useQuery } from "@apollo/client";
-import { Center, List, ListItem, Spinner } from "@chakra-ui/react";
+import { useLazyQuery } from "@apollo/client";
+import { Box, Center, List, ListItem, Spinner } from "@chakra-ui/react";
+
+const GET_CURRENT_SUBMISSION = gql`
+  query getAssignmentSubmissions($assignmentId: ID!) {
+    getAssignmentSubmissions(assignmentId: $assignmentId) {
+      problem {
+        id
+        specification {
+          title
+        }
+      }
+      submission {
+        id
+        passed
+        avgTime
+        avgMemory
+        language
+        createdAt
+        submissionResults {
+          passed
+        }
+      }
+    }
+  }
+`;
 
 const GET_ASSIGNMENT_SUBMISSIONS = gql`
   query getSubmissionsForAssignment($assignmentId: ID!) {
@@ -41,9 +66,29 @@ const AssignmentSubmissionsPanel = () => {
 
   const { accountType }: any = useContext(AuthContext);
 
+  const [assignmentSubmissions, setAssignmentSubmissions] = useState<
+    AssignmentSubmission[]
+  >([]);
+
   const [problemSubmissions, setProblemSubmissions] = useState<
     AssignmentProblemSubmissions[]
   >([]);
+
+  const [
+    getAssignmentSubmissions,
+    {
+      loading: currentSubmissionLoading,
+      error: currentSubmissionError,
+      data: currentSubmissionData,
+    },
+  ] = useLazyQuery(GET_CURRENT_SUBMISSION, {
+    onCompleted: ({ getAssignmentSubmissions }) => {
+      setAssignmentSubmissions(getAssignmentSubmissions);
+    },
+    variables: {
+      assignmentId: assignment.id,
+    },
+  });
 
   const [getProblemSubmissions, { loading, error, data }] = useLazyQuery(
     GET_ASSIGNMENT_SUBMISSIONS,
@@ -58,6 +103,7 @@ const AssignmentSubmissionsPanel = () => {
   );
 
   useEffect(() => {
+    getAssignmentSubmissions();
     getProblemSubmissions();
   }, []);
 
@@ -76,7 +122,7 @@ const AssignmentSubmissionsPanel = () => {
   // TODO have an actual error page and log this
   if (error) return <>Error! ${error.message}</>;
 
-  console.log(problemSubmissions);
+  console.log(assignmentSubmissions);
 
   return (
     <>
@@ -94,6 +140,25 @@ const AssignmentSubmissionsPanel = () => {
           the submission for each problem in the assignment. they can change
           this any time.
           <br />
+          Current submission:
+          <br />
+          <List>
+            {assignmentSubmissions.map((x: AssignmentSubmission) => {
+              const problem = x.problem;
+              const submission = x.submission;
+              return (
+                <ListItem key={problem.id}>
+                  {submission ? (
+                    <>
+                      {submission.id} {"" + submission.passed}
+                    </>
+                  ) : (
+                    "no submission made"
+                  )}
+                </ListItem>
+              );
+            })}
+          </List>
           <br />
           <br />
           {problemSubmissions.map(
@@ -102,7 +167,7 @@ const AssignmentSubmissionsPanel = () => {
               const submissions = x.submissions;
 
               return (
-                <>
+                <Box key={problem.id}>
                   Problem: # {problem.id} {problem.specification.title}
                   <br />
                   Submissions:
@@ -110,13 +175,13 @@ const AssignmentSubmissionsPanel = () => {
                   <List>
                     {submissions?.map((submission: Submission) => {
                       return (
-                        <ListItem>
+                        <ListItem key={submission.id}>
                           {submission.id} {"" + submission.passed}
                         </ListItem>
                       );
                     })}
                   </List>
-                </>
+                </Box>
               );
             }
           )}

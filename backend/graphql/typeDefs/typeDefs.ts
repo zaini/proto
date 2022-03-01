@@ -87,9 +87,14 @@ module.exports = gql`
     avgTime: Float!
     language: Int!
   }
+  # These are submissions to problems which are related to an assignment, not the current submission for an assignment
   type AssignmentProblemSubmissions {
     problem: Problem!
     submissions: [Submission!]
+  }
+  type AssignmentSubmission {
+    problem: Problem!
+    submission: Submission
   }
 
   type Mutation {
@@ -127,6 +132,10 @@ module.exports = gql`
     ): TestSubmissionResult!
     submitProblem(problemId: ID!, code: String, language: Int): Submission!
     # End of Problem Mutations
+
+    # Submission Mutations
+    setAssignmentSubmissions(assignmentId: ID!, submissionId: ID!): Boolean
+    # End of Submission Mutations
   }
 
   type Query {
@@ -154,6 +163,7 @@ module.exports = gql`
 
     # Submission Queries
     getUserSubmissionsForProblem(problemId: ID!): [Submission!]
+    getAssignmentSubmissions(assignmentId: ID!): [AssignmentSubmission]
     getSubmissionsForAssignment(
       assignmentId: ID!
     ): [AssignmentProblemSubmissions]

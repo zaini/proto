@@ -117,6 +117,7 @@ if __name__ == "__main__":
   await prisma.problemsOnAssignments.createMany({
     data: [
       { problemId: problem1.id, assignmentId: 1 },
+      { problemId: problem3.id, assignmentId: 1 },
       { problemId: problem3.id, assignmentId: 2 },
       { problemId: problem2.id, assignmentId: 3 },
       { problemId: problem1.id, assignmentId: 4 },

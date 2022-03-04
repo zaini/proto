@@ -6,10 +6,10 @@ import {
   AssignmentSubmission,
   Submission,
 } from "../../../../../../gql-types";
-import { AccountType } from "../../../../../../utils";
+import { AccountType, AssignmentSubmissionMap } from "../../../../../../utils";
 import { AssignmentContext } from "../Assignment";
 import gql from "graphql-tag";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   Box,
   Button,
@@ -18,10 +18,11 @@ import {
   Heading,
   Link,
   Spinner,
+  Text,
 } from "@chakra-ui/react";
 import CustomTable from "../../../../../../components/CustomTable/CustomTable";
 
-const GET_CURRENT_SUBMISSION = gql`
+const GET_CURRENT_ASSIGNMENT_SUBMISSION = gql`
   query getAssignmentSubmissions($assignmentId: ID!) {
     getAssignmentSubmissions(assignmentId: $assignmentId) {
       problem {
@@ -57,15 +58,32 @@ const GET_ASSIGNMENT_SUBMISSIONS = gql`
       submissions {
         id
         passed
-        avgTime
-        avgMemory
-        language
-        createdAt
-        submissionResults {
-          passed
-        }
       }
     }
+  }
+`;
+
+const SET_ASSIGNMENT_PROBLEM_SUBMISSION = gql`
+  mutation setAssignmentProblemSubmission(
+    $assignmentId: ID!
+    $submissionId: ID!
+  ) {
+    setAssignmentProblemSubmission(
+      assignmentId: $assignmentId
+      submissionId: $submissionId
+    )
+  }
+`;
+
+const REMOVE_ASSIGNMENT_PROBLEM_SUBMISSION = gql`
+  mutation removeAssignmentProblemSubmission(
+    $assignmentId: ID!
+    $problemId: ID!
+  ) {
+    removeAssignmentProblemSubmission(
+      assignmentId: $assignmentId
+      problemId: $problemId
+    )
   }
 `;
 
@@ -75,9 +93,8 @@ const AssignmentSubmissionsPanel = () => {
 
   const { accountType }: any = useContext(AuthContext);
 
-  const [assignmentSubmissions, setAssignmentSubmissions] = useState<
-    AssignmentSubmission[]
-  >([]);
+  const [assignmentSubmissions, setAssignmentSubmissions] =
+    useState<AssignmentSubmissionMap>({});
 
   const [problemSubmissions, setProblemSubmissions] = useState<
     AssignmentProblemSubmissions[]
@@ -90,9 +107,13 @@ const AssignmentSubmissionsPanel = () => {
       error: currentSubmissionError,
       data: currentSubmissionData,
     },
-  ] = useLazyQuery(GET_CURRENT_SUBMISSION, {
+  ] = useLazyQuery(GET_CURRENT_ASSIGNMENT_SUBMISSION, {
     onCompleted: ({ getAssignmentSubmissions }) => {
-      setAssignmentSubmissions(getAssignmentSubmissions);
+      const x: AssignmentSubmissionMap = getAssignmentSubmissions.reduce(
+        (a: any, v: AssignmentSubmission) => ({ ...a, [v.problem.id]: v }),
+        {}
+      );
+      setAssignmentSubmissions(x);
     },
     variables: {
       assignmentId: assignment.id,
@@ -107,6 +128,44 @@ const AssignmentSubmissionsPanel = () => {
       },
       variables: {
         assignmentId: assignment.id,
+      },
+    }
+  );
+
+  const [setAssignmentProblemSubmission] = useMutation(
+    SET_ASSIGNMENT_PROBLEM_SUBMISSION,
+    {
+      onCompleted: () => {
+        getAssignmentSubmissions();
+      },
+      onError(err) {
+        const message =
+          (err.graphQLErrors &&
+            err.graphQLErrors[0] &&
+            err.graphQLErrors[0].message) ||
+          err.message;
+        window.alert(
+          `Failed to assign submission for this problem. \n\n${message}`
+        );
+      },
+    }
+  );
+
+  const [removeAssignmentProblemSubmission] = useMutation(
+    REMOVE_ASSIGNMENT_PROBLEM_SUBMISSION,
+    {
+      onCompleted: () => {
+        getAssignmentSubmissions();
+      },
+      onError(err) {
+        const message =
+          (err.graphQLErrors &&
+            err.graphQLErrors[0] &&
+            err.graphQLErrors[0].message) ||
+          err.message;
+        window.alert(
+          `Failed to remove submission for this problem. \n\n${message}`
+        );
       },
     }
   );
@@ -150,29 +209,44 @@ const AssignmentSubmissionsPanel = () => {
           <Box my={4}>
             <Heading>Current submission for this assignment</Heading>
             <CustomTable
-              data={assignmentSubmissions.map((x: AssignmentSubmission) => {
-                const problem = x.problem;
-                const submission = x.submission;
+              data={Object.entries(assignmentSubmissions).map(
+                ([problemId, assignmentSubmission]) => {
+                  console.log("data", problemId, assignmentSubmission);
 
-                return {
-                  id: problem.id,
-                  problemName: problem.specification.title,
-                  submission: submission ? "" + submission.id : "N/A",
-                  passed: submission ? "" + submission.passed : "N/A",
-                  options: (
-                    <ButtonGroup>
-                      <Button
-                        isDisabled={submission === null}
-                        colorScheme={"blue"}
-                      >
-                        {submission
-                          ? "Remove as submission for this problem"
-                          : "You must set a submission for this problem"}
-                      </Button>
-                    </ButtonGroup>
-                  ),
-                };
-              })}
+                  const problem = assignmentSubmission.problem;
+                  const submission = assignmentSubmission.submission;
+
+                  return {
+                    id: problem.id,
+                    problemName: problem.specification.title,
+                    submission: submission ? "" + submission.id : "N/A",
+                    passed: submission ? "" + submission.passed : "N/A",
+                    options: (
+                      <ButtonGroup>
+                        {submission === null ? (
+                          <Button isDisabled={true} colorScheme={"blue"}>
+                            You must set a submission for this problem
+                          </Button>
+                        ) : (
+                          <Button
+                            colorScheme={"blue"}
+                            onClick={() => {
+                              removeAssignmentProblemSubmission({
+                                variables: {
+                                  assignmentId: assignment.id,
+                                  problemId: problem.id,
+                                },
+                              });
+                            }}
+                          >
+                            Remove as submission for this problem
+                          </Button>
+                        )}
+                      </ButtonGroup>
+                    ),
+                  };
+                }
+              )}
               columns={[
                 {
                   Header: "ID",
@@ -197,69 +271,87 @@ const AssignmentSubmissionsPanel = () => {
               ]}
             />
           </Box>
-          {problemSubmissions.map(
-            (x: AssignmentProblemSubmissions, i: number) => {
-              const problem = x.problem;
-              const submissions = x.submissions;
+          {problemSubmissions.map((x: AssignmentProblemSubmissions) => {
+            const problem = x.problem;
+            const submissions = x.submissions;
 
-              return (
-                <Box key={problem.id}>
-                  <Heading>
-                    Problem: #{problem.id} {problem.specification.title}
-                  </Heading>
-                  <Button
-                    as={Link}
-                    href={`/problems/${problem.id}`}
-                    target={"_blank"}
-                    colorScheme={"blue"}
-                  >
-                    Go to problem
-                  </Button>
+            return (
+              <Box key={problem.id} mt={16}>
+                <Heading>
+                  Problem: #{problem.id} {problem.specification.title}
+                </Heading>
+                <Button
+                  mt={4}
+                  as={Link}
+                  href={`/problems/${problem.id}`}
+                  target={"_blank"}
+                  colorScheme={"blue"}
+                >
+                  Go to problem
+                </Button>
 
-                  <Box mt={4}>
-                    {submissions ? (
-                      <CustomTable
-                        data={submissions.map((submission: Submission) => {
-                          return {
-                            id: submission.id,
-                            passed: "" + submission.passed,
-                            options: (
-                              <ButtonGroup>
-                                <Button colorScheme={"blue"}>
-                                  View Submission
+                <Box mt={4}>
+                  {submissions && submissions.length > 0 ? (
+                    <CustomTable
+                      data={submissions.map((submission: Submission) => {
+                        return {
+                          id: submission.id,
+                          passed: "" + submission.passed,
+                          options: (
+                            <ButtonGroup>
+                              <Button colorScheme={"blue"}>
+                                View Submission
+                              </Button>
+                              {assignmentSubmissions[problem.id] &&
+                              assignmentSubmissions[problem.id].submission &&
+                              assignmentSubmissions[problem.id].submission!
+                                .id === submission.id ? (
+                                <Button isDisabled={true} colorScheme={"blue"}>
+                                  Submission is used for this problem
                                 </Button>
-                                <Button colorScheme={"blue"}>
+                              ) : (
+                                <Button
+                                  colorScheme={"blue"}
+                                  onClick={() => {
+                                    setAssignmentProblemSubmission({
+                                      variables: {
+                                        assignmentId: assignment.id,
+                                        submissionId: submission.id,
+                                      },
+                                    });
+                                  }}
+                                >
                                   Set as submission for this problem
                                 </Button>
-                              </ButtonGroup>
-                            ),
-                          };
-                        })}
-                        columns={[
-                          {
-                            Header: "ID",
-                            accessor: "id",
-                          },
-                          {
-                            Header: "Passed",
-                            accessor: "passed",
-                          },
-                          {
-                            Header: "Options",
-                            accessor: "options",
-                          },
-                        ]}
-                      />
-                    ) : (
-                      <Heading textAlign={"center"}>
-                        You have not made any submissions for this problem
-                      </Heading>
-                    )}
-                  </Box>
+                              )}
+                            </ButtonGroup>
+                          ),
+                        };
+                      })}
+                      columns={[
+                        {
+                          Header: "ID",
+                          accessor: "id",
+                        },
+                        {
+                          Header: "Passed",
+                          accessor: "passed",
+                        },
+                        {
+                          Header: "Options",
+                          accessor: "options",
+                        },
+                      ]}
+                    />
+                  ) : (
+                    <Text textAlign={"center"}>
+                      You have not made any submissions for this problem
+                    </Text>
+                  )}
                 </Box>
-              );
-            }
-          )}
+              </Box>
+            );
+          })}
         </>
       )}
     </>

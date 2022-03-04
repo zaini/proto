@@ -60,8 +60,9 @@ export type Mutation = {
   deleteClassroom?: Maybe<Scalars['Boolean']>;
   joinClassroom?: Maybe<Classroom>;
   removeAssignment?: Maybe<Scalars['Boolean']>;
+  removeAssignmentProblemSubmission?: Maybe<Scalars['Boolean']>;
   removeStudent?: Maybe<Scalars['Boolean']>;
-  setAssignmentSubmissions?: Maybe<Scalars['Boolean']>;
+  setAssignmentProblemSubmission?: Maybe<Scalars['Boolean']>;
   submitProblem: Submission;
   submitTests: TestSubmissionResult;
 };
@@ -106,13 +107,19 @@ export type MutationRemoveAssignmentArgs = {
 };
 
 
+export type MutationRemoveAssignmentProblemSubmissionArgs = {
+  assignmentId: Scalars['ID'];
+  problemId: Scalars['ID'];
+};
+
+
 export type MutationRemoveStudentArgs = {
   classroomId: Scalars['ID'];
   studentId: Scalars['ID'];
 };
 
 
-export type MutationSetAssignmentSubmissionsArgs = {
+export type MutationSetAssignmentProblemSubmissionArgs = {
   assignmentId: Scalars['ID'];
   submissionId: Scalars['ID'];
 };

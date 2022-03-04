@@ -1,6 +1,10 @@
-enum AccountType {
+import { AssignmentSubmission } from "../gql-types";
+
+export enum AccountType {
   Learner = "learner",
   Teacher = "teacher",
 }
 
-export { AccountType };
+export type AssignmentSubmissionMap = {
+  [problemId: string]: AssignmentSubmission;
+};

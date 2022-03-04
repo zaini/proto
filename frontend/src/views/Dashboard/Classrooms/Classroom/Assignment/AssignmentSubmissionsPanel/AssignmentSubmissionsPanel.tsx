@@ -10,7 +10,16 @@ import { AccountType } from "../../../../../../utils";
 import { AssignmentContext } from "../Assignment";
 import gql from "graphql-tag";
 import { useLazyQuery } from "@apollo/client";
-import { Box, Center, List, ListItem, Spinner } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Center,
+  Heading,
+  Link,
+  Spinner,
+} from "@chakra-ui/react";
+import CustomTable from "../../../../../../components/CustomTable/CustomTable";
 
 const GET_CURRENT_SUBMISSION = gql`
   query getAssignmentSubmissions($assignmentId: ID!) {
@@ -122,8 +131,6 @@ const AssignmentSubmissionsPanel = () => {
   // TODO have an actual error page and log this
   if (error) return <>Error! ${error.message}</>;
 
-  console.log(assignmentSubmissions);
-
   return (
     <>
       all submissions {assignment.id}
@@ -140,27 +147,56 @@ const AssignmentSubmissionsPanel = () => {
           the submission for each problem in the assignment. they can change
           this any time.
           <br />
-          Current submission:
-          <br />
-          <List>
-            {assignmentSubmissions.map((x: AssignmentSubmission) => {
-              const problem = x.problem;
-              const submission = x.submission;
-              return (
-                <ListItem key={problem.id}>
-                  {submission ? (
-                    <>
-                      {submission.id} {"" + submission.passed}
-                    </>
-                  ) : (
-                    "no submission made"
-                  )}
-                </ListItem>
-              );
-            })}
-          </List>
-          <br />
-          <br />
+          <Box my={4}>
+            <Heading>Current submission for this assignment</Heading>
+            <CustomTable
+              data={assignmentSubmissions.map((x: AssignmentSubmission) => {
+                const problem = x.problem;
+                const submission = x.submission;
+
+                return {
+                  id: problem.id,
+                  problemName: problem.specification.title,
+                  submission: submission ? "" + submission.id : "N/A",
+                  passed: submission ? "" + submission.passed : "N/A",
+                  options: (
+                    <ButtonGroup>
+                      <Button
+                        isDisabled={submission === null}
+                        colorScheme={"blue"}
+                      >
+                        {submission
+                          ? "Remove as submission for this problem"
+                          : "You must set a submission for this problem"}
+                      </Button>
+                    </ButtonGroup>
+                  ),
+                };
+              })}
+              columns={[
+                {
+                  Header: "ID",
+                  accessor: "id",
+                },
+                {
+                  Header: "Passed",
+                  accessor: "passed",
+                },
+                {
+                  Header: "Problem",
+                  accessor: "problemName",
+                },
+                {
+                  Header: "Submission",
+                  accessor: "submission",
+                },
+                {
+                  Header: "Options",
+                  accessor: "options",
+                },
+              ]}
+            />
+          </Box>
           {problemSubmissions.map(
             (x: AssignmentProblemSubmissions, i: number) => {
               const problem = x.problem;
@@ -168,19 +204,58 @@ const AssignmentSubmissionsPanel = () => {
 
               return (
                 <Box key={problem.id}>
-                  Problem: # {problem.id} {problem.specification.title}
-                  <br />
-                  Submissions:
-                  <br />
-                  <List>
-                    {submissions?.map((submission: Submission) => {
-                      return (
-                        <ListItem key={submission.id}>
-                          {submission.id} {"" + submission.passed}
-                        </ListItem>
-                      );
-                    })}
-                  </List>
+                  <Heading>
+                    Problem: #{problem.id} {problem.specification.title}
+                  </Heading>
+                  <Button
+                    as={Link}
+                    href={`/problems/${problem.id}`}
+                    target={"_blank"}
+                    colorScheme={"blue"}
+                  >
+                    Go to problem
+                  </Button>
+
+                  <Box mt={4}>
+                    {submissions ? (
+                      <CustomTable
+                        data={submissions.map((submission: Submission) => {
+                          return {
+                            id: submission.id,
+                            passed: "" + submission.passed,
+                            options: (
+                              <ButtonGroup>
+                                <Button colorScheme={"blue"}>
+                                  View Submission
+                                </Button>
+                                <Button colorScheme={"blue"}>
+                                  Set as submission for this problem
+                                </Button>
+                              </ButtonGroup>
+                            ),
+                          };
+                        })}
+                        columns={[
+                          {
+                            Header: "ID",
+                            accessor: "id",
+                          },
+                          {
+                            Header: "Passed",
+                            accessor: "passed",
+                          },
+                          {
+                            Header: "Options",
+                            accessor: "options",
+                          },
+                        ]}
+                      />
+                    ) : (
+                      <Heading textAlign={"center"}>
+                        You have not made any submissions for this problem
+                      </Heading>
+                    )}
+                  </Box>
                 </Box>
               );
             }

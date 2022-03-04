@@ -124,22 +124,39 @@ module.exports = {
                 },
               });
 
-            return { problem, ...assignmentSubmission };
+            if (assignmentSubmission) {
+              return {
+                problem,
+                submission: getSubmissionStatistics(
+                  assignmentSubmission?.submission
+                ),
+              };
+            }
+
+            return {
+              problem,
+              submission: null,
+            };
           })
         );
+
+        // Map problem ID to it's problem and submission
+        // x.reduce((a, v) => ({ ...a, [v.problem.id]: v }), {});
+        // GraphQL cannot deal with this transformation as we cannot create a good type for it
+        // So I will just do this transformatin on the frontend
         return x;
       }
 
-      return [];
+      return {};
     },
   },
   Mutation: {
-    setAssignmentSubmissions: async (
+    setAssignmentProblemSubmission: async (
       _: any,
       { assignmentId, submissionId }: any,
       context: any
     ) => {
-      logger.info("GraphQL submissions/setAssignmentSubmissions");
+      logger.info("GraphQL submissions/setAssignmentProblemSubmission");
       const assignment = await prisma.assignment.findUnique({
         where: {
           id: parseInt(assignmentId),
@@ -166,19 +183,21 @@ module.exports = {
       // TODO check if a submission for this problem was already done
 
       if (submission && assignment) {
-        try {
-          await prisma.assignmentSubmission.delete({
-            where: {
-              userId_assignmentId_problemId: {
-                userId: submission.userId,
-                problemId: submission.problemId,
-                assignmentId: assignment.id,
-              },
-            },
-          });
-        } catch (error) {}
-
         if (problems?.some((problem) => problem.id === submission.problemId)) {
+          try {
+            await prisma.assignmentSubmission.delete({
+              where: {
+                userId_assignmentId_problemId: {
+                  userId: submission.userId,
+                  problemId: submission.problemId,
+                  assignmentId: assignment.id,
+                },
+              },
+            });
+          } catch (error) {
+            // throw new ApolloError(error as string);
+          }
+
           const assignmentSubmission = await prisma.assignmentSubmission.create(
             {
               data: {
@@ -197,6 +216,47 @@ module.exports = {
             "The problem this submission solves is not part of this assignment."
           );
         }
+      }
+
+      return false;
+    },
+    removeAssignmentProblemSubmission: async (
+      _: any,
+      { assignmentId, problemId }: any,
+      context: any
+    ) => {
+      logger.info("GraphQL submissions/removeAssignmentProblemSubmission");
+
+      const user = isAuth(context);
+
+      const assignment = await prisma.assignment.findUnique({
+        where: {
+          id: parseInt(assignmentId),
+        },
+        include: {
+          ProblemsOnAssignments: { include: { problem: true } },
+        },
+      });
+
+      if (assignment) {
+        try {
+          await prisma.assignmentSubmission.delete({
+            where: {
+              userId_assignmentId_problemId: {
+                userId: user.id,
+                problemId: parseInt(problemId),
+                assignmentId: assignment.id,
+              },
+            },
+          });
+          return true;
+        } catch (error) {
+          throw new ApolloError(
+            "Could not delete your submission for this assignment problem. It might not exist."
+          );
+        }
+      } else {
+        throw new ApolloError("This assignment does not exist");
       }
 
       return false;

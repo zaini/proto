@@ -134,7 +134,14 @@ module.exports = gql`
     # End of Problem Mutations
 
     # Submission Mutations
-    setAssignmentSubmissions(assignmentId: ID!, submissionId: ID!): Boolean
+    setAssignmentProblemSubmission(
+      assignmentId: ID!
+      submissionId: ID!
+    ): Boolean
+    removeAssignmentProblemSubmission(
+      assignmentId: ID!
+      problemId: ID!
+    ): Boolean
     # End of Submission Mutations
   }
 

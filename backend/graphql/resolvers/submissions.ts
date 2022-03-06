@@ -34,12 +34,12 @@ module.exports = {
 
       return submissionsData;
     },
-    getSubmissionsForAssignment: async (
+    getProblemSubmissionsForAssignment: async (
       _: any,
       { assignmentId }: any,
       context: any
     ) => {
-      logger.info("GraphQL submissions/getSubmissionsForAssignment");
+      logger.info("GraphQL submissions/getProblemSubmissionsForAssignment");
 
       // get problems for assignment
       // get submissions for each problem
@@ -119,7 +119,6 @@ module.exports = {
                 },
                 include: {
                   submission: true,
-                  user: true,
                   problem: true,
                 },
               });
@@ -148,6 +147,73 @@ module.exports = {
       }
 
       return {};
+    },
+    getAssignmentSubmissionsAsTeacher: async (
+      _: any,
+      { assignmentId }: any,
+      context: any
+    ) => {
+      logger.info("GraphQL submissions/getAssignmentSubmissionsAsTeacher");
+
+      const user = isAuth(context);
+
+      const assignment = await prisma.assignment.findUnique({
+        where: {
+          id: parseInt(assignmentId),
+        },
+        include: {
+          ProblemsOnAssignments: { include: { problem: true } },
+          classroom: { include: { creator: true } },
+        },
+      });
+
+      if (!assignment) {
+        throw new ApolloError("This assignment does not exist.");
+      }
+
+      // TODO uncomment this
+      // if (assignment.classroom.creator.id != user.id) {
+      //   throw new ApolloError(
+      //     "This user is the not the creator of this assignment."
+      //   );
+      // }
+
+      const learners = await prisma.usersOnClassrooms.findMany({
+        where: {
+          classroomId: assignment.classroomId,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+      const x = await Promise.all(
+        learners.map(async ({ user }) => {
+          const assignmentSubmission =
+            await prisma.assignmentSubmission.findMany({
+              where: {
+                userId: user.id,
+                assignmentId: assignment.id,
+              },
+              include: {
+                submission: true,
+                problem: true,
+              },
+            });
+
+          return {
+            user,
+            assignmentSubmission: assignmentSubmission.map((as) => {
+              return {
+                ...as,
+                submission: getSubmissionStatistics(as.submission),
+              };
+            }),
+          };
+        })
+      );
+
+      return x;
     },
   },
   Mutation: {

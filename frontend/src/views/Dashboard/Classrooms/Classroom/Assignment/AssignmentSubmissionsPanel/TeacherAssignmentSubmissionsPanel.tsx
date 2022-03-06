@@ -129,18 +129,15 @@ const TeacherAssignmentSubmissionsPanel = () => {
 
             const numOfProblems = assignment.problems?.length;
 
-            const attempts =
-              userAssignmentSubmission.assignmentSubmission?.length;
+            const attempts = assignmentSubmission?.length;
 
-            const solves =
-              userAssignmentSubmission.assignmentSubmission?.filter(
-                (assignmentSubmission) =>
-                  assignmentSubmission?.submission?.passed
-              ).length;
+            const solves = assignmentSubmission?.filter(
+              (assignmentSubmission) => assignmentSubmission?.submission?.passed
+            ).length;
 
             const lastChange = Math.max.apply(
               Math,
-              userAssignmentSubmission.assignmentSubmission!.map((o) => {
+              assignmentSubmission!.map((o) => {
                 return o?.submission?.createdAt
                   ? parseInt(o?.submission?.createdAt)
                   : -Infinity;
@@ -157,7 +154,12 @@ const TeacherAssignmentSubmissionsPanel = () => {
                   : new Date(lastChange).toLocaleString(),
               options: (
                 <ButtonGroup>
-                  <Button colorScheme={"blue"}>View Submission</Button>
+                  <Button
+                    colorScheme={"blue"}
+                    disabled={assignmentSubmission?.length === 0}
+                  >
+                    View Submission
+                  </Button>
                 </ButtonGroup>
               ),
             };

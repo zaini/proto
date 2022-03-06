@@ -181,6 +181,7 @@ module.exports = gql`
     getAssignmentSubmissionsAsTeacher(
       assignmentId: ID!
     ): [UserAssignmentSubmission]
+    getSubmission(submissionId: ID!): Submission
     # End of Submission Queries
   }
 `;

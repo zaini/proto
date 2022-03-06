@@ -15,13 +15,13 @@ const Submissions = ({
 }: SubmissionsProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [modalSubmission, setModalSubmission] = useState<Submission | null>(
-    null
-  );
+  const [modalSubmissionId, setModalSubmissionId] = useState<number>(-1);
 
   return (
     <>
-      <SubmissionModal {...{ isOpen, onClose, submission: modalSubmission }} />
+      <SubmissionModal
+        {...{ isOpen, onClose, submissionId: modalSubmissionId }}
+      />
       <Heading>Latest Submission</Heading>
       {latestSubmission
         ? JSON.stringify({
@@ -49,7 +49,7 @@ const Submissions = ({
                   <Button
                     colorScheme={"teal"}
                     onClick={() => {
-                      setModalSubmission(submission);
+                      setModalSubmissionId(parseInt(submission.id));
                       onOpen();
                     }}
                   >

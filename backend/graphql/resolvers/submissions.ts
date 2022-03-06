@@ -34,6 +34,19 @@ module.exports = {
 
       return submissionsData;
     },
+    getSubmission: async (_: any, { submissionId }: any, context: any) => {
+      logger.info("GraphQL submissions/getSubmission");
+      const submission = await prisma.submission.findUnique({
+        where: {
+          id: parseInt(submissionId),
+        },
+      });
+
+      if (submission) {
+        return getSubmissionStatistics(submission);
+      }
+      throw new ApolloError("Could not find submission with that ID.");
+    },
     getProblemSubmissionsForAssignment: async (
       _: any,
       { assignmentId }: any,

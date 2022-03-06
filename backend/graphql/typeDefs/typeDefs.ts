@@ -96,6 +96,10 @@ module.exports = gql`
     problem: Problem!
     submission: Submission
   }
+  type UserAssignmentSubmission {
+    user: User!
+    assignmentSubmission: [AssignmentSubmission]
+  }
 
   type Mutation {
     # User Mutations
@@ -171,9 +175,12 @@ module.exports = gql`
     # Submission Queries
     getUserSubmissionsForProblem(problemId: ID!): [Submission!]
     getAssignmentSubmissions(assignmentId: ID!): [AssignmentSubmission]
-    getSubmissionsForAssignment(
+    getProblemSubmissionsForAssignment(
       assignmentId: ID!
     ): [AssignmentProblemSubmissions]
+    getAssignmentSubmissionsAsTeacher(
+      assignmentId: ID!
+    ): [UserAssignmentSubmission]
     # End of Submission Queries
   }
 `;

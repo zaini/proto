@@ -152,12 +152,13 @@ export type Query = {
   __typename?: 'Query';
   getAssignment?: Maybe<Assignment>;
   getAssignmentSubmissions?: Maybe<Array<Maybe<AssignmentSubmission>>>;
+  getAssignmentSubmissionsAsTeacher?: Maybe<Array<Maybe<UserAssignmentSubmission>>>;
   getAssignments?: Maybe<Array<Assignment>>;
   getClassroom?: Maybe<Classroom>;
   getLearnerClassrooms?: Maybe<Array<Classroom>>;
   getProblem?: Maybe<Problem>;
+  getProblemSubmissionsForAssignment?: Maybe<Array<Maybe<AssignmentProblemSubmissions>>>;
   getProblems?: Maybe<Array<Problem>>;
-  getSubmissionsForAssignment?: Maybe<Array<Maybe<AssignmentProblemSubmissions>>>;
   getTeacherClassrooms?: Maybe<Array<Classroom>>;
   getUser?: Maybe<User>;
   getUserSubmissionsForProblem?: Maybe<Array<Submission>>;
@@ -177,6 +178,11 @@ export type QueryGetAssignmentSubmissionsArgs = {
 };
 
 
+export type QueryGetAssignmentSubmissionsAsTeacherArgs = {
+  assignmentId: Scalars['ID'];
+};
+
+
 export type QueryGetClassroomArgs = {
   classroomId: Scalars['ID'];
 };
@@ -187,7 +193,7 @@ export type QueryGetProblemArgs = {
 };
 
 
-export type QueryGetSubmissionsForAssignmentArgs = {
+export type QueryGetProblemSubmissionsForAssignmentArgs = {
   assignmentId: Scalars['ID'];
 };
 
@@ -262,4 +268,10 @@ export type User = {
   id: Scalars['ID'];
   problems?: Maybe<Array<Maybe<Problem>>>;
   username: Scalars['String'];
+};
+
+export type UserAssignmentSubmission = {
+  __typename?: 'UserAssignmentSubmission';
+  assignmentSubmission?: Maybe<Array<Maybe<AssignmentSubmission>>>;
+  user: User;
 };

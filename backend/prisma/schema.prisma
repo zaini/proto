@@ -83,6 +83,7 @@ model Submission {
   problemId            Int
   createdAt            DateTime               @default(now())
   language             Int
+  code                 String
   AssignmentSubmission AssignmentSubmission[]
 }
 

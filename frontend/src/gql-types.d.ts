@@ -225,6 +225,7 @@ export type Submission = {
   __typename?: 'Submission';
   avgMemory: Scalars['Float'];
   avgTime: Scalars['Float'];
+  code: Scalars['String'];
   createdAt: Scalars['String'];
   id: Scalars['ID'];
   language: Scalars['Int'];

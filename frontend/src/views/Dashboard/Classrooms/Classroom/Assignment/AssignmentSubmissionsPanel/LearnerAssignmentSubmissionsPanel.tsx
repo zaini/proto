@@ -107,9 +107,7 @@ const LearnerAssignmentSubmissionsPanel = () => {
   >([]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [modalSubmission, setModalSubmission] = useState<Submission | null>(
-    null
-  );
+  const [modalSubmissionId, setModalSubmissionId] = useState<number>(-1);
 
   const [
     getAssignmentSubmissions,
@@ -203,7 +201,9 @@ const LearnerAssignmentSubmissionsPanel = () => {
 
   return (
     <>
-      <SubmissionModal {...{ isOpen, onClose, submission: modalSubmission }} />
+      <SubmissionModal
+        {...{ isOpen, onClose, submissionId: modalSubmissionId }}
+      />
       students see list of the submissions to the problem since the creation of
       the assignment and they can assign any of their submissions to be the
       submission for each problem in the assignment. they can change this any
@@ -305,7 +305,7 @@ const LearnerAssignmentSubmissionsPanel = () => {
                           <Button
                             colorScheme={"blue"}
                             onClick={() => {
-                              setModalSubmission(submission);
+                              setModalSubmissionId(parseInt(submission.id));
                               onOpen();
                             }}
                           >

@@ -159,6 +159,7 @@ export type Query = {
   getProblem?: Maybe<Problem>;
   getProblemSubmissionsForAssignment?: Maybe<Array<Maybe<AssignmentProblemSubmissions>>>;
   getProblems?: Maybe<Array<Problem>>;
+  getSubmission?: Maybe<Submission>;
   getTeacherClassrooms?: Maybe<Array<Classroom>>;
   getUser?: Maybe<User>;
   getUserSubmissionsForProblem?: Maybe<Array<Submission>>;
@@ -195,6 +196,11 @@ export type QueryGetProblemArgs = {
 
 export type QueryGetProblemSubmissionsForAssignmentArgs = {
   assignmentId: Scalars['ID'];
+};
+
+
+export type QueryGetSubmissionArgs = {
+  submissionId: Scalars['ID'];
 };
 
 

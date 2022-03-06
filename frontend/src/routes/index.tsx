@@ -4,8 +4,6 @@ import { AuthContext } from "../context/Auth";
 import Login from "../views/Accounts/Login/Login";
 import Logout from "../views/Accounts/Logout/Logout";
 import Settings from "../views/Profile/Settings/Settings";
-import Submission from "../views/Dashboard/Classrooms/Classroom/Assignment/Submission/Submission";
-import Submissions from "../views/Dashboard/Classrooms/Classroom/Assignment/Submissions/Submissions";
 import { Classroom } from "../views/Dashboard/Classrooms/Classroom/Classroom";
 import Classrooms from "../views/Dashboard/Classrooms/Classrooms";
 import JoinClassroom from "../views/Dashboard/Classrooms/JoinClassroom/JoinClassroom";
@@ -46,18 +44,6 @@ const IndexRouter = () => {
               }
               element={<Assignment />}
             />
-            {/* <Route
-              path={
-                "/dashboard/classrooms/:classroomId/assignments/:assignmentId/submissions"
-              }
-              element={<Submissions />}
-            />
-            <Route
-              path={
-                "/dashboard/classrooms/:classroomId/assignments/:assignmentId/submissions/:submissionId"
-              }
-              element={<Submission />}
-            /> */}
             <Route path={"/problems/:problemId"} element={<Problem />} />
             <Route path={"/profile/settings"} element={<Settings />} />
             <Route path={"/profile/:userId"} element={<Profile />} />

@@ -18,8 +18,10 @@ import {
   Link,
   Spinner,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import CustomTable from "../../../../../../components/CustomTable/CustomTable";
+import SubmissionModal from "../../../../../../components/SubmissionModal/SubmissionModal";
 
 const GET_CURRENT_ASSIGNMENT_SUBMISSION = gql`
   query getAssignmentSubmissions($assignmentId: ID!) {
@@ -57,6 +59,13 @@ const GET_PROBLEM_SUBMISSIONS_FOR_ASSIGNMENT = gql`
       submissions {
         id
         passed
+        avgTime
+        avgMemory
+        language
+        createdAt
+        submissionResults {
+          passed
+        }
       }
     }
   }
@@ -96,6 +105,11 @@ const LearnerAssignmentSubmissionsPanel = () => {
   const [problemSubmissions, setProblemSubmissions] = useState<
     AssignmentProblemSubmissions[]
   >([]);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [modalSubmission, setModalSubmission] = useState<Submission | null>(
+    null
+  );
 
   const [
     getAssignmentSubmissions,
@@ -189,6 +203,7 @@ const LearnerAssignmentSubmissionsPanel = () => {
 
   return (
     <>
+      <SubmissionModal {...{ isOpen, onClose, submission: modalSubmission }} />
       students see list of the submissions to the problem since the creation of
       the assignment and they can assign any of their submissions to be the
       submission for each problem in the assignment. they can change this any
@@ -287,7 +302,15 @@ const LearnerAssignmentSubmissionsPanel = () => {
                       passed: "" + submission.passed,
                       options: (
                         <ButtonGroup>
-                          <Button colorScheme={"blue"}>View Submission</Button>
+                          <Button
+                            colorScheme={"blue"}
+                            onClick={() => {
+                              setModalSubmission(submission);
+                              onOpen();
+                            }}
+                          >
+                            View Submission
+                          </Button>
                           {assignmentSubmissions[problem.id] &&
                           assignmentSubmissions[problem.id].submission &&
                           assignmentSubmissions[problem.id].submission!.id ===

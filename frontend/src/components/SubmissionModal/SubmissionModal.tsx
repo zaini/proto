@@ -35,6 +35,7 @@ const GET_SUBMISSION = gql`
       submissionResults {
         passed
       }
+      code
     }
   }
 `;
@@ -110,10 +111,7 @@ const SubmissionModal = ({ submissionId, isOpen, onClose }: Props) => {
             language: submission.language,
           })}
           <CodeMirror
-            value={`code goes here
-            code goes here
-            code goes here
-            code goes here`}
+            value={submission.code}
             editable={false}
             height="600px"
             theme={"dark"}

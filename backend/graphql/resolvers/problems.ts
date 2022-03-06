@@ -181,6 +181,7 @@ module.exports = {
           submissionResults: res,
           createdAt: new Date(),
           language: parseInt(language),
+          code: code,
         },
       });
 

@@ -86,6 +86,7 @@ module.exports = gql`
     avgMemory: Float!
     avgTime: Float!
     language: Int!
+    code: String!
   }
   # These are submissions to problems which are related to an assignment, not the current submission for an assignment
   type AssignmentProblemSubmissions {

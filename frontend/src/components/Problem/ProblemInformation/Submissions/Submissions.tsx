@@ -1,8 +1,8 @@
-import React, { useContext } from "react";
-import { Heading, Text } from "@chakra-ui/react";
-import { Submission, TestCaseResult } from "../../../../gql-types";
-import { ProblemContext } from "../../../../views/Problem/Problem";
+import React, { useState } from "react";
+import { Button, ButtonGroup, Heading, useDisclosure } from "@chakra-ui/react";
+import { Submission } from "../../../../gql-types";
 import CustomTable from "../../../CustomTable/CustomTable";
+import SubmissionModal from "../../../SubmissionModal/SubmissionModal";
 
 type SubmissionsProps = {
   userSubmissions: Submission[];
@@ -13,12 +13,15 @@ const Submissions = ({
   userSubmissions,
   latestSubmission,
 }: SubmissionsProps) => {
-  const problem = useContext(ProblemContext);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-  console.log(latestSubmission);
+  const [modalSubmission, setModalSubmission] = useState<Submission | null>(
+    null
+  );
 
   return (
     <>
+      <SubmissionModal {...{ isOpen, onClose, submission: modalSubmission }} />
       <Heading>Latest Submission</Heading>
       {latestSubmission
         ? JSON.stringify({
@@ -40,6 +43,21 @@ const Submissions = ({
             avgTime: submission.avgTime.toFixed(2) + " ms",
             avgMemory: submission.avgMemory.toFixed(2) + " MB",
             language: submission.language,
+            options: (
+              <>
+                <ButtonGroup>
+                  <Button
+                    colorScheme={"teal"}
+                    onClick={() => {
+                      setModalSubmission(submission);
+                      onOpen();
+                    }}
+                  >
+                    View
+                  </Button>
+                </ButtonGroup>
+              </>
+            ),
           };
         })}
         columns={[
@@ -62,6 +80,10 @@ const Submissions = ({
           {
             Header: "Language",
             accessor: "language",
+          },
+          {
+            Header: "Options",
+            accessor: "options",
           },
         ]}
       />

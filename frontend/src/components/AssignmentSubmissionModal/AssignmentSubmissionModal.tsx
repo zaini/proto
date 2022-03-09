@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
   Button,
   Center,
@@ -14,8 +14,8 @@ import {
 import { useQuery } from "@apollo/client";
 import gql from "graphql-tag";
 import { AssignmentSubmissionQueryData } from "../../utils";
-import { Assignment, UserAssignmentSubmission } from "../../gql-types";
-import { AssignmentContext } from "../../views/Dashboard/Classrooms/Classroom/Assignment/Assignment";
+import { UserAssignmentSubmission } from "../../gql-types";
+import AssignmentSubmissionModalStatistics from "./AssignmentSubmissionModalStatistics/AssignmentSubmissionModalStatistics";
 
 type Props = {
   assignmentSubmissionQueryData: AssignmentSubmissionQueryData;
@@ -50,6 +50,7 @@ const GET_ASSIGNMENT_SUBMISSION = gql`
           submissionResults {
             passed
           }
+          code
         }
       }
     }
@@ -61,9 +62,6 @@ const AssignmentSubmissionModal = ({
   isOpen,
   onClose,
 }: Props) => {
-  const { assignment }: { assignment: Assignment } =
-    useContext(AssignmentContext);
-
   const { loading, error, data } = useQuery(GET_ASSIGNMENT_SUBMISSION, {
     variables: {
       assignmentId: assignmentSubmissionQueryData.assignmentId,
@@ -115,26 +113,6 @@ const AssignmentSubmissionModal = ({
   const userAssignmentSubmission: UserAssignmentSubmission =
     data.getAssignmentSubmissionForUser;
 
-  const user = userAssignmentSubmission.user;
-  const assignmentSubmission = userAssignmentSubmission.assignmentSubmission;
-
-  const numOfProblems = assignment.problems?.length;
-
-  const attempts = assignmentSubmission?.length;
-
-  const solves = assignmentSubmission?.filter(
-    (assignmentSubmission) => assignmentSubmission?.submission?.passed
-  ).length;
-
-  const lastChange = Math.max.apply(
-    Math,
-    assignmentSubmission!.map((o) => {
-      return o?.submission?.createdAt
-        ? parseInt(o?.submission?.createdAt)
-        : -Infinity;
-    })
-  );
-
   return (
     <Modal
       isOpen={isOpen}
@@ -152,17 +130,9 @@ const AssignmentSubmissionModal = ({
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {/* {JSON.stringify(assignmentSubmission)} */}
-
-          {JSON.stringify({
-            learner: user.username,
-            attempted: `${attempts}/${numOfProblems}`,
-            solved: `${solves}/${numOfProblems}`,
-            lastChange:
-              lastChange === -Infinity
-                ? "N/A"
-                : new Date(lastChange).toLocaleString(),
-          })}
+          <AssignmentSubmissionModalStatistics
+            userAssignmentSubmission={userAssignmentSubmission}
+          />
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="blue" mr={3} onClick={onClose}>

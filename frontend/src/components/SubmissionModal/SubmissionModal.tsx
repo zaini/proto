@@ -12,10 +12,9 @@ import {
   ModalOverlay,
   Spinner,
 } from "@chakra-ui/react";
-import CodeMirror from "@uiw/react-codemirror";
-import { python } from "@codemirror/lang-python";
 import { useQuery } from "@apollo/client";
 import gql from "graphql-tag";
+import SubmissionModalStatistics from "./SubmissionModalStatistics/SubmissionModalStatistics";
 
 type Props = {
   submissionId: number;
@@ -103,20 +102,7 @@ const SubmissionModal = ({ submissionId, isOpen, onClose }: Props) => {
         <ModalHeader>Submission #{submissionId}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {JSON.stringify({
-            time: new Date(parseInt(submission.createdAt)).toLocaleString(),
-            passed: `${submission.passed}`,
-            avgTime: submission.avgTime.toFixed(2) + " ms",
-            avgMemory: submission.avgMemory.toFixed(2) + " MB",
-            language: submission.language,
-          })}
-          <CodeMirror
-            value={submission.code}
-            editable={false}
-            height="600px"
-            theme={"dark"}
-            extensions={[python()]}
-          />
+          <SubmissionModalStatistics submission={submission} />
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="blue" mr={3} onClick={onClose}>

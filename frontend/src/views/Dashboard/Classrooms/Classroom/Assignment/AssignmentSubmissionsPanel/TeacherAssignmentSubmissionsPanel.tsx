@@ -136,20 +136,20 @@ const TeacherAssignmentSubmissionsPanel = () => {
         <CustomTable
           data={userAssignmentSubmissions.map((userAssignmentSubmission) => {
             const user = userAssignmentSubmission.user;
-            const assignmentSubmission =
+            const assignmentSubmissions =
               userAssignmentSubmission.assignmentSubmission;
 
             const numOfProblems = assignment.problems?.length;
 
-            const attempts = assignmentSubmission?.length;
+            const attempts = assignmentSubmissions?.length;
 
-            const solves = assignmentSubmission?.filter(
+            const solves = assignmentSubmissions?.filter(
               (assignmentSubmission) => assignmentSubmission?.submission?.passed
             ).length;
 
             const lastChange = Math.max.apply(
               Math,
-              assignmentSubmission!.map((o) => {
+              assignmentSubmissions!.map((o) => {
                 return o?.submission?.createdAt
                   ? parseInt(o?.submission?.createdAt)
                   : -Infinity;
@@ -168,7 +168,7 @@ const TeacherAssignmentSubmissionsPanel = () => {
                 <ButtonGroup>
                   <Button
                     colorScheme={"blue"}
-                    disabled={assignmentSubmission?.length === 0}
+                    disabled={assignmentSubmissions?.length === 0}
                     onClick={() => {
                       setAssignmentSubmissionQueryData({
                         assignmentId: parseInt(assignment.id),

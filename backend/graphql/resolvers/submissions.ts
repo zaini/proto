@@ -1,6 +1,5 @@
 import { Submission } from "@prisma/client";
 import { ApolloError } from "apollo-server";
-import { TestCaseResult } from "../../gql-types";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { isAuth } from "../../utils/isAuth";
@@ -227,6 +226,75 @@ module.exports = {
       );
 
       return x;
+    },
+    getAssignmentSubmissionForUser: async (
+      _: any,
+      { assignmentId, userId }: any,
+      context: any
+    ) => {
+      logger.info("GraphQL submissions/getAssignmentSubmissionForUser");
+
+      const user = await prisma.user.findUnique({
+        where: {
+          id: parseInt(userId),
+        },
+      });
+
+      if (!user) {
+        throw new ApolloError("This user does not exist.");
+      }
+
+      const assignment = await prisma.assignment.findUnique({
+        where: {
+          id: parseInt(assignmentId),
+        },
+        include: {
+          ProblemsOnAssignments: { include: { problem: true } },
+          classroom: { include: { creator: true } },
+        },
+      });
+
+      if (!assignment) {
+        throw new ApolloError("This assignment does not exist.");
+      }
+
+      // TODO add check that you either own this classroom or are a learner in the classroom
+      // TODO uncomment this
+      // if (assignment.classroom.creator.id != user.id) {
+      //   throw new ApolloError(
+      //     "This user is the not the creator of this assignment."
+      //   );
+      // }
+
+      // const learners = await prisma.usersOnClassrooms.findMany({
+      //   where: {
+      //     classroomId: assignment.classroomId,
+      //   },
+      //   include: {
+      //     user: true,
+      //   },
+      // });
+
+      const assignmentSubmission = await prisma.assignmentSubmission.findMany({
+        where: {
+          userId: user.id,
+          assignmentId: assignment.id,
+        },
+        include: {
+          submission: true,
+          problem: true,
+        },
+      });
+
+      return {
+        user,
+        assignmentSubmission: assignmentSubmission.map((as) => {
+          return {
+            ...as,
+            submission: getSubmissionStatistics(as.submission),
+          };
+        }),
+      };
     },
   },
   Mutation: {

@@ -8,3 +8,8 @@ export enum AccountType {
 export type AssignmentSubmissionMap = {
   [problemId: string]: AssignmentSubmission;
 };
+
+export type AssignmentSubmissionQueryData = {
+  assignmentId: number;
+  userId: number;
+};

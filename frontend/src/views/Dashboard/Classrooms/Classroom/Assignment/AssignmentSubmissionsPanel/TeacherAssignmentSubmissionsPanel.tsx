@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
   Assignment,
-  User,
   UserAssignmentSubmission,
 } from "../../../../../../gql-types";
-import { AssignmentSubmissionMap } from "../../../../../../utils";
+import { AssignmentSubmissionQueryData } from "../../../../../../utils";
 import { AssignmentContext } from "../Assignment";
 import gql from "graphql-tag";
 import { useLazyQuery } from "@apollo/client";
@@ -15,8 +14,10 @@ import {
   Center,
   Heading,
   Spinner,
+  useDisclosure,
 } from "@chakra-ui/react";
 import CustomTable from "../../../../../../components/CustomTable/CustomTable";
+import AssignmentSubmissionModal from "../../../../../../components/AssignmentSubmissionModal/AssignmentSubmissionModal";
 
 const GET_ASSIGNMENT_SUBMISSION = gql`
   query getAssignmentSubmissionsAsTeacher($assignmentId: ID!) {
@@ -51,6 +52,10 @@ const GET_ASSIGNMENT_SUBMISSION = gql`
 const TeacherAssignmentSubmissionsPanel = () => {
   const { assignment }: { assignment: Assignment } =
     useContext(AssignmentContext);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [assignmentSubmissionQueryData, setAssignmentSubmissionQueryData] =
+    useState<AssignmentSubmissionQueryData>({ assignmentId: -1, userId: -1 });
 
   // const [userAssignmentSubmissions, setUserAssignmentSubmissions] = useState<
   //   {
@@ -113,6 +118,13 @@ const TeacherAssignmentSubmissionsPanel = () => {
 
   return (
     <>
+      <AssignmentSubmissionModal
+        {...{
+          isOpen,
+          onClose,
+          assignmentSubmissionQueryData,
+        }}
+      />
       <p>
         teacher sees a list of all students and their submissions or lack of
         submission with some basic stats. they can click on the submission to
@@ -157,6 +169,13 @@ const TeacherAssignmentSubmissionsPanel = () => {
                   <Button
                     colorScheme={"blue"}
                     disabled={assignmentSubmission?.length === 0}
+                    onClick={() => {
+                      setAssignmentSubmissionQueryData({
+                        assignmentId: parseInt(assignment.id),
+                        userId: parseInt(user.id),
+                      });
+                      onOpen();
+                    }}
                   >
                     View Submission
                   </Button>

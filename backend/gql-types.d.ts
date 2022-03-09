@@ -151,6 +151,7 @@ export type Problem = {
 export type Query = {
   __typename?: 'Query';
   getAssignment?: Maybe<Assignment>;
+  getAssignmentSubmissionForUser?: Maybe<UserAssignmentSubmission>;
   getAssignmentSubmissions?: Maybe<Array<Maybe<AssignmentSubmission>>>;
   getAssignmentSubmissionsAsTeacher?: Maybe<Array<Maybe<UserAssignmentSubmission>>>;
   getAssignments?: Maybe<Array<Assignment>>;
@@ -171,6 +172,12 @@ export type Query = {
 export type QueryGetAssignmentArgs = {
   assignmentId: Scalars['ID'];
   classroomId: Scalars['ID'];
+};
+
+
+export type QueryGetAssignmentSubmissionForUserArgs = {
+  assignmentId: Scalars['ID'];
+  userId: Scalars['ID'];
 };
 
 

@@ -5,25 +5,35 @@ import { isAuth } from "../../utils/isAuth";
 
 module.exports = {
   Query: {
-    getAssignments: async () => {
+    getAssignments: async (_: any, __: any, context: any) => {
       logger.info("GraphQL assignmnets/getAssignments");
-      let assignments = await prisma.assignment.findMany({
-        include: {
-          classroom: {
-            include: { UsersOnClassrooms: { include: { user: true } } },
-          },
-          ProblemsOnAssignments: { include: { problem: true } },
+      const user = isAuth(context);
+
+      const classrooms = await prisma.usersOnClassrooms.findMany({
+        where: {
+          userId: user.id,
         },
       });
 
-      const parsedAssignments = assignments.map((assignment) => {
-        const problemsInAssignment = assignment.ProblemsOnAssignments.map(
-          (x) => x.problem
+      if (classrooms) {
+        const assignments = await Promise.all(
+          classrooms.map(async (classroom) => {
+            return await prisma.assignment.findMany({
+              where: {
+                classroomId: classroom.classroomId,
+                dueDate: { gt: new Date() },
+              },
+              include: {
+                classroom: { include: { creator: true } },
+              },
+            });
+          })
         );
-        return { ...assignment, problems: problemsInAssignment };
-      });
 
-      return parsedAssignments;
+        return assignments.flat();
+      }
+
+      return [];
     },
     getAssignment: async (
       _: any,

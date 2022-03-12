@@ -1,9 +1,7 @@
-import { Submission } from "@prisma/client";
 import { ApolloError } from "apollo-server";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { isAuth } from "../../utils/isAuth";
-import { getSubmissionStatistics } from "../../utils/problem";
 
 module.exports = {
   Query: {
@@ -25,13 +23,7 @@ module.exports = {
         return [];
       }
 
-      let submissionsData = submissions.map(
-        (submission: Submission, i: number) => {
-          return getSubmissionStatistics(submission);
-        }
-      );
-
-      return submissionsData;
+      return submissions;
     },
     getSubmission: async (_: any, { submissionId }: any, context: any) => {
       logger.info("GraphQL submissions/getSubmission");
@@ -42,8 +34,9 @@ module.exports = {
       });
 
       if (submission) {
-        return getSubmissionStatistics(submission);
+        return submission;
       }
+
       throw new ApolloError("Could not find submission with that ID.");
     },
     getProblemSubmissionsForAssignment: async (
@@ -85,13 +78,7 @@ module.exports = {
             },
           });
 
-          const submissionsData = submissions.map(
-            (submission: Submission, i: number) => {
-              return getSubmissionStatistics(submission);
-            }
-          );
-
-          return { problem: problem, submissions: submissionsData };
+          return { problem, submissions };
         })
       );
     },
@@ -138,9 +125,7 @@ module.exports = {
             if (assignmentSubmission) {
               return {
                 problem,
-                submission: getSubmissionStatistics(
-                  assignmentSubmission?.submission
-                ),
+                submission: assignmentSubmission?.submission,
               };
             }
 
@@ -215,12 +200,7 @@ module.exports = {
 
           return {
             user,
-            assignmentSubmission: assignmentSubmission.map((as) => {
-              return {
-                ...as,
-                submission: getSubmissionStatistics(as.submission),
-              };
-            }),
+            assignmentSubmission: assignmentSubmission,
           };
         })
       );
@@ -288,12 +268,7 @@ module.exports = {
 
       return {
         user,
-        assignmentSubmission: assignmentSubmission.map((as) => {
-          return {
-            ...as,
-            submission: getSubmissionStatistics(as.submission),
-          };
-        }),
+        assignmentSubmission: assignmentSubmission,
       };
     },
   },

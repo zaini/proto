@@ -17,10 +17,39 @@ const SUBMISSION_TIMELIMIT = 300 * 1000;
 
 module.exports = {
   Query: {
-    getProblems: () => {
+    getProblems: async (_: any, __: any, context: any) => {
       logger.info("GraphQL problems/getProblems");
-      const problems = prisma.problem.findMany();
-      return problems;
+      const problems = await prisma.problem.findMany({
+        include: { creator: true },
+      });
+
+      const user = isAuth(context);
+
+      const problemsWithSolved = await Promise.all(
+        problems.map(async (problem) => {
+          try {
+            const submission = await prisma.submission.findFirst({
+              where: {
+                userId: user.id,
+                problemId: problem.id,
+                passed: true,
+              },
+            });
+
+            return {
+              ...problem,
+              solved: true,
+            };
+          } catch (error) {
+            return {
+              ...problem,
+              solved: false,
+            };
+          }
+        })
+      );
+
+      return problemsWithSolved;
     },
     getProblem: async (_: any, { problemId }: any, context: any) => {
       logger.info("GraphQL problems/getProblem");
@@ -174,6 +203,8 @@ module.exports = {
 
       const user = isAuth(context);
 
+      const submissionResultStats = getSubmissionStatistics(res);
+
       const submission = await prisma.submission.create({
         data: {
           userId: user.id,
@@ -182,16 +213,17 @@ module.exports = {
           createdAt: new Date(),
           language: parseInt(language),
           code: code,
+          passed: submissionResultStats.passed,
+          avgTime: submissionResultStats.avgTime,
+          avgMemory: submissionResultStats.avgMemory,
         },
       });
 
-      const submissionWithStats = getSubmissionStatistics(submission);
-
       logger.info("Submission results: ", {
-        meta: [JSON.stringify(submissionWithStats)],
+        meta: [JSON.stringify(submission)],
       });
 
-      return submissionWithStats;
+      return submission;
     },
   },
 };

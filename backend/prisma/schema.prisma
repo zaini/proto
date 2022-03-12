@@ -84,6 +84,9 @@ model Submission {
   createdAt            DateTime               @default(now())
   language             Int
   code                 String
+  passed               Boolean
+  avgTime              Float
+  avgMemory            Float
   AssignmentSubmission AssignmentSubmission[]
 }
 

@@ -52,6 +52,12 @@ export type Classroom = {
   users?: Maybe<Array<User>>;
 };
 
+export enum Difficulty {
+  Easy = 'EASY',
+  Hard = 'HARD',
+  Medium = 'MEDIUM'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
   createAssignment?: Maybe<Assignment>;
@@ -223,6 +229,7 @@ export type QueryGetUserSubmissionsForProblemArgs = {
 export type Specification = {
   __typename?: 'Specification';
   description: Scalars['String'];
+  difficulty: Difficulty;
   initialCode: Scalars['String'];
   testCases?: Maybe<Array<TestCase>>;
   title: Scalars['String'];

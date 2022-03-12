@@ -6,6 +6,11 @@ module.exports = gql`
   #   TEACHER
   #   ADMIN
   # }
+  enum Difficulty {
+    EASY
+    MEDIUM
+    HARD
+  }
   type TestCase {
     id: ID!
     stdin: String!
@@ -35,6 +40,7 @@ module.exports = gql`
     description: String!
     initialCode: String!
     testCases: [TestCase!]
+    difficulty: Difficulty!
   }
   type AuthResponse {
     accessToken: String

@@ -1,6 +1,12 @@
 import { prisma } from "../index";
 import { logger } from "../logger";
 
+enum Difficulty {
+  Easy = "EASY",
+  Hard = "HARD",
+  Medium = "MEDIUM",
+}
+
 async function main() {
   logger.info("Starting seeding for database");
   await prisma.user.createMany({
@@ -44,6 +50,7 @@ async function main() {
       userId: 1,
       specification: {
         title: "Addition",
+        difficulty: Difficulty.Easy,
         description: "Add two numbers together and return the result",
         initialCode: `#!/bin/python3
 
@@ -77,6 +84,7 @@ if __name__ == "__main__":
       userId: 2,
       specification: {
         title: "Two Sum",
+        difficulty: Difficulty.Medium,
         description: "Add two numbers together and return the result",
         initialCode: "def add(a, b):\n  return a + b",
         testCases: [
@@ -90,6 +98,7 @@ if __name__ == "__main__":
       userId: 3,
       specification: {
         title: "Three Sum",
+        difficulty: Difficulty.Hard,
         description: "Add two numbers together and return the result",
         initialCode: "def add(a, b):\n  return a + b",
         testCases: [

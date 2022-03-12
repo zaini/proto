@@ -1,8 +1,6 @@
 import { TestCaseResult } from "../gql-types";
 
-const getSubmissionStatistics = (submission: any) => {
-  const results = submission.submissionResults as TestCaseResult[];
-
+const getSubmissionStatistics = (results: TestCaseResult[]) => {
   const N = results.length;
 
   let status = true;
@@ -19,7 +17,6 @@ const getSubmissionStatistics = (submission: any) => {
   let avgMemory = totalMemory / N;
 
   return {
-    ...submission,
     passed: status,
     avgTime,
     avgMemory,

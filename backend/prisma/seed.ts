@@ -113,10 +113,30 @@ if __name__ == "__main__":
 
   await prisma.assignment.createMany({
     data: [
-      { classroomId: 1, name: "HW1", setDate: new Date(), dueDate: new Date() },
-      { classroomId: 1, name: "HW2", setDate: new Date(), dueDate: new Date() },
-      { classroomId: 2, name: "HW1", setDate: new Date(), dueDate: new Date() },
-      { classroomId: 3, name: "HW1", setDate: new Date(), dueDate: new Date() },
+      {
+        classroomId: 1,
+        name: "HW1",
+        setDate: new Date(),
+        dueDate: new Date("1/1/3000"),
+      },
+      {
+        classroomId: 1,
+        name: "HW2",
+        setDate: new Date(),
+        dueDate: new Date("1/1/3000"),
+      },
+      {
+        classroomId: 2,
+        name: "HW1",
+        setDate: new Date(),
+        dueDate: new Date("1/1/3000"),
+      },
+      {
+        classroomId: 3,
+        name: "HW1",
+        setDate: new Date(),
+        dueDate: new Date("1/1/3000"),
+      },
     ],
   });
   const allAssignments = await prisma.assignment.findMany();

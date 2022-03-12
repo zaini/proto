@@ -81,6 +81,7 @@ module.exports = gql`
     likes: Int!
     dislikes: Int!
     specification: Specification!
+    solved: Boolean
   }
   type Submission {
     id: ID!

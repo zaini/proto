@@ -151,6 +151,7 @@ export type Problem = {
   dislikes: Scalars['Int'];
   id: Scalars['ID'];
   likes: Scalars['Int'];
+  solved?: Maybe<Scalars['Boolean']>;
   specification: Specification;
 };
 

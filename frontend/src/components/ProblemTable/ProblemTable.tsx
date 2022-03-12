@@ -3,6 +3,7 @@ import { Center, Spinner } from "@chakra-ui/react";
 import CustomTable from "../CustomTable/CustomTable";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
+import { Problem } from "../../gql-types";
 
 const GET_PROBLEMS = gql`
   query getProblems {
@@ -40,55 +41,45 @@ const ProblemTable = () => {
   // TODO have an actual error page and log this
   if (error) return <>Error! {error.message}</>;
 
-  const problems = data.getProblems;
+  const problems: Problem[] = data.getProblems;
 
   console.log(problems);
 
   return (
     <CustomTable
-      data={[
-        {
-          problem: "Two Sum",
-          category: "Arrays/Lists",
-          frequency: "Common",
-          difficulty: "Easy",
-          completed: "true",
-        },
-        {
-          problem: "Edit Distance",
-          category: "Dynamic Programming",
-          frequency: "Rare",
-          difficulty: "Hard",
-          completed: "false",
-        },
-        {
-          problem: "Matching Parenthesis",
-          category: "Stacks",
-          frequency: "Common",
-          difficulty: "Easy",
-          completed: "true",
-        },
-      ]}
+      data={problems.map((problem) => {
+        return {
+          problem: (
+            <a href={`/problems/${problem.id}`}>
+              {problem.specification.title}
+            </a>
+          ),
+          difficulty: problem.specification.difficulty.toLowerCase(),
+          likes: problem.likes,
+          dislikes: problem.dislikes,
+          solved: `${problem.solved}`,
+        };
+      })}
       columns={[
         {
           Header: "Problem",
           accessor: "problem",
         },
         {
-          Header: "Category",
-          accessor: "category",
-        },
-        {
-          Header: "Frequency",
-          accessor: "frequency",
-        },
-        {
           Header: "Difficulty",
           accessor: "difficulty",
         },
         {
-          Header: "Completed",
-          accessor: "completed",
+          Header: "Likes",
+          accessor: "likes",
+        },
+        {
+          Header: "Dislikes",
+          accessor: "dislikes",
+        },
+        {
+          Header: "Solved",
+          accessor: "solved",
         },
       ]}
     />

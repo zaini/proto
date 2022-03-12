@@ -13,6 +13,7 @@ const ProblemContext = createContext<ProblemType>({
   id: "0",
   likes: 0,
   specification: {
+    difficulty: "" as any,
     title: "",
     description: "",
     initialCode: "",
@@ -31,6 +32,7 @@ const GET_PROBLEM = gql`
       dislikes
       specification {
         title
+        difficulty
         description
         initialCode
         testCases {

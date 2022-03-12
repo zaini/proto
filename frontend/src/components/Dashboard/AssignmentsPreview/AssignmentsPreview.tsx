@@ -1,8 +1,11 @@
 import React from "react";
 import { Box, Heading, HStack } from "@chakra-ui/react";
 import ContentBox from "../../ContentBox/ContentBox";
+import { Assignment } from "../../../gql-types";
 
-const AssignmentsPreview = () => {
+const AssignmentsPreview = ({ assignments }: { assignments: Assignment[] }) => {
+  console.log(assignments);
+
   return (
     <Box>
       <Heading size="lg" mb={12}>

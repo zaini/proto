@@ -27,25 +27,18 @@ module.exports = {
 
       const problemsWithSolved = await Promise.all(
         problems.map(async (problem) => {
-          try {
-            const submission = await prisma.submission.findFirst({
-              where: {
-                userId: user.id,
-                problemId: problem.id,
-                passed: true,
-              },
-            });
+          const submission = await prisma.submission.findFirst({
+            where: {
+              userId: user.id,
+              problemId: problem.id,
+              passed: true,
+            },
+          });
 
-            return {
-              ...problem,
-              solved: true,
-            };
-          } catch (error) {
-            return {
-              ...problem,
-              solved: false,
-            };
-          }
+          return {
+            ...problem,
+            solved: submission ? true : false,
+          };
         })
       );
 

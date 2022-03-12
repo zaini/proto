@@ -1,9 +1,42 @@
 import React from "react";
-import { Box, Heading, HStack } from "@chakra-ui/react";
+import { Box, Heading, HStack, Center, Spinner } from "@chakra-ui/react";
 import ContentBox from "../../ContentBox/ContentBox";
-import { Assignment } from "../../../gql-types";
+import gql from "graphql-tag";
+import { useQuery } from "@apollo/client";
 
-const AssignmentsPreview = ({ assignments }: { assignments: Assignment[] }) => {
+const GET_ASSIGNMENTS = gql`
+  query getAssignments {
+    getAssignments {
+      dueDate
+      createdAt
+      name
+      classroom {
+        name
+      }
+    }
+  }
+`;
+
+const AssignmentsPreview = () => {
+  const { loading, error, data } = useQuery(GET_ASSIGNMENTS);
+
+  if (loading)
+    return (
+      <Center h="1000px">
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="blue.500"
+          size="xl"
+        />
+      </Center>
+    );
+  // TODO have an actual error page and log this
+  if (error) return <>Error! {error.message}</>;
+
+  const assignments = data.getAssignments;
+
   console.log(assignments);
 
   return (

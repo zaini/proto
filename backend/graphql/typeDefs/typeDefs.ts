@@ -75,13 +75,24 @@ module.exports = gql`
     dueDate: String!
     submissions: [Submission]
   }
+  type Rating {
+    score: Float!
+    user: User
+    problem: Problem
+  }
+  type ProblemRating {
+    numberOfRatings: Int!
+    totalRating: Float!
+    problem: Problem!
+    ratings: [Rating]!
+    userRating: Rating
+  }
   type Problem {
     id: ID!
     creator: User!
-    likes: Int!
-    dislikes: Int!
     specification: Specification!
     solved: Boolean
+    rating: ProblemRating!
   }
   type Submission {
     id: ID!
@@ -143,6 +154,7 @@ module.exports = gql`
       testCases: [TestCaseInput!]
     ): TestSubmissionResult!
     submitProblem(problemId: ID!, code: String, language: Int): Submission!
+    rateProblem(problemId: ID!, score: Float!): Boolean
     # End of Problem Mutations
 
     # Submission Mutations

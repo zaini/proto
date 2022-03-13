@@ -75,8 +75,6 @@ if __name__ == "__main__":
           },
         ],
       },
-      likes: 27,
-      dislikes: 3,
     },
   });
   const problem2 = await prisma.problem.create({
@@ -156,6 +154,23 @@ if __name__ == "__main__":
     await prisma.problemsOnAssignments.findMany();
   logger.info("Successfully seeded problems on assignments");
   logger.debug(JSON.stringify(allProblemsOnAssignments));
+
+  await prisma.rating.createMany({
+    data: [
+      { problemId: problem1.id, userId: 1, score: 1 },
+      { problemId: problem1.id, userId: 2, score: 2 },
+      { problemId: problem2.id, userId: 1, score: 3 },
+      { problemId: problem2.id, userId: 2, score: 4 },
+      { problemId: problem3.id, userId: 1, score: 5 },
+      { problemId: problem3.id, userId: 2, score: 5 },
+      { problemId: problem1.id, userId: 3, score: 5 },
+      { problemId: problem2.id, userId: 3, score: 5 },
+      { problemId: problem3.id, userId: 3, score: 5 },
+    ],
+  });
+  const ratings = await prisma.rating.findMany();
+  logger.info("Successfully seeded ratings");
+  logger.debug(JSON.stringify(ratings));
 }
 main()
   .catch((e) => {

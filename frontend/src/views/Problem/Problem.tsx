@@ -9,9 +9,8 @@ import { Problem as ProblemType, Submission, User } from "../../gql-types";
 
 const ProblemContext = createContext<ProblemType>({
   creator: {} as User,
-  dislikes: 0,
+  rating: {} as any,
   id: "0",
-  likes: 0,
   specification: {
     difficulty: "" as any,
     title: "",
@@ -28,8 +27,13 @@ const GET_PROBLEM = gql`
       creator {
         username
       }
-      likes
-      dislikes
+      rating {
+        numberOfRatings
+        totalRating
+        userRating {
+          score
+        }
+      }
       specification {
         title
         difficulty

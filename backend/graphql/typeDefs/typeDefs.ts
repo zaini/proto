@@ -31,6 +31,13 @@ module.exports = gql`
     expectedOutput: String!
     isHidden: Boolean!
   }
+  input SpecificationInput {
+    title: String!
+    description: String!
+    initialCode: String! # This is a JSON object, mapping from a language to the initial code for the question for all supported languages
+    testCases: [TestCaseInput!]
+    difficulty: Difficulty!
+  }
   type TestCaseResult {
     id: ID!
     testCase: TestCase!
@@ -155,7 +162,7 @@ module.exports = gql`
     # End of Assignment Mutations
 
     # Problem Mutations
-    createProblem(creatorId: ID!, specification: String!): Problem
+    createProblem(specification: SpecificationInput!): Problem
     submitTests(
       problemId: ID!
       code: String

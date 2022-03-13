@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Heading, Text, Code, Box } from "@chakra-ui/layout";
+import { Text, Code, Box } from "@chakra-ui/layout";
 import { ProblemContext } from "../../../../views/Problem/Problem";
 import { Rating } from "react-simple-star-rating";
 import { gql, useMutation } from "@apollo/client";
+import ReactMarkdown from "react-markdown";
+import ChakraUIRenderer from "chakra-ui-markdown-renderer";
 
 const RATE_PROBLEM = gql`
   mutation rateProblem($problemId: ID!, $score: Float!) {
@@ -59,26 +61,11 @@ const ProblemDescription = () => {
         />
       </Box>
       <br />
-      <Text>{problem.specification.description}</Text>
-
-      {/* TODO do this properly lol */}
-      <Heading size={"md"} mb={2} mt={4}>
-        Example 1
-      </Heading>
-      <Code>
-        Input: 1 2
-        <br />
-        Output: 3
-      </Code>
-
-      <Heading size={"md"} mb={2} mt={4}>
-        Example 2
-      </Heading>
-      <Code>
-        Input: 5 7
-        <br />
-        Output: 12
-      </Code>
+      <Box>
+        <ReactMarkdown components={ChakraUIRenderer()}>
+          {problem.specification.description}
+        </ReactMarkdown>
+      </Box>
     </>
   );
 };

@@ -51,7 +51,8 @@ async function main() {
       specification: {
         title: "Addition",
         difficulty: Difficulty.Easy,
-        description: "Add two numbers together and return the result",
+        description:
+          "Add two numbers and return the result.\n\n## Example 1\n`Input: 1 2`\n\n`Output: 3`\n\n## Example 2\n`Input: 5 7`\n\n`Output: 12`",
         initialCode: JSON.stringify({
           71: `#!/bin/python3
 

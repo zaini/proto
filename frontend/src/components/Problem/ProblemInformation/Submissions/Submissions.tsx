@@ -3,6 +3,7 @@ import { Button, ButtonGroup, Heading, useDisclosure } from "@chakra-ui/react";
 import { Submission } from "../../../../gql-types";
 import CustomTable from "../../../CustomTable/CustomTable";
 import SubmissionModal from "../../../SubmissionModal/SubmissionModal";
+import { LanguageCodeToName } from "../../../../utils";
 
 type SubmissionsProps = {
   userSubmissions: Submission[];
@@ -42,7 +43,7 @@ const Submissions = ({
             passed: `${submission.passed}`,
             avgTime: submission.avgTime.toFixed(2) + " ms",
             avgMemory: submission.avgMemory.toFixed(2) + " MB",
-            language: submission.language,
+            language: LanguageCodeToName[submission.language],
             options: (
               <>
                 <ButtonGroup>

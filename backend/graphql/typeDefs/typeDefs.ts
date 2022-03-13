@@ -114,6 +114,7 @@ module.exports = gql`
   type AssignmentSubmission {
     problem: Problem!
     submission: Submission
+    createdAt: String!
   }
   type UserAssignmentSubmission {
     user: User!

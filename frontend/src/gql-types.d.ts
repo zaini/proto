@@ -32,6 +32,7 @@ export type AssignmentProblemSubmissions = {
 
 export type AssignmentSubmission = {
   __typename?: 'AssignmentSubmission';
+  createdAt: Scalars['String'];
   problem: Problem;
   submission?: Maybe<Submission>;
 };
@@ -65,6 +66,7 @@ export type Mutation = {
   createProblem?: Maybe<Problem>;
   deleteClassroom?: Maybe<Scalars['Boolean']>;
   joinClassroom?: Maybe<Classroom>;
+  rateProblem?: Maybe<Scalars['Boolean']>;
   removeAssignment?: Maybe<Scalars['Boolean']>;
   removeAssignmentProblemSubmission?: Maybe<Scalars['Boolean']>;
   removeStudent?: Maybe<Scalars['Boolean']>;
@@ -104,6 +106,12 @@ export type MutationDeleteClassroomArgs = {
 export type MutationJoinClassroomArgs = {
   classroomId: Scalars['ID'];
   password?: InputMaybe<Scalars['String']>;
+};
+
+
+export type MutationRateProblemArgs = {
+  problemId: Scalars['ID'];
+  score: Scalars['Float'];
 };
 
 
@@ -237,7 +245,6 @@ export type QueryGetUserSubmissionsForProblemArgs = {
 
 export type Rating = {
   __typename?: 'Rating';
-  id: Scalars['ID'];
   problem?: Maybe<Problem>;
   score: Scalars['Float'];
   user?: Maybe<User>;

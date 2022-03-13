@@ -27,6 +27,7 @@ const GET_ASSIGNMENT_SUBMISSION = gql`
         username
       }
       assignmentSubmission {
+        createdAt
         problem {
           id
           specification {
@@ -150,9 +151,8 @@ const TeacherAssignmentSubmissionsPanel = () => {
             const lastChange = Math.max.apply(
               Math,
               assignmentSubmissions!.map((o) => {
-                return o?.submission?.createdAt
-                  ? parseInt(o?.submission?.createdAt)
-                  : -Infinity;
+                console.log(o?.createdAt);
+                return o?.createdAt ? parseInt(o?.createdAt) : -Infinity;
               })
             );
 

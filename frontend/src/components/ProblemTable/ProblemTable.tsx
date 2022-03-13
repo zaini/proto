@@ -12,8 +12,10 @@ const GET_PROBLEMS = gql`
       creator {
         username
       }
-      likes
-      dislikes
+      rating {
+        numberOfRatings
+        totalRating
+      }
       specification {
         difficulty
         title
@@ -55,8 +57,13 @@ const ProblemTable = () => {
             </a>
           ),
           difficulty: problem.specification.difficulty.toLowerCase(),
-          likes: problem.likes,
-          dislikes: problem.dislikes,
+          totalRatings: problem.rating.numberOfRatings,
+          avgRating: problem.rating.numberOfRatings
+            ? Math.round(
+                (problem.rating.totalRating / problem.rating.numberOfRatings) *
+                  10
+              ) / 10
+            : "N/A",
           solved: `${problem.solved}`,
         };
       })}
@@ -70,12 +77,12 @@ const ProblemTable = () => {
           accessor: "difficulty",
         },
         {
-          Header: "Likes",
-          accessor: "likes",
+          Header: "Total Ratings",
+          accessor: "totalRatings",
         },
         {
-          Header: "Dislikes",
-          accessor: "dislikes",
+          Header: "Average Rating",
+          accessor: "avgRating",
         },
         {
           Header: "Solved",

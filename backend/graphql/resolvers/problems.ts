@@ -20,7 +20,7 @@ module.exports = {
     getProblems: async (_: any, __: any, context: any) => {
       logger.info("GraphQL problems/getProblems");
       const problems = await prisma.problem.findMany({
-        include: { creator: true },
+        include: { creator: true, Ratings: true },
       });
 
       const user = isAuth(context);
@@ -35,8 +35,25 @@ module.exports = {
             },
           });
 
+          const userRating = await prisma.rating.findFirst({
+            where: {
+              userId: user.id,
+              problemId: problem.id,
+            },
+          });
+
           return {
             ...problem,
+            rating: {
+              numberOfRatings: problem.Ratings.length,
+              totalRating: problem.Ratings.reduce(
+                (total, rating) => rating.score + total,
+                0
+              ),
+              problem,
+              ratings: problem?.Ratings,
+              userRating,
+            },
             solved: submission ? true : false,
           };
         })
@@ -48,9 +65,38 @@ module.exports = {
       logger.info("GraphQL problems/getProblem");
       const problem = await prisma.problem.findUnique({
         where: { id: parseInt(problemId) },
-        include: { creator: true },
+        include: { creator: true, Ratings: true },
       });
-      return problem;
+
+      if (problem) {
+        let userRating = {} as any;
+
+        try {
+          const user = isAuth(context);
+          userRating = await prisma.rating.findFirst({
+            where: {
+              userId: user.id,
+              problemId: problem.id,
+            },
+          });
+        } catch {}
+
+        return {
+          ...problem,
+          rating: {
+            numberOfRatings: problem.Ratings.length,
+            totalRating: problem.Ratings.reduce(
+              (total, rating) => rating.score + total,
+              0
+            ),
+            problem,
+            ratings: problem?.Ratings,
+            userRating,
+          },
+        };
+      }
+
+      return null;
     },
   },
   Mutation: {
@@ -217,6 +263,43 @@ module.exports = {
       });
 
       return submission;
+    },
+    rateProblem: async (_: any, { problemId, score }: any, context: any) => {
+      logger.info("GraphQL problems/rateProblem");
+      const user = isAuth(context);
+
+      const existingRating = await prisma.rating.findUnique({
+        where: {
+          problemId_userId: {
+            problemId: parseInt(problemId),
+            userId: user.id,
+          },
+        },
+      });
+
+      if (existingRating) {
+        await prisma.rating.update({
+          where: {
+            problemId_userId: {
+              problemId: parseInt(problemId),
+              userId: user.id,
+            },
+          },
+          data: {
+            score: score,
+          },
+        });
+      } else {
+        await prisma.rating.create({
+          data: {
+            problemId: parseInt(problemId),
+            userId: user.id,
+            score: score,
+          },
+        });
+      }
+
+      return true;
     },
   },
 };

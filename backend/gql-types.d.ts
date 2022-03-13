@@ -148,11 +148,19 @@ export type MutationSubmitTestsArgs = {
 export type Problem = {
   __typename?: 'Problem';
   creator: User;
-  dislikes: Scalars['Int'];
   id: Scalars['ID'];
-  likes: Scalars['Int'];
+  rating: ProblemRating;
   solved?: Maybe<Scalars['Boolean']>;
   specification: Specification;
+};
+
+export type ProblemRating = {
+  __typename?: 'ProblemRating';
+  numberOfRatings: Scalars['Int'];
+  problem: Problem;
+  ratings: Array<Maybe<Rating>>;
+  totalRating: Scalars['Float'];
+  userRating?: Maybe<Rating>;
 };
 
 export type Query = {
@@ -225,6 +233,14 @@ export type QueryGetUserArgs = {
 
 export type QueryGetUserSubmissionsForProblemArgs = {
   problemId: Scalars['ID'];
+};
+
+export type Rating = {
+  __typename?: 'Rating';
+  id: Scalars['ID'];
+  problem?: Maybe<Problem>;
+  score: Scalars['Float'];
+  user?: Maybe<User>;
 };
 
 export type Specification = {

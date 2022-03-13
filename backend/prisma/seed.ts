@@ -52,7 +52,8 @@ async function main() {
         title: "Addition",
         difficulty: Difficulty.Easy,
         description: "Add two numbers together and return the result",
-        initialCode: `#!/bin/python3
+        initialCode: JSON.stringify({
+          71: `#!/bin/python3
 
 def add(a, b):
   return a + b
@@ -62,7 +63,18 @@ if __name__ == "__main__":
   a, b = stdin.split()
   a, b = int(a), int(b)
   print(add(a, b))
-`,
+          `,
+          63: `const add = (a, b) => {
+  return a + b;
+}
+
+process.stdin.on("data", buffer => {
+  const ab = (buffer + "").split(" ");
+  const a = parseInt(ab[0]);
+  const b = parseInt(ab[1]);
+  console.log(add(a, b));
+});`,
+        }),
         testCases: [
           { id: "1", stdin: "10 22", expectedOutput: "32", isHidden: false },
           { id: "2", stdin: "10 20", expectedOutput: "30", isHidden: false },
@@ -84,7 +96,20 @@ if __name__ == "__main__":
         title: "Two Sum",
         difficulty: Difficulty.Medium,
         description: "Add two numbers together and return the result",
-        initialCode: "def add(a, b):\n  return a + b",
+        initialCode: JSON.stringify({
+          71: `#!/bin/python3
+
+def add(a, b):
+  return a + b
+
+if __name__ == "__main__":
+  stdin = input()
+  a, b = stdin.split()
+  a, b = int(a), int(b)
+  print(add(a, b))
+          `,
+          27: `javacode`,
+        }),
         testCases: [
           { id: "1", stdin: "10 22", expectedOutput: "32", isHidden: false },
         ],
@@ -98,7 +123,20 @@ if __name__ == "__main__":
         title: "Three Sum",
         difficulty: Difficulty.Hard,
         description: "Add two numbers together and return the result",
-        initialCode: "def add(a, b):\n  return a + b",
+        initialCode: JSON.stringify({
+          71: `#!/bin/python3
+
+def add(a, b):
+  return a + b
+
+if __name__ == "__main__":
+  stdin = input()
+  a, b = stdin.split()
+  a, b = int(a), int(b)
+  print(add(a, b))
+          `,
+          27: `javacode`,
+        }),
         testCases: [
           { id: "1", stdin: "10 22", expectedOutput: "32", isHidden: false },
         ],

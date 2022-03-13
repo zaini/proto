@@ -1,12 +1,10 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { Button } from "@chakra-ui/react";
 import TestCaseView from "../TestCaseView/TestCaseView";
-import { gql, useMutation } from "@apollo/client";
 import EditorSettings from "./EditorSettings/EditorSettings";
 import { ProblemContext } from "../../../views/Problem/Problem";
-import { TestCaseInput } from "../../../gql-types";
 
 const EditorContext = createContext({
   selectedLanguage: -1,
@@ -19,13 +17,22 @@ const EditorContext = createContext({
 const CodeEditor = ({ submitProblem, loading, openSubmissionsTab }: any) => {
   const problem = useContext(ProblemContext);
 
-  const [code, setCode] = useState(problem.specification.initialCode);
+  // TODO change this to default to a language that is valid for this problem
+  const [selectedLanguage, setSelectedLanguage] = useState(
+    parseInt(Object.keys(problem.specification.initialCode)[0])
+  );
+
+  const [code, setCode] = useState(
+    problem.specification.initialCode[selectedLanguage]
+  );
 
   const [editorTheme, setEditorTheme] = useState<"dark" | "light">("dark");
 
   const [tabIndex, setTabIndex] = useState(0);
 
-  const [selectedLanguage, setSelectedLanguage] = useState(71);
+  useEffect(() => {
+    setCode(problem.specification.initialCode[selectedLanguage]);
+  }, [selectedLanguage]);
 
   return (
     <EditorContext.Provider

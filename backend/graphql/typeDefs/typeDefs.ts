@@ -11,6 +11,14 @@ module.exports = gql`
     MEDIUM
     HARD
   }
+  # enum Language {
+  #   PYTHON3
+  #   PYTHON2
+  #   JAVASCRIPT
+  #   TYPESCRIPT
+  #   JAVA7
+  #   JAVA8
+  # }
   type TestCase {
     id: ID!
     stdin: String!
@@ -38,7 +46,7 @@ module.exports = gql`
   type Specification {
     title: String!
     description: String!
-    initialCode: String!
+    initialCode: String! # This is a JSON object, mapping from a language to the initial code for the question for all supported languages
     testCases: [TestCase!]
     difficulty: Difficulty!
   }

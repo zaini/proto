@@ -15,7 +15,7 @@ const ProblemContext = createContext<ProblemType>({
     difficulty: "" as any,
     title: "",
     description: "",
-    initialCode: "",
+    initialCode: {} as any,
     testCases: [],
   },
 });
@@ -142,8 +142,18 @@ const Problem = () => {
   // TODO have an actual error page and log this
   if (error) return <>Error! ${error.message}</>;
 
+  const problem = data.getProblem;
+
   return (
-    <ProblemContext.Provider value={data.getProblem}>
+    <ProblemContext.Provider
+      value={{
+        ...problem,
+        specification: {
+          ...problem.specification,
+          initialCode: JSON.parse(problem.specification.initialCode),
+        },
+      }}
+    >
       <SimpleGrid columns={2}>
         <Box className="leftPanel" p="4px">
           <ProblemInformation

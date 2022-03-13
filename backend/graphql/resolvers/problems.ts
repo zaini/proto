@@ -1,6 +1,7 @@
 import { ApolloError } from "apollo-server";
 import axios from "axios";
 import {
+  MutationCreateProblemArgs,
   MutationSubmitTestsArgs,
   Specification,
   Submission,
@@ -100,6 +101,35 @@ module.exports = {
     },
   },
   Mutation: {
+    createProblem: async (
+      _: any,
+      { specification }: MutationCreateProblemArgs,
+      context: any
+    ) => {
+      logger.info("GraphQL problems/createProblem");
+
+      const user = isAuth(context);
+
+      const { title, description, testCases, initialCode } = specification;
+
+      if (title === "") {
+        throw new ApolloError("Problem name cannot be empty.");
+      } else if (description === "") {
+        throw new ApolloError("Problem description cannot be empty.");
+      } else if (!testCases || (testCases && testCases.length === 0)) {
+        throw new ApolloError("Problem must have at least one test case.");
+      }
+      // TODO add check for initial code stuff
+
+      const problem = await prisma.problem.create({
+        data: {
+          userId: user.id,
+          specification,
+        },
+      });
+
+      return problem;
+    },
     submitTests: async (
       _: any,
       { code, language, testCases }: MutationSubmitTestsArgs,

@@ -91,8 +91,7 @@ export type MutationCreateClassroomArgs = {
 
 
 export type MutationCreateProblemArgs = {
-  creatorId: Scalars['ID'];
-  specification: Scalars['String'];
+  specification: SpecificationInput;
 };
 
 
@@ -256,6 +255,14 @@ export type Specification = {
   difficulty: Difficulty;
   initialCode: Scalars['String'];
   testCases?: Maybe<Array<TestCase>>;
+  title: Scalars['String'];
+};
+
+export type SpecificationInput = {
+  description: Scalars['String'];
+  difficulty: Difficulty;
+  initialCode: Scalars['String'];
+  testCases?: InputMaybe<Array<TestCaseInput>>;
   title: Scalars['String'];
 };
 

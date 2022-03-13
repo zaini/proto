@@ -13,6 +13,7 @@ import NotFound from "../views/NotFound/NotFound";
 import { Problem } from "../views/Problem/Problem";
 import Profile from "../views/Profile/Profile";
 import { Assignment } from "../views/Dashboard/Classrooms/Classroom/Assignment/Assignment";
+import NewProblem from "../views/Problem/NewProblem/NewProblem";
 
 const IndexRouter = () => {
   const { user } = useContext(AuthContext);
@@ -44,6 +45,7 @@ const IndexRouter = () => {
               }
               element={<Assignment />}
             />
+            <Route path={"/problems/new"} element={<NewProblem />} />
             <Route path={"/problems/:problemId"} element={<Problem />} />
             <Route path={"/profile/settings"} element={<Settings />} />
             <Route path={"/profile/:userId"} element={<Profile />} />

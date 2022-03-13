@@ -2,10 +2,14 @@ import React, { useContext } from "react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { Box, IconButton, Select, Stack } from "@chakra-ui/react";
 import { EditorContext } from "../CodeEditor";
+import { LanguageCodeToName } from "../../../../utils";
+import { ProblemContext } from "../../../../views/Problem/Problem";
 
 const EditorSettings = () => {
   const { editorTheme, selectedLanguage, setSelectedLanguage, setEditorTheme } =
     useContext(EditorContext);
+  const problem = useContext(ProblemContext);
+
   return (
     <Box my={2}>
       {/* <Text>Editor Settings</Text> */}
@@ -21,10 +25,13 @@ const EditorSettings = () => {
           value={selectedLanguage}
           onChange={(e) => setSelectedLanguage(parseInt(e.target.value))}
         >
-          <option value={71}>Python (3.8.1)</option>
-          <option value={70}>Python (2.7.17)</option>
-          <option value={63}>JavaScript</option>
-          <option value={74}>TypeScript</option>
+          {Object.keys(problem.specification.initialCode).map(
+            (languageCode) => (
+              <option value={parseInt(languageCode)}>
+                {LanguageCodeToName[parseInt(languageCode)]}
+              </option>
+            )
+          )}
         </Select>
       </Stack>
     </Box>

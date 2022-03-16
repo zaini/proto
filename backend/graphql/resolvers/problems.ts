@@ -99,6 +99,50 @@ module.exports = {
 
       return null;
     },
+    getDefaultInitialCodes: async (_: any, __: any, context: any) => {
+      logger.info("GraphQL problems/getDefaultInitialCodes");
+
+      // 71: "Python (3.8.1)",
+      // 36: "Python (2.7.9)",
+      // 63: "JavaScript (Node.js 12.14.0)",
+      // 74: "TypeScript (3.7.4)",
+      // 28: "Java 7",
+      // 27: "Java 8",
+
+      return JSON.stringify({
+        71: `#!/bin/python3
+
+def add(a, b):
+  return a + b
+
+if __name__ == "__main__":
+  stdin = input()
+  a, b = stdin.split()
+  a, b = int(a), int(b)
+  print(add(a, b))`,
+        36: `def add(a, b):
+  return a + b
+
+if __name__ == "__main__":
+  stdin = raw_input()
+  a, b = stdin.split()
+  a, b = int(a), int(b)
+  print add(a, b)`,
+        63: `const add = (a, b) => {
+  return a + b;
+}
+
+process.stdin.on("data", buffer => {
+  const ab = (buffer + "").split(" ");
+  const a = parseInt(ab[0]);
+  const b = parseInt(ab[1]);
+  console.log(add(a, b));
+});`,
+        74: `ts 3.7.4`,
+        28: `java 7`,
+        27: `java 8`,
+      });
+    },
   },
   Mutation: {
     createProblem: async (

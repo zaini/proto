@@ -194,6 +194,7 @@ module.exports = gql`
     # Problem Queries
     getProblems: [Problem!]
     getProblem(problemId: ID!): Problem
+    getDefaultInitialCodes: String!
     # End of Problem Queries
 
     # Submission Queries

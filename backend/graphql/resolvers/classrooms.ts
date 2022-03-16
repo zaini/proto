@@ -189,6 +189,7 @@ module.exports = {
       { classroomId, classroomName, password }: any,
       context: any
     ) => {
+      logger.info("GraphQL classrooms/deleteClassroom");
       const user = isAuth(context);
 
       const classroom = await prisma.classroom.findFirst({
@@ -222,12 +223,6 @@ module.exports = {
           "Failed to delete classroom as the name you entered is not correct."
         );
       }
-
-      await prisma.usersOnClassrooms.deleteMany({
-        where: {
-          classroomId: classroom.id,
-        },
-      });
 
       await prisma.classroom.delete({
         where: {

@@ -103,34 +103,49 @@ const ProblemTestCaseTab = () => {
       <Accordion allowMultiple>
         {testCaseData
           .sort((a, b) => parseInt(a.id) - parseInt(b.id))
+          .sort((a, b) =>
+            a.testCase.isHidden === b.testCase.isHidden
+              ? 0
+              : a.testCase.isHidden
+              ? 1
+              : -1
+          )
           .map((e: TestCaseResult, i: number) => {
             return (
               <AccordionItem key={e.id}>
                 <h2>
                   <AccordionButton>
                     <Box flex="1" textAlign="left">
-                      Test #{i + 1}
+                      {e.testCase.isHidden && "Hidden"} Test #{i + 1}
                     </Box>
+                    <Box>{e.passed ? "✔" : "❌"}</Box>
                     <AccordionIcon />
                   </AccordionButton>
                 </h2>
                 <AccordionPanel pb={4}>
                   <Box>
-                    Input: <Code>{e.testCase.stdin}</Code>
-                    <br />
-                    Expected Output: <Code>{e.testCase.expectedOutput}</Code>
-                    <br />
-                    💾{" "}
-                    <Code>
-                      {e.memory ? e.memory.toFixed(2) + " MB" : "N/A"}
-                    </Code>{" "}
-                    | 🕓{" "}
-                    <Code>{e.time ? e.time.toFixed(2) + " ms" : "N/A"}</Code>
-                    <br />
-                    Your Output: <Code>{e.stdout || "N/A"}</Code>
-                    <br />
-                    Errors: <Code>{e.stderr || "N/A"}</Code>
-                    <br />
+                    {!e.testCase.isHidden && (
+                      <>
+                        Input: <Code>{e.testCase.stdin}</Code>
+                        <br />
+                        Expected Output:{" "}
+                        <Code>{e.testCase.expectedOutput}</Code>
+                        <br />
+                        💾{" "}
+                        <Code>
+                          {e.memory ? e.memory.toFixed(2) + " MB" : "N/A"}
+                        </Code>{" "}
+                        | 🕓{" "}
+                        <Code>
+                          {e.time ? e.time.toFixed(2) + " ms" : "N/A"}
+                        </Code>
+                        <br />
+                        Your Output: <Code>{e.stdout || "N/A"}</Code>
+                        <br />
+                        Errors: <Code>{e.stderr || "N/A"}</Code>
+                        <br />
+                      </>
+                    )}
                     Passed: {e.passed ? "✔" : "❌"}
                     {/* TODO run only a specific test rather than all the required tests */}
                     {/* <Button

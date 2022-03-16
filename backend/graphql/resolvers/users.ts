@@ -3,6 +3,7 @@ import { Prisma, UsersOnClassrooms } from ".prisma/client";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { authenticateToken } from "../../utils/tokens";
+import { isAuth } from "../../utils/isAuth";
 
 module.exports = {
   Query: {
@@ -87,6 +88,27 @@ module.exports = {
     },
   },
   Mutation: {
-    // Users are currently made directly from the backend when authenticating GitHub, not from GraphQL
+    deleteUser: async (_: any, { userId, username }: any, context: any) => {
+      logger.info("GraphQL users/deleteUser");
+      const authUser = isAuth(context);
+
+      const user = await prisma.user.findUnique({
+        where: {
+          id: parseInt(userId),
+        },
+      });
+
+      if (user && user.id === authUser.id && user.username === username) {
+        await prisma.user.delete({
+          where: {
+            id: user.id,
+          },
+        });
+      } else {
+        throw new ApolloError("Failed to delete user.");
+      }
+
+      return true;
+    },
   },
 };

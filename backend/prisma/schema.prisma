@@ -10,17 +10,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// enum AccountType {
-//   LEARNER
-//   TEACHER
-//   ADMIN
-// }
-
 model User {
   id                   Int                    @id @default(autoincrement())
   githubId             String                 @unique
   username             String                 @unique
-  // accountType       AccountType         @default(LEARNER)
   createdAt            DateTime               @default(now())
   classrooms           Classroom[] // Classrooms the User has created
   problems             Problem[] // Problems the User has created
@@ -33,7 +26,7 @@ model User {
 model Classroom {
   id                Int                 @id @default(autoincrement())
   name              String              @default("Unnamed Classroom")
-  creator           User                @relation(fields: [userId], references: [id])
+  creator           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId            Int
   UsersOnClassrooms UsersOnClassrooms[] // The Users who are in this Classroom
   assignments       Assignment[] // The Assignments set for this Classroom
@@ -42,9 +35,9 @@ model Classroom {
 }
 
 model UsersOnClassrooms {
-  user        User      @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
-  classroom   Classroom @relation(fields: [classroomId], references: [id])
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
   classroomId Int
   assignedAt  DateTime  @default(now())
 
@@ -54,7 +47,7 @@ model UsersOnClassrooms {
 model Assignment {
   id                    Int                     @id @default(autoincrement())
   name                  String
-  classroom             Classroom               @relation(fields: [classroomId], references: [id])
+  classroom             Classroom               @relation(fields: [classroomId], references: [id], onDelete: Cascade)
   classroomId           Int
   createdAt             DateTime                @default(now())
   setDate               DateTime
@@ -65,7 +58,7 @@ model Assignment {
 
 model Problem {
   id                    Int                     @id @default(autoincrement())
-  creator               User                    @relation(fields: [userId], references: [id])
+  creator               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                Int
   specification         Json
   ProblemsOnAssignments ProblemsOnAssignments[]
@@ -76,8 +69,8 @@ model Problem {
 
 model Rating {
   score     Float
-  problem   Problem @relation(fields: [problemId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   problemId Int
   userId    Int
 
@@ -86,9 +79,9 @@ model Rating {
 
 model Submission {
   id                   Int                    @id @default(autoincrement())
-  user                 User                   @relation(fields: [userId], references: [id])
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId               Int
-  problem              Problem                @relation(fields: [problemId], references: [id])
+  problem              Problem                @relation(fields: [problemId], references: [id], onDelete: Cascade)
   submissionResults    Json
   problemId            Int
   createdAt            DateTime               @default(now())
@@ -101,10 +94,10 @@ model Submission {
 }
 
 model AssignmentSubmission {
-  user         User       @relation(fields: [userId], references: [id])
-  assignment   Assignment @relation(fields: [assignmentId], references: [id])
-  problem      Problem    @relation(fields: [problemId], references: [id])
-  submission   Submission @relation(fields: [submissionId], references: [id])
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  problem      Problem    @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   userId       Int
   assignmentId Int
   problemId    Int
@@ -115,9 +108,9 @@ model AssignmentSubmission {
 }
 
 model ProblemsOnAssignments {
-  problem      Problem    @relation(fields: [problemId], references: [id])
+  problem      Problem    @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId    Int
-  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   assignmentId Int
   assignedAt   DateTime   @default(now())
 

@@ -21,18 +21,20 @@ const EditorSettings = () => {
           }
           icon={editorTheme === "dark" ? <SunIcon /> : <MoonIcon />}
         />
-        <Select
-          value={selectedLanguage}
-          onChange={(e) => setSelectedLanguage(parseInt(e.target.value))}
-        >
-          {Object.keys(problem.specification.initialCode).map(
-            (languageCode) => (
-              <option value={parseInt(languageCode)}>
-                {LanguageCodeToName[parseInt(languageCode)]}
-              </option>
-            )
-          )}
-        </Select>
+        <Box>
+          <Select
+            value={selectedLanguage}
+            onChange={(e) => setSelectedLanguage(parseInt(e.target.value))}
+          >
+            {Object.keys(problem.specification.initialCode).map(
+              (languageCode) => (
+                <option value={parseInt(languageCode)}>
+                  {LanguageCodeToName[parseInt(languageCode)]}
+                </option>
+              )
+            )}
+          </Select>
+        </Box>
       </Stack>
     </Box>
   );

@@ -14,6 +14,7 @@ const Login = () => {
         <br />
         <Button
           aria-label={"Login with GitHub"}
+          colorScheme={"blue"}
           leftIcon={<BsGithub />}
           onClick={() => {
             window.open(REACT_APP_GITHUB_AUTH_URL, "_self");

@@ -23,43 +23,46 @@ const LearnerAssignment = () => {
   const [tabIndex, setTabIndex] = useState(0);
 
   return (
-    <>
-      <Box mx={4}>
-        <Link to={`/dashboard/classrooms/${classroomId}/assignments`}>
-          <Button my={4}>&lt;- All Assignments</Button>
-        </Link>
+    <Box px={"12.5%"} pt={8}>
+      <Link to={`/dashboard/classrooms/${classroomId}/assignments`}>
+        <Button my={4} colorScheme={"blue"}>
+          &lt;- All Assignments
+        </Button>
+      </Link>
 
-        <Heading>
-          Classroom: {assignment.classroom.name} | Assignment: {assignment.name}
-        </Heading>
-        <Heading size={"sm"}>
-          Set: {new Date(parseInt(assignment.setDate)).toLocaleString()}
-        </Heading>
-        <Heading size={"sm"}>
-          Due: {new Date(parseInt(assignment.dueDate)).toLocaleString()}
-        </Heading>
+      <Heading>
+        Classroom: {assignment.classroom.name} | Assignment: {assignment.name}
+      </Heading>
+      <br />
+      <Heading size={"sm"}>
+        Set: {new Date(parseInt(assignment.setDate)).toLocaleString()}
+      </Heading>
+      <Heading size={"sm"}>
+        Due: {new Date(parseInt(assignment.dueDate)).toLocaleString()}
+      </Heading>
 
-        <Tabs
-          index={tabIndex}
-          onChange={(index) => {
-            setTabIndex(index);
-          }}
-        >
-          <TabList>
-            <Tab>General</Tab>
-            <Tab>Submissions</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <AssignmentGeneralPanel />
-            </TabPanel>
-            <TabPanel>
-              <AssignmentSubmissionsPanel />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Box>
-    </>
+      <br />
+
+      <Tabs
+        index={tabIndex}
+        onChange={(index) => {
+          setTabIndex(index);
+        }}
+      >
+        <TabList>
+          <Tab>General</Tab>
+          <Tab>Submissions</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel pb={0}>
+            <AssignmentGeneralPanel />
+          </TabPanel>
+          <TabPanel pb={0}>
+            <AssignmentSubmissionsPanel />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Box>
   );
 };
 

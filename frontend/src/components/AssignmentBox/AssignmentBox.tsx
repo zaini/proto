@@ -24,9 +24,9 @@ const AssignmentBox = ({ assignment }: { assignment: Assignment }) => {
       <Box textAlign="right" mt={4}>
         <Button
           as={Link}
+          colorScheme={"blue"}
           to={`/dashboard/classrooms/${assignment.classroom.id}/assignments/${assignment.id}`}
           fontSize="lg"
-          backgroundColor={"#00ADB5"}
         >
           GO
         </Button>

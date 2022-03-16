@@ -33,27 +33,31 @@ const TeacherAssignment = () => {
   const [tabIndex, setTabIndex] = useState(0);
 
   return (
-    <>
+    <Box px={"12.5%"} pt={8}>
       <DeleteAssignment
         isOpen={isOpenDeleteAssignment}
         onClose={onCloseDeleteAssignment}
         assignment={assignment}
         classroom={assignment.classroom}
       />
-      <Box mx={4}>
+      <Box>
         <Link to={`/dashboard/classrooms/${classroomId}/assignments`}>
-          <Button my={4}>&lt;- All Assignments</Button>
+          <Button my={4} colorScheme={"blue"}>
+            &lt;- All Assignments
+          </Button>
         </Link>
 
         <Heading>
           Classroom: {assignment.classroom.name} | Assignment: {assignment.name}
         </Heading>
+        <br />
         <Heading size={"sm"}>
           Set: {new Date(parseInt(assignment.setDate)).toLocaleString()}
         </Heading>
         <Heading size={"sm"}>
           Due: {new Date(parseInt(assignment.dueDate)).toLocaleString()}
         </Heading>
+        <br />
 
         <Center>
           <ButtonGroup>
@@ -62,6 +66,8 @@ const TeacherAssignment = () => {
             </Button>
           </ButtonGroup>
         </Center>
+
+        <br />
 
         <Tabs
           index={tabIndex}
@@ -74,16 +80,16 @@ const TeacherAssignment = () => {
             <Tab>Submissions</Tab>
           </TabList>
           <TabPanels>
-            <TabPanel>
+            <TabPanel pb={0}>
               <AssignmentGeneralPanel />
             </TabPanel>
-            <TabPanel>
+            <TabPanel pb={0}>
               <AssignmentSubmissionsPanel />
             </TabPanel>
           </TabPanels>
         </Tabs>
       </Box>
-    </>
+    </Box>
   );
 };
 

@@ -58,13 +58,6 @@ const TeacherAssignmentSubmissionsPanel = () => {
   const [assignmentSubmissionQueryData, setAssignmentSubmissionQueryData] =
     useState<AssignmentSubmissionQueryData>({ assignmentId: -1, userId: -1 });
 
-  // const [userAssignmentSubmissions, setUserAssignmentSubmissions] = useState<
-  //   {
-  //     user: User;
-  //     assignmentSubmission: AssignmentSubmissionMap;
-  //   }[]
-  // >([]);
-
   const [userAssignmentSubmissions, setUserAssignmentSubmissions] = useState<
     UserAssignmentSubmission[]
   >([]);
@@ -73,23 +66,6 @@ const TeacherAssignmentSubmissionsPanel = () => {
     GET_ASSIGNMENT_SUBMISSION,
     {
       onCompleted: ({ getAssignmentSubmissionsAsTeacher }) => {
-        // const x = getAssignmentSubmissionsAsTeacher.map(
-        //   (uas: UserAssignmentSubmission) => {
-        //     const ass = uas.assignmentSubmission
-        //       ? uas.assignmentSubmission.reduce(
-        //           (a: any, v: any) => ({
-        //             ...a,
-        //             [v.problem.id]: v,
-        //           }),
-        //           {}
-        //         )
-        //       : {};
-        //     return {
-        //       user: uas.user,
-        //       assignmentSubmission: ass,
-        //     };
-        //   }
-        // );
         setUserAssignmentSubmissions(getAssignmentSubmissionsAsTeacher);
       },
       variables: {
@@ -126,14 +102,7 @@ const TeacherAssignmentSubmissionsPanel = () => {
           assignmentSubmissionQueryData,
         }}
       />
-      <p>
-        teacher sees a list of all students and their submissions or lack of
-        submission with some basic stats. they can click on the submission to
-        open a modal with details about the submission including the code.
-      </p>
-      <br />
-      <Box my={4}>
-        <Heading>Current submission for this assignment</Heading>
+      <Box>
         <CustomTable
           data={userAssignmentSubmissions.map((userAssignmentSubmission) => {
             const user = userAssignmentSubmission.user;

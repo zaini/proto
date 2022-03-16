@@ -81,7 +81,7 @@ const JoinClassroom = () => {
   const classroomData: Classroom = data.getClassroom;
 
   return (
-    <Center my={8}>
+    <Center px={"12.5%"} py={8}>
       <Stack spacing={4}>
         <Text>
           This is an invitation to join classroom <b>{classroomData.name}</b>{" "}

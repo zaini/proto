@@ -204,13 +204,14 @@ const LearnerAssignmentSubmissionsPanel = () => {
       <SubmissionModal
         {...{ isOpen, onClose, submissionId: modalSubmissionId }}
       />
-      students see list of the submissions to the problem since the creation of
+      {/* students see list of the submissions to the problem since the creation of
       the assignment and they can assign any of their submissions to be the
       submission for each problem in the assignment. they can change this any
       time.
-      <br />
-      <Box my={4}>
+      <br /> */}
+      <Box>
         <Heading>Current submission for this assignment</Heading>
+        <br />
         <CustomTable
           data={Object.entries(assignmentSubmissions).map(
             ([problemId, assignmentSubmission]) => {
@@ -293,7 +294,10 @@ const LearnerAssignmentSubmissionsPanel = () => {
               Go to problem
             </Button>
 
-            <Box mt={4}>
+            <br />
+            <br />
+
+            <Box>
               {submissions && submissions.length > 0 ? (
                 <CustomTable
                   data={submissions.map((submission: Submission) => {
@@ -353,7 +357,7 @@ const LearnerAssignmentSubmissionsPanel = () => {
                   ]}
                 />
               ) : (
-                <Text textAlign={"center"}>
+                <Text textAlign={"center"} py={8}>
                   You have not made any submissions for this problem
                 </Text>
               )}

@@ -65,7 +65,7 @@ const ClassroomStudentsPanel = () => {
           })}
         />
       ) : (
-        <Center mb={8}>
+        <Center>
           <Stack spacing={4}>
             <Text>This classroom does not have any students!</Text>
             <CopyLink

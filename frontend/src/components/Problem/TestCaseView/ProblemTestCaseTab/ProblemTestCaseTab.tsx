@@ -81,6 +81,7 @@ const ProblemTestCaseTab = () => {
       <br />
       Hidden testcases mean you cannot see the input or expected output.
       <br />
+      <br />
       <Button
         colorScheme={"teal"}
         isLoading={loading}
@@ -97,6 +98,8 @@ const ProblemTestCaseTab = () => {
       >
         Run All Tests
       </Button>
+      <br />
+      <br />
       <Accordion allowMultiple>
         {testCaseData
           .sort((a, b) => parseInt(a.id) - parseInt(b.id))

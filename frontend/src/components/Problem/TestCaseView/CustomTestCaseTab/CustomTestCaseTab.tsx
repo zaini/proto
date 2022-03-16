@@ -113,6 +113,7 @@ const CustomTestCaseTab = () => {
     <>
       You can create and run up to 10 of your own test cases here.
       <br />
+      <br />
       <Button
         colorScheme={"teal"}
         isLoading={loading}
@@ -129,6 +130,8 @@ const CustomTestCaseTab = () => {
       >
         Run Custom Tests
       </Button>
+      <br />
+      <br />
       <Accordion allowMultiple>
         {testCaseData
           .sort((a, b) => parseInt(a.id) - parseInt(b.id))

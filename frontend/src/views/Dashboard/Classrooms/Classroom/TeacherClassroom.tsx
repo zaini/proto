@@ -111,7 +111,7 @@ const TeacherClassroom = () => {
   });
 
   return (
-    <>
+    <Box px={"12.5%"} pt={8}>
       <DeleteClassroom
         isOpen={isOpenDeleteClassroom}
         onClose={onCloseDeleteClassroom}
@@ -125,9 +125,11 @@ const TeacherClassroom = () => {
         createAssignment={createAssignment}
       />
 
-      <Box mx={4}>
+      <Box>
         <Link to={`/dashboard/classrooms`}>
-          <Button my={4}>&lt;- All Classrooms</Button>
+          <Button my={4} colorScheme={"blue"}>
+            &lt;- All Classrooms
+          </Button>
         </Link>
 
         {user.id === parseInt(classroom.creator.id) ? (
@@ -135,6 +137,7 @@ const TeacherClassroom = () => {
             <Heading>
               #{classroom.id} {classroom.name}
             </Heading>
+            <br />
             <Heading size={"sm"}>
               Created:{" "}
               {new Date(parseInt(classroom.createdAt)).toLocaleString()}
@@ -148,10 +151,15 @@ const TeacherClassroom = () => {
               Owner: {`${classroom.creator!.username}`}
             </Heading>
 
+            <br />
+
             <Center>
               <ButtonGroup>
-                <Button onClick={onOpenSetAssignment}>Set Assignment</Button>
+                <Button onClick={onOpenSetAssignment} colorScheme={"blue"}>
+                  Set Assignment
+                </Button>
                 <CopyLink
+                  colorScheme={"blue"}
                   link={
                     window.location.origin +
                     `/dashboard/classrooms/join/${classroom.id}`
@@ -164,6 +172,8 @@ const TeacherClassroom = () => {
               </ButtonGroup>
             </Center>
 
+            <br />
+
             <Tabs
               index={tabIndex}
               onChange={(index) => {
@@ -175,10 +185,10 @@ const TeacherClassroom = () => {
                 <Tab>Assignments</Tab>
               </TabList>
               <TabPanels>
-                <TabPanel>
+                <TabPanel pb={0}>
                   <ClassroomStudentsPanel />
                 </TabPanel>
-                <TabPanel>
+                <TabPanel pb={0}>
                   <TeacherClassroomAssignmentsPanel
                     onOpen={onOpenSetAssignment}
                   />
@@ -192,7 +202,7 @@ const TeacherClassroom = () => {
           </Text>
         )}
       </Box>
-    </>
+    </Box>
   );
 };
 

@@ -23,8 +23,7 @@ const ProblemInformation = ({
 
   return (
     <>
-      <Heading>{problem.specification.title}</Heading>
-
+      <Heading p={4}>{problem.specification.title}</Heading>
       <Tabs
         index={tabIndex}
         onChange={(index) => {

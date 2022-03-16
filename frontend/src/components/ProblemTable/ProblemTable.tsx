@@ -45,8 +45,6 @@ const ProblemTable = () => {
 
   const problems: Problem[] = data.getProblems;
 
-  console.log(problems);
-
   return (
     <CustomTable
       data={problems.map((problem) => {

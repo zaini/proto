@@ -168,12 +168,11 @@ module.exports = {
         throw new ApolloError("This assignment does not exist.");
       }
 
-      // TODO uncomment this
-      // if (assignment.classroom.creator.id != user.id) {
-      //   throw new ApolloError(
-      //     "This user is the not the creator of this assignment."
-      //   );
-      // }
+      if (assignment.classroom.creator.id != user.id) {
+        throw new ApolloError(
+          "This user is the not the creator of this assignment."
+        );
+      }
 
       const learners = await prisma.usersOnClassrooms.findMany({
         where: {

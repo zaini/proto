@@ -1,5 +1,4 @@
 import { ApolloError } from "apollo-server";
-import { Prisma, UsersOnClassrooms } from ".prisma/client";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { authenticateToken } from "../../utils/tokens";

@@ -215,8 +215,6 @@ const LearnerAssignmentSubmissionsPanel = () => {
         <CustomTable
           data={Object.entries(assignmentSubmissions).map(
             ([problemId, assignmentSubmission]) => {
-              console.log("data", problemId, assignmentSubmission);
-
               const problem = assignmentSubmission.problem;
               const submission = assignmentSubmission.submission;
 

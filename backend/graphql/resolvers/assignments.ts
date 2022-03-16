@@ -191,19 +191,6 @@ module.exports = {
         );
       }
 
-      // TODO: once a mechanism for creating submissions is added, we might decide to also delete submissions related to this assignment
-      // await prisma.submissionsOnAssignment.deleteMany({
-      //   where: {
-      //     assignmentId: assignment.id,
-      //   },
-      // });
-
-      await prisma.problemsOnAssignments.deleteMany({
-        where: {
-          assignmentId: assignment.id,
-        },
-      });
-
       await prisma.assignment.delete({
         where: {
           id: assignment.id,

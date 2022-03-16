@@ -100,7 +100,6 @@ const Problem = () => {
     },
   ] = useLazyQuery(GET_SUBMISSIONS, {
     onCompleted: ({ getUserSubmissionsForProblem }) => {
-      console.log("finished getting submissions again");
       setUserSubmissions(getUserSubmissionsForProblem);
     },
     variables: {

@@ -65,6 +65,7 @@ export type Mutation = {
   createClassroom?: Maybe<Classroom>;
   createProblem?: Maybe<Problem>;
   deleteClassroom?: Maybe<Scalars['Boolean']>;
+  deleteUser?: Maybe<Scalars['Boolean']>;
   joinClassroom?: Maybe<Classroom>;
   rateProblem?: Maybe<Scalars['Boolean']>;
   removeAssignment?: Maybe<Scalars['Boolean']>;
@@ -99,6 +100,12 @@ export type MutationDeleteClassroomArgs = {
   classroomId: Scalars['ID'];
   classroomName: Scalars['String'];
   password?: InputMaybe<Scalars['String']>;
+};
+
+
+export type MutationDeleteUserArgs = {
+  userId: Scalars['ID'];
+  username: Scalars['String'];
 };
 
 
@@ -178,6 +185,7 @@ export type Query = {
   getAssignmentSubmissionsAsTeacher?: Maybe<Array<Maybe<UserAssignmentSubmission>>>;
   getAssignments?: Maybe<Array<Assignment>>;
   getClassroom?: Maybe<Classroom>;
+  getDefaultInitialCodes: Scalars['String'];
   getLearnerClassrooms?: Maybe<Array<Classroom>>;
   getProblem?: Maybe<Problem>;
   getProblemSubmissionsForAssignment?: Maybe<Array<Maybe<AssignmentProblemSubmissions>>>;

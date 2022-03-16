@@ -17,7 +17,6 @@ const EditorContext = createContext({
 const CodeEditor = ({ submitProblem, loading, openSubmissionsTab }: any) => {
   const problem = useContext(ProblemContext);
 
-  // TODO change this to default to a language that is valid for this problem
   const [selectedLanguage, setSelectedLanguage] = useState(
     parseInt(Object.keys(problem.specification.initialCode)[0])
   );

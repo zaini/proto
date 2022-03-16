@@ -67,8 +67,6 @@ const AssignmentsPreview = () => {
 
   const assignments: Assignment[] = data.getAssignments;
 
-  console.log(assignments);
-
   if (assignments.length === 0) {
     return (
       <Box>

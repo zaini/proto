@@ -64,7 +64,6 @@ const LearnerClassrooms = () => {
               },
             ]}
             data={classrooms.map((classroom: Classroom) => {
-              console.log(classroom);
               return {
                 classroomName: `#${classroom.id} ${classroom.name}`,
                 options: (

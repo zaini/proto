@@ -97,7 +97,6 @@ const TeacherClassroom = () => {
 
   const [createAssignment] = useMutation(CREATE_ASSIGNMENT, {
     onCompleted: ({ createAssignment }) => {
-      console.log(createAssignment);
       window.location.href = `/dashboard/classrooms/${classroom.id}/assignments/${createAssignment.id}`;
     },
     onError(err) {

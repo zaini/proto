@@ -233,6 +233,7 @@ const NewProblem = () => {
                     setSelectedLanguages(e);
                   }
                 } else {
+                  delete initialCode[removedLanguage.value];
                   setSelectedLanguages(e);
                 }
                 setTabIndex(0);

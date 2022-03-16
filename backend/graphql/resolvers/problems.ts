@@ -1,16 +1,15 @@
 import { ApolloError } from "apollo-server";
-import axios from "axios";
 import {
   MutationCreateProblemArgs,
   MutationSubmitTestsArgs,
   Specification,
-  Submission,
   TestCaseResult,
 } from "../../gql-types";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { isAuth } from "../../utils/isAuth";
 import { getSubmissionStatistics } from "../../utils/problem";
+import { LanguageCodeToName } from "../../utils/types";
 
 const JUDGE_API_URL = process.env.JUDGE_API_URL as string;
 const TEST_TIMELIMIT = 60 * 1000;
@@ -156,14 +155,22 @@ process.stdin.on("data", buffer => {
 
       const { title, description, testCases, initialCode } = specification;
 
+      const initialCodeObj = JSON.parse(initialCode);
+
       if (title === "") {
         throw new ApolloError("Problem name cannot be empty.");
       } else if (description === "") {
         throw new ApolloError("Problem description cannot be empty.");
       } else if (!testCases || (testCases && testCases.length === 0)) {
         throw new ApolloError("Problem must have at least one test case.");
+      } else if (
+        Object.keys(initialCodeObj).length === 0 ||
+        Object.keys(initialCodeObj).some(
+          (code) => !(parseInt(code) in LanguageCodeToName)
+        )
+      ) {
+        throw new ApolloError("Problem must use at least one valid language.");
       }
-      // TODO add check for initial code stuff
 
       const problem = await prisma.problem.create({
         data: {

@@ -48,6 +48,7 @@ const CodeEditor = ({ submitProblem, loading, openSubmissionsTab }: any) => {
         code,
       }}
     >
+      <EditorSettings />
       <CodeMirror
         value={code}
         height="600px"
@@ -58,12 +59,13 @@ const CodeEditor = ({ submitProblem, loading, openSubmissionsTab }: any) => {
         }}
       />
       <TestCaseView tabIndex={tabIndex} setTabIndex={setTabIndex} />
-      <EditorSettings />
+
       <Button
         colorScheme={"green"}
         my={2}
         mr={8}
         isLoading={loading}
+        size={"lg"}
         float="right"
         onClick={() => {
           submitProblem({

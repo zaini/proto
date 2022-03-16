@@ -45,10 +45,12 @@ const LearnerClassrooms = () => {
   const classrooms: Classroom[] = data.getLearnerClassrooms;
 
   return (
-    <Box mx={4}>
+    <Box px={"12.5%"} pt={8}>
       <Heading>Classrooms</Heading>
 
-      <Box mt={4}>
+      <br />
+
+      <Box>
         {classrooms && classrooms.length > 0 ? (
           <CustomTable
             columns={[

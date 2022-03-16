@@ -77,9 +77,15 @@ const TeacherClassrooms = () => {
   const classrooms: Classroom[] = data.getTeacherClassrooms;
 
   return (
-    <Box mx={4}>
+    <Box px={"12.5%"} pt={8}>
       <Heading>Classrooms</Heading>
-      <Button onClick={onOpen}>Create Classroom</Button>
+      <br />
+      <Button onClick={onOpen} colorScheme={"blue"}>
+        Create Classroom
+      </Button>
+
+      <br />
+      <br />
 
       <CreateClassroom
         isOpen={isOpen}
@@ -87,7 +93,7 @@ const TeacherClassrooms = () => {
         createClassroom={createClassroom}
       />
 
-      <Box mt={4}>
+      <Box>
         {classrooms && classrooms.length > 0 ? (
           <CustomTable
             columns={[
@@ -150,7 +156,9 @@ const TeacherClassrooms = () => {
           <Center mb={8}>
             <Text>You do not have any classrooms!</Text>
             <br /> <br />
-            <Button onClick={onOpen}>Create Classroom</Button>
+            <Button onClick={onOpen} colorScheme={"blue"}>
+              Create Classroom
+            </Button>
           </Center>
         )}
       </Box>

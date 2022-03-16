@@ -10,23 +10,10 @@ const AssignmentGeneralPanel = () => {
 
   return (
     <>
-      Problems:
-      <br />
-      {assignment.problems?.map((problem: Problem) => {
-        return (
-          <Link key={problem.id} href={`/problems/${problem.id}`}>
-            #{problem.id} {problem.specification.title}
-          </Link>
-        );
-      })}
-      Stats go here like average times, average memory, total submissions made,
-      percentage of submissions that passed, number of submissions made over
-      time, which test cases failed/passed the most. students and teachers can
-      see that.
-      <br />
       {assignment.problems ? (
         <>
           <Heading>Problems</Heading>
+          <br />
           <CustomTable
             data={assignment.problems.map((problem: Problem) => {
               return {

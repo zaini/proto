@@ -24,6 +24,7 @@ const Submissions = ({
         {...{ isOpen, onClose, submissionId: modalSubmissionId }}
       />
       <Heading>Latest Submission</Heading>
+      <br />
       {latestSubmission
         ? JSON.stringify({
             time: new Date(
@@ -32,10 +33,13 @@ const Submissions = ({
             passed: `${latestSubmission.passed}`,
             avgTime: latestSubmission.avgTime.toFixed(2) + " ms",
             avgMemory: latestSubmission.avgMemory.toFixed(2) + " MB",
-            language: latestSubmission.language,
+            language: LanguageCodeToName[latestSubmission.language],
           })
         : "You haven't made a submissions yet."}
+      <br />
+      <br />
       <Heading>Your Submissions</Heading>
+      <br />
       <CustomTable
         data={userSubmissions.map((submission: Submission, i: number) => {
           return {
@@ -48,7 +52,7 @@ const Submissions = ({
               <>
                 <ButtonGroup>
                   <Button
-                    colorScheme={"teal"}
+                    colorScheme={"blue"}
                     onClick={() => {
                       setModalSubmissionId(parseInt(submission.id));
                       onOpen();

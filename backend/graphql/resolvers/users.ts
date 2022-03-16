@@ -1,3 +1,4 @@
+import { ApolloError } from "apollo-server";
 import { Prisma, UsersOnClassrooms } from ".prisma/client";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
@@ -28,7 +29,7 @@ module.exports = {
       let user = await prisma.user.findUnique({
         where: { id: parseInt(userId) },
         include: {
-          problems: true,
+          problems: { include: { Ratings: true } },
           classrooms: true,
           UsersOnClassrooms: {
             include: {
@@ -38,8 +39,40 @@ module.exports = {
         },
       });
 
+      if (!user) {
+        throw new ApolloError("This user does not exist.");
+      }
+
+      const dateSixMonthsAgo = new Date();
+      dateSixMonthsAgo.setMonth(dateSixMonthsAgo.getMonth() - 6);
+
+      const recentSubmissions = await prisma.submission.findMany({
+        where: {
+          createdAt: {
+            gte: dateSixMonthsAgo,
+          },
+          userId: parseInt(userId),
+        },
+        include: {
+          problem: true,
+        },
+      });
+
       return {
         ...user,
+        problems: user.problems.map((problem) => {
+          return {
+            ...problem,
+            rating: {
+              numberOfRatings: problem.Ratings.length,
+              totalRating: problem.Ratings.reduce(
+                (total: any, rating: any) => rating.score + total,
+                0
+              ),
+            },
+          };
+        }),
+        recentSubmissions,
         UsersOnClassrooms: user?.UsersOnClassrooms.map((e) => e.classroom),
       };
     },

@@ -318,7 +318,8 @@ export type User = {
   createdAt: Scalars['String'];
   githubId: Scalars['String'];
   id: Scalars['ID'];
-  problems?: Maybe<Array<Maybe<Problem>>>;
+  problems?: Maybe<Array<Problem>>;
+  recentSubmissions?: Maybe<Array<Submission>>;
   username: Scalars['String'];
 };
 

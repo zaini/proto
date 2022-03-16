@@ -60,14 +60,14 @@ module.exports = gql`
   type AuthResponse {
     accessToken: String
   }
-
   type User {
     id: ID!
     githubId: String!
     username: String!
     # accountType: AccountType!
     createdAt: String! # These could all be Date scalar
-    problems: [Problem]
+    problems: [Problem!]
+    recentSubmissions: [Submission!]
     classrooms: [Classroom] # Classrooms this user owns
     UsersOnClassrooms: [Classroom] # Classrooms this user is a student in
   }

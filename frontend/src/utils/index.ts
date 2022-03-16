@@ -22,3 +22,12 @@ export const LanguageCodeToName: { [languageCode: number]: string } = {
   28: "Java 7",
   27: "Java 8",
 };
+
+export const LangaugeCodeToLanguageSupport: { [languageCode: number]: any } = {
+  71: "python",
+  36: "python",
+  63: "javascript",
+  74: "typescript",
+  28: "java",
+  27: "java",
+};

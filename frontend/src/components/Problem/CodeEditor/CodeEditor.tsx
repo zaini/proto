@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import CodeMirror from "@uiw/react-codemirror";
-import { python } from "@codemirror/lang-python";
 import { Button } from "@chakra-ui/react";
-import TestCaseView from "../TestCaseView/TestCaseView";
 import EditorSettings from "./EditorSettings/EditorSettings";
 import { ProblemContext } from "../../../views/Problem/Problem";
+import { LangaugeCodeToLanguageSupport } from "../../../utils";
+import Editor from "@monaco-editor/react";
+import TestCaseView from "../TestCaseView/TestCaseView";
 
 const EditorContext = createContext({
   selectedLanguage: -1,
@@ -25,7 +25,9 @@ const CodeEditor = ({ submitProblem, loading, openSubmissionsTab }: any) => {
     problem.specification.initialCode[selectedLanguage]
   );
 
-  const [editorTheme, setEditorTheme] = useState<"dark" | "light">("dark");
+  const [editorTheme, setEditorTheme] = useState<"vs-dark" | "light">(
+    "vs-dark"
+  );
 
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -48,12 +50,12 @@ const CodeEditor = ({ submitProblem, loading, openSubmissionsTab }: any) => {
       }}
     >
       <EditorSettings />
-      <CodeMirror
-        value={code}
+      <Editor
         height="600px"
+        language={LangaugeCodeToLanguageSupport[selectedLanguage]}
+        value={code}
         theme={editorTheme}
-        extensions={[python()]}
-        onChange={(value: any, viewUpdate: any) => {
+        onChange={(value: any, event: any) => {
           setCode(value);
         }}
       />

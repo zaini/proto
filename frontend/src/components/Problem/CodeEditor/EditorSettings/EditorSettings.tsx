@@ -17,9 +17,9 @@ const EditorSettings = () => {
         <IconButton
           aria-label="Toggle editor theme"
           onClick={() =>
-            setEditorTheme(editorTheme === "dark" ? "light" : "dark")
+            setEditorTheme(editorTheme === "vs-dark" ? "light" : "vs-dark")
           }
-          icon={editorTheme === "dark" ? <SunIcon /> : <MoonIcon />}
+          icon={editorTheme === "vs-dark" ? <SunIcon /> : <MoonIcon />}
         />
         <Box>
           <Select

@@ -23,9 +23,11 @@ import ReactMarkdown from "react-markdown";
 import ChakraUIRenderer from "chakra-ui-markdown-renderer";
 import { TestCaseInput } from "../../../gql-types";
 import { gql, useMutation, useLazyQuery } from "@apollo/client";
-import { LanguageCodeToName } from "../../../utils";
-import CodeMirror from "@uiw/react-codemirror";
-import { python } from "@codemirror/lang-python";
+import {
+  LangaugeCodeToLanguageSupport,
+  LanguageCodeToName,
+} from "../../../utils";
+import Editor from "@monaco-editor/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 
 enum Difficulty {
@@ -274,12 +276,12 @@ const NewProblem = () => {
                         />
                         <br />
                         <br />
-                        <CodeMirror
-                          value={initialCode[code]}
+                        <Editor
                           height="450px"
+                          language={LangaugeCodeToLanguageSupport[code]}
+                          value={initialCode[code]}
                           theme={editorTheme}
-                          extensions={[python()]}
-                          onChange={(value: any, viewUpdate: any) => {
+                          onChange={(value: any, event: any) => {
                             let copyInitialCode: any = initialCode;
                             copyInitialCode[code] = value;
                             setInitialCode(copyInitialCode);

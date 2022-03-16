@@ -1,7 +1,7 @@
 import React from "react";
 import { Submission } from "../../../gql-types";
-import CodeMirror from "@uiw/react-codemirror";
-import { python } from "@codemirror/lang-python";
+import Editor from "@monaco-editor/react";
+import { LangaugeCodeToLanguageSupport } from "../../../utils";
 
 type Props = {
   submission: Submission;
@@ -17,12 +17,12 @@ const SubmissionModalStatistics = ({ submission }: Props) => {
         avgMemory: submission.avgMemory.toFixed(2) + " MB",
         language: submission.language,
       })}
-      <CodeMirror
-        value={submission.code}
-        editable={false}
+      <Editor
         height="600px"
-        theme={"dark"}
-        extensions={[python()]}
+        language={LangaugeCodeToLanguageSupport[submission.language]}
+        value={submission.code}
+        theme={"vs-dark"}
+        options={{ readOnly: true }}
       />
     </>
   );

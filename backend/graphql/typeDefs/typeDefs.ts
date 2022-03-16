@@ -1,24 +1,11 @@
 import { gql } from "apollo-server-core";
 
 module.exports = gql`
-  # enum AccountType {
-  #   LEARNER
-  #   TEACHER
-  #   ADMIN
-  # }
   enum Difficulty {
     EASY
     MEDIUM
     HARD
   }
-  # enum Language {
-  #   PYTHON3
-  #   PYTHON2
-  #   JAVASCRIPT
-  #   TYPESCRIPT
-  #   JAVA7
-  #   JAVA8
-  # }
   type TestCase {
     id: ID!
     stdin: String!
@@ -138,6 +125,7 @@ module.exports = gql`
 
   type Mutation {
     # User Mutations
+    deleteUser(userId: ID!, username: String!): Boolean
     # End of User Mutations
 
     # Classroom Mutations

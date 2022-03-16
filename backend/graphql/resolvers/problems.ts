@@ -1,10 +1,10 @@
-import { ApolloError } from "apollo-server";
 import {
   MutationCreateProblemArgs,
   MutationSubmitTestsArgs,
-  Specification,
-  TestCaseResult,
-} from "../../gql-types";
+  TestCaseSubmission,
+} from "./../../gql-types.d";
+import { ApolloError } from "apollo-server";
+import axios, { Method } from "axios";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { isAuth } from "../../utils/isAuth";
@@ -152,7 +152,12 @@ process.stdin.on("data", buffer => {
 
       const user = isAuth(context);
 
-      const { title, description, testCases, initialCode } = specification;
+      const { title, description, testCases, initialCode, difficulty } =
+        specification;
+
+      const newSpecification = await prisma.specification.create({
+        data: specification,
+      });
 
       const initialCodeObj = JSON.parse(initialCode);
 
@@ -174,7 +179,7 @@ process.stdin.on("data", buffer => {
       const problem = await prisma.problem.create({
         data: {
           userId: user.id,
-          specification,
+          specificationId: newSpecification.id,
         },
       });
 
@@ -190,7 +195,7 @@ process.stdin.on("data", buffer => {
 
       var axios = require("axios").default;
       let options;
-      let res: TestCaseResult[] = [];
+      let res: TestCaseSubmission[] = [];
 
       await Promise.all(
         testCases!.map(async (testCase: any) => {
@@ -229,7 +234,7 @@ process.stdin.on("data", buffer => {
             time = x.data.time;
           }
 
-          const result: TestCaseResult = {
+          const result: TestCaseSubmission = {
             id: testCase.id,
             testCase,
             passed: x.data.stdout === testCase.expectedOutput + "\n",
@@ -252,97 +257,110 @@ process.stdin.on("data", buffer => {
       { problemId, code, language }: any,
       context: any
     ) => {
-      // This is similar to submitTests but for a specific problem.
-
       logger.info("GraphQL problems/submitProblem");
+
+      const user = isAuth(context);
 
       const problem = await prisma.problem.findUnique({
         where: { id: parseInt(problemId) },
+        include: {
+          specification: {
+            include: {
+              testCases: true,
+            },
+          },
+        },
       });
 
       if (!problem) {
         throw new ApolloError("Invalid Problem ID");
       }
 
-      const specification = problem.specification as Specification;
-      const testCases = specification.testCases!;
+      const specification = problem.specification;
+      const testCases = specification.testCases;
 
-      // TODO refactor this horrid thing both here and in submitTests
-      var axios = require("axios").default;
-      let options;
-      let res: TestCaseResult[] = [];
+      let res: TestCaseSubmission[] = [];
 
-      await Promise.all(
-        testCases.map(async (testCase: any) => {
-          options = {
-            method: "POST",
-            url: `${JUDGE_API_URL}/submissions`,
-            params: { base64_encoded: "false", fields: "*" },
-            headers: { "content-type": "application/json" },
-            data: {
+      const options = {
+        method: "POST" as Method,
+        url: `${JUDGE_API_URL}/submissions/batch`,
+        params: { base64_encoded: "false", fields: "*" },
+        headers: { "content-type": "application/json" },
+        data: {
+          submissions: testCases.map((testCase) => {
+            return {
               language_id: language,
               source_code: code,
               stdin: testCase.stdin,
-            },
-          };
-
-          let submission_token;
-          await axios
-            .request(options)
-            .then(function (response: any) {
-              submission_token = response.data.token;
-            })
-            .catch(function (error: any) {
-              logger.error("Error submitting code to Judge0", error);
-              return [];
-            });
-
-          let time;
-          let x;
-          while (!time) {
-            x = await axios.get(
-              `${JUDGE_API_URL}/submissions/${submission_token}`
-            );
-            time = x.data.time;
-          }
-
-          const result: TestCaseResult = {
-            id: testCase.id,
-            testCase,
-            passed: x.data.stdout === testCase.expectedOutput + "\n",
-            stdout: x.data.stdout,
-            stderr: x.data.stderr,
-            time: x.data.time * 1000,
-            memory: x.data.memory / 1024,
-          };
-
-          res.push(result);
-        })
-      );
-
-      const user = isAuth(context);
-
-      const submissionResultStats = getSubmissionStatistics(res);
-
-      const submission = await prisma.submission.create({
-        data: {
-          userId: user.id,
-          problemId: parseInt(problemId),
-          submissionResults: res,
-          createdAt: new Date(),
-          language: parseInt(language),
-          code: code,
-          passed: submissionResultStats.passed,
-          avgTime: submissionResultStats.avgTime,
-          avgMemory: submissionResultStats.avgMemory,
+              expected_output: testCase.expectedOutput,
+              callback_url: "http://172.17.0.1:5000/submission",
+            };
+          }),
         },
-      });
+      };
 
-      logger.info("Submission results: ", {
-        meta: [JSON.stringify(submission)],
-      });
+      let tokens: string[] = [];
+      try {
+        const response = await axios.request(options);
+        const tokenArray: { token: string }[] = response.data;
+        tokens = tokenArray.reduce((r: any, obj) => r.concat(obj.token), []);
+      } catch (error) {
+        logger.error("Error submitting code to Judge0", error);
+        return [];
+      }
 
-      return submission;
+      console.log("submission_tokens", tokens);
+
+      const delay = (ms: any) => new Promise((res) => setTimeout(res, ms));
+      await delay(5000);
+
+      try {
+        const results = await axios.get(
+          `${JUDGE_API_URL}/submissions/${tokens[0]}`,
+          {
+            params: { base64_encoded: "false", fields: "*" },
+          }
+        );
+
+        console.log("results", results.data);
+
+        // const result: TestCaseResult = {
+        //   id: testCase.id,
+        //   testCase,
+        //   passed: results.data.stdout === testCase.expectedOutput + "\n",
+        //   stdout: results.data.stdout,
+        //   stderr: results.data.stderr,
+        //   time: results.data.time * 1000,
+        //   memory: results.data.memory / 1024,
+        // };
+
+        // res.push(result);
+
+        // const submissionResultStats = getSubmissionStatistics(res);
+
+        // const submission = await prisma.submission.create({
+        //   data: {
+        //     userId: user.id,
+        //     problemId: parseInt(problemId),
+        //     submissionResults: res,
+        //     createdAt: new Date(),
+        //     language: parseInt(language),
+        //     code: code,
+        //     passed: submissionResultStats.passed,
+        //     avgTime: submissionResultStats.avgTime,
+        //     avgMemory: submissionResultStats.avgMemory,
+        //   },
+        // });
+        const submission = {};
+        logger.info("Submission results: ", {
+          meta: [JSON.stringify(submission)],
+        });
+
+        return submission;
+      } catch (error) {
+        logger.error("Error getting submissions from Judge0", error);
+        return [];
+      }
     },
     rateProblem: async (_: any, { problemId, score }: any, context: any) => {
       logger.info("GraphQL problems/rateProblem");

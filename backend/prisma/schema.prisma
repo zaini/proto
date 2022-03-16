@@ -10,6 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
 model User {
   id                   Int                    @id @default(autoincrement())
   githubId             String                 @unique
@@ -17,7 +23,7 @@ model User {
   createdAt            DateTime               @default(now())
   classrooms           Classroom[] // Classrooms the User has created
   problems             Problem[] // Problems the User has created
-  UsersOnClassrooms    UsersOnClassrooms[] // Rename this. Classrooms the User is a LEARNER in
+  UsersOnClassrooms    UsersOnClassrooms[] // Classrooms the User is a LEARNER in
   Submission           Submission[]
   AssignmentSubmission AssignmentSubmission[]
   Rating               Rating[]
@@ -56,15 +62,26 @@ model Assignment {
   AssignmentSubmission  AssignmentSubmission[]
 }
 
+model Specification {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String
+  initialCode String
+  testCases   TestCase[]
+  difficulty  Difficulty
+  Problem     Problem[]
+}
+
 model Problem {
   id                    Int                     @id @default(autoincrement())
   creator               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                Int
-  specification         Json
+  specification         Specification           @relation(fields: [specificationId], references: [id])
   ProblemsOnAssignments ProblemsOnAssignments[]
   Submission            Submission[]
   AssignmentSubmission  AssignmentSubmission[]
   Ratings               Rating[]
+  specificationId       Int
 }
 
 model Rating {
@@ -77,12 +94,35 @@ model Rating {
   @@id([problemId, userId])
 }
 
+model TestCase {
+  id                 Int                  @id @default(autoincrement())
+  stdin              String
+  expectedOutput     String
+  isHidden           Boolean
+  TestCaseSubmission TestCaseSubmission[]
+  Specification      Specification?       @relation(fields: [specificationId], references: [id])
+  specificationId    Int?
+}
+
+model TestCaseSubmission {
+  id           Int         @id @default(autoincrement())
+  testCase     TestCase    @relation(fields: [testCaseId], references: [id])
+  passed       Boolean
+  stdout       String
+  stderr       String
+  time         Float
+  memory       Float
+  testCaseId   Int
+  Submission   Submission? @relation(fields: [submissionId], references: [id])
+  submissionId Int?
+}
+
 model Submission {
   id                   Int                    @id @default(autoincrement())
   user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId               Int
   problem              Problem                @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  submissionResults    Json
+  testCaseSubmissions  TestCaseSubmission[]
   problemId            Int
   createdAt            DateTime               @default(now())
   language             Int

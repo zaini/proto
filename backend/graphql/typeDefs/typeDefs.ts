@@ -6,12 +6,6 @@ module.exports = gql`
     MEDIUM
     HARD
   }
-  type TestCase {
-    id: ID!
-    stdin: String!
-    expectedOutput: String!
-    isHidden: Boolean!
-  }
   input TestCaseInput {
     id: ID!
     stdin: String!
@@ -22,26 +16,7 @@ module.exports = gql`
     title: String!
     description: String!
     initialCode: String! # This is a JSON object, mapping from a language to the initial code for the question for all supported languages
-    testCases: [TestCaseInput!]
-    difficulty: Difficulty!
-  }
-  type TestCaseResult {
-    id: ID!
-    testCase: TestCase!
-    passed: Boolean!
-    stdout: String
-    stderr: String
-    time: Float
-    memory: Float
-  }
-  type TestSubmissionResult {
-    results: [TestCaseResult]
-  }
-  type Specification {
-    title: String!
-    description: String!
-    initialCode: String! # This is a JSON object, mapping from a language to the initial code for the question for all supported languages
-    testCases: [TestCase!]
+    testCases: [TestCaseInput!]!
     difficulty: Difficulty!
   }
   type AuthResponse {
@@ -51,11 +26,10 @@ module.exports = gql`
     id: ID!
     githubId: String!
     username: String!
-    # accountType: AccountType!
-    createdAt: String! # These could all be Date scalar
-    problems: [Problem!]
-    recentSubmissions: [Submission!]
-    classrooms: [Classroom] # Classrooms this user owns
+    createdAt: String!
+    classrooms: [Classroom!]! # Classrooms this user owns
+    problems: [Problem!]! # Problems the user has created
+    recentSubmissions: [Submission!]!
     UsersOnClassrooms: [Classroom] # Classrooms this user is a student in
   }
   type Classroom {
@@ -63,7 +37,7 @@ module.exports = gql`
     name: String!
     creator: User!
     createdAt: String!
-    users: [User!]
+    users: [User!]! # students in the classroom
     assignments: [Assignment!]!
     password: String
   }
@@ -71,23 +45,36 @@ module.exports = gql`
     id: ID!
     name: String!
     classroom: Classroom!
-    problems: [Problem!]
+    problems: [Problem!]!
     createdAt: String!
     setDate: String!
     dueDate: String!
-    submissions: [Submission]
+    submissions: [Submission!]!
   }
   type Rating {
     score: Float!
-    user: User
-    problem: Problem
+    user: User!
+    problem: Problem!
   }
   type ProblemRating {
     numberOfRatings: Int!
     totalRating: Float!
     problem: Problem!
-    ratings: [Rating]!
+    ratings: [Rating!]!
     userRating: Rating
+  }
+  type Specification {
+    title: String!
+    description: String!
+    initialCode: String! # This is a JSON object, mapping from a language to the initial code for the question for all supported languages
+    testCases: [TestCase!]!
+    difficulty: Difficulty!
+  }
+  type TestCase {
+    id: ID!
+    stdin: String!
+    expectedOutput: String!
+    isHidden: Boolean!
   }
   type Problem {
     id: ID!
@@ -96,11 +83,20 @@ module.exports = gql`
     solved: Boolean
     rating: ProblemRating!
   }
+  type TestCaseSubmission {
+    id: ID!
+    testCase: TestCase!
+    passed: Boolean!
+    stdout: String!
+    stderr: String!
+    time: Float!
+    memory: Float!
+  }
   type Submission {
     id: ID!
     userId: ID!
     problem: Problem!
-    submissionResults: [TestCaseResult!]
+    testCaseSubmissions: [TestCaseSubmission!]!
     createdAt: String!
     passed: Boolean!
     avgMemory: Float!
@@ -108,19 +104,12 @@ module.exports = gql`
     language: Int!
     code: String!
   }
-  # These are submissions to problems which are related to an assignment, not the current submission for an assignment
-  type AssignmentProblemSubmissions {
-    problem: Problem!
-    submissions: [Submission!]
-  }
   type AssignmentSubmission {
-    problem: Problem!
-    submission: Submission
-    createdAt: String!
-  }
-  type UserAssignmentSubmission {
     user: User!
-    assignmentSubmission: [AssignmentSubmission]
+    assignment: Assignment!
+    problem: Problem!
+    submission: Submission!
+    createdAt: String!
   }
 
   type Mutation {
@@ -156,8 +145,8 @@ module.exports = gql`
       code: String
       language: Int
       testCases: [TestCaseInput!]
-    ): TestSubmissionResult!
-    submitProblem(problemId: ID!, code: String, language: Int): Submission!
+    ): TestCaseSubmission
+    submitProblem(problemId: ID!, code: String, language: Int): Submission
     rateProblem(problemId: ID!, score: Float!): Boolean
     # End of Problem Mutations
 
@@ -181,8 +170,8 @@ module.exports = gql`
     # End of User Queries
 
     # Classroom Queries
-    getTeacherClassrooms: [Classroom!]
-    getLearnerClassrooms: [Classroom!]
+    getTeacherClassrooms: [Classroom!]!
+    getLearnerClassrooms: [Classroom!]!
     getClassroom(classroomId: ID!): Classroom
     # End of Classroom Queries
 
@@ -198,18 +187,16 @@ module.exports = gql`
     # End of Problem Queries
 
     # Submission Queries
-    getUserSubmissionsForProblem(problemId: ID!): [Submission!]
-    getAssignmentSubmissions(assignmentId: ID!): [AssignmentSubmission]
-    getProblemSubmissionsForAssignment(
-      assignmentId: ID!
-    ): [AssignmentProblemSubmissions]
+    getUserSubmissionsForProblem(problemId: ID!): [Submission!]!
+    getAssignmentSubmissions(assignmentId: ID!): [AssignmentSubmission!]!
+    getAssignmentSubmission(assignmentId: ID!): [AssignmentSubmission!]!
     getAssignmentSubmissionsAsTeacher(
       assignmentId: ID!
-    ): [UserAssignmentSubmission]
+    ): [AssignmentSubmission!]!
     getAssignmentSubmissionForUser(
       assignmentId: ID!
       userId: ID!
-    ): UserAssignmentSubmission
+    ): AssignmentSubmission
     getSubmission(submissionId: ID!): Submission
     # End of Submission Queries
   }

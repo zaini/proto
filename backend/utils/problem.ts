@@ -1,13 +1,13 @@
-import { TestCaseResult } from "../gql-types";
+import { TestCaseSubmission } from "../gql-types";
 
-const getSubmissionStatistics = (results: TestCaseResult[]) => {
+const getSubmissionStatistics = (results: TestCaseSubmission[]) => {
   const N = results.length;
 
   let status = true;
   let totalTime = 0;
   let totalMemory = 0;
 
-  results!.forEach((result: TestCaseResult, j: number) => {
+  results!.forEach((result: TestCaseSubmission) => {
     status = status && result.passed;
     totalTime += parseFloat(`${result.time}`);
     totalMemory += result.memory!;

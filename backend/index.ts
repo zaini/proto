@@ -121,6 +121,11 @@ app.get("/getUserToken", (req, res) => {
   res.send(req.user);
 });
 
+app.put("/submission", (req, res) => {
+  logger.info("PUT submission");
+  console.log(req.body);
+});
+
 const prisma = new PrismaClient();
 
 const corsOptions = {

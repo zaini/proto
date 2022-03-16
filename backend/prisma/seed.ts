@@ -47,103 +47,112 @@ async function main() {
 
   const problem1 = await prisma.problem.create({
     data: {
-      userId: 1,
+      creator: {
+        connect: {
+          id: 1,
+        },
+      },
       specification: {
-        title: "Addition",
-        difficulty: Difficulty.Easy,
-        description:
-          "Add two numbers and return the result.\n\n## Example 1\n`Input: 1 2`\n\n`Output: 3`\n\n## Example 2\n`Input: 5 7`\n\n`Output: 12`",
-        initialCode: JSON.stringify({
-          71: `#!/bin/python3
-
-def add(a, b):
+        create: {
+          title: "Addition",
+          difficulty: Difficulty.Easy,
+          description:
+            "Add two numbers and return the result.\n\n## Example 1\n`Input: 1 2`\n\n`Output: 3`\n\n## Example 2\n`Input: 5 7`\n\n`Output: 12`",
+          initialCode: JSON.stringify({
+            71: `#!/bin/python3
+  
+  def add(a, b):
   return a + b
-
-if __name__ == "__main__":
+  
+  if __name__ == "__main__":
   stdin = input()
   a, b = stdin.split()
   a, b = int(a), int(b)
   print(add(a, b))
           `,
-          63: `const add = (a, b) => {
+            63: `const add = (a, b) => {
   return a + b;
-}
-
-process.stdin.on("data", buffer => {
+  }
+  
+  process.stdin.on("data", buffer => {
   const ab = (buffer + "").split(" ");
   const a = parseInt(ab[0]);
   const b = parseInt(ab[1]);
   console.log(add(a, b));
-});`,
-        }),
-        testCases: [
-          { id: "1", stdin: "10 22", expectedOutput: "32", isHidden: false },
-          { id: "2", stdin: "10 20", expectedOutput: "30", isHidden: false },
-          { id: "3", stdin: "70 20", expectedOutput: "90", isHidden: true },
-          {
-            id: "4",
-            stdin: "242323 22342340",
-            expectedOutput: "22584663",
-            isHidden: true,
+  });`,
+          }),
+          testCases: {
+            createMany: {
+              data: [
+                { stdin: "10 22", expectedOutput: "32", isHidden: false },
+                { stdin: "10 20", expectedOutput: "30", isHidden: false },
+                { stdin: "70 20", expectedOutput: "90", isHidden: true },
+                {
+                  stdin: "242323 22342340",
+                  expectedOutput: "22584663",
+                  isHidden: true,
+                },
+              ],
+            },
           },
-        ],
+        },
       },
     },
   });
-  const problem2 = await prisma.problem.create({
-    data: {
-      userId: 2,
-      specification: {
-        title: "Two Sum",
-        difficulty: Difficulty.Medium,
-        description: "Add two numbers together and return the result",
-        initialCode: JSON.stringify({
-          71: `#!/bin/python3
+  //   const problem2 = await prisma.problem.create({
+  //     data: {
+  //       userId: 2,
+  //       specification: {
+  //         title: "Two Sum",
+  //         difficulty: Difficulty.Medium,
+  //         description: "Add two numbers together and return the result",
+  //         initialCode: JSON.stringify({
+  //           71: `#!/bin/python3
 
-def add(a, b):
-  return a + b
+  // def add(a, b):
+  //   return a + b
 
-if __name__ == "__main__":
-  stdin = input()
-  a, b = stdin.split()
-  a, b = int(a), int(b)
-  print(add(a, b))
-          `,
-          27: `javacode`,
-        }),
-        testCases: [
-          { id: "1", stdin: "10 22", expectedOutput: "32", isHidden: false },
-        ],
-      },
-    },
-  });
-  const problem3 = await prisma.problem.create({
-    data: {
-      userId: 3,
-      specification: {
-        title: "Three Sum",
-        difficulty: Difficulty.Hard,
-        description: "Add two numbers together and return the result",
-        initialCode: JSON.stringify({
-          71: `#!/bin/python3
+  // if __name__ == "__main__":
+  //   stdin = input()
+  //   a, b = stdin.split()
+  //   a, b = int(a), int(b)
+  //   print(add(a, b))
+  //           `,
+  //           27: `javacode`,
+  //         }),
+  //         testCases: [
+  //           { id: "1", stdin: "10 22", expectedOutput: "32", isHidden: false },
+  //         ],
+  //       },
+  //     },
+  //   });
+  //   const problem3 = await prisma.problem.create({
+  //     data: {
+  //       userId: 3,
+  //       specification: {
+  //         title: "Three Sum",
+  //         difficulty: Difficulty.Hard,
+  //         description: "Add two numbers together and return the result",
+  //         initialCode: JSON.stringify({
+  //           71: `#!/bin/python3
 
-def add(a, b):
-  return a + b
+  // def add(a, b):
+  //   return a + b
 
-if __name__ == "__main__":
-  stdin = input()
-  a, b = stdin.split()
-  a, b = int(a), int(b)
-  print(add(a, b))
-          `,
-          27: `javacode`,
-        }),
-        testCases: [
-          { id: "1", stdin: "10 22", expectedOutput: "32", isHidden: false },
-        ],
-      },
-    },
-  });
+  // if __name__ == "__main__":
+  //   stdin = input()
+  //   a, b = stdin.split()
+  //   a, b = int(a), int(b)
+  //   print(add(a, b))
+  //           `,
+  //           27: `javacode`,
+  //         }),
+  //         testCases: [
+  //           { id: "1", stdin: "10 22", expectedOutput: "32", isHidden: false },
+  //         ],
+  //       },
+  //     },
+  //   });
   const allProblems = await prisma.assignment.findMany();
   logger.info("Successfully seeded problems");
   logger.debug(JSON.stringify(allProblems));
@@ -183,9 +192,9 @@ if __name__ == "__main__":
   await prisma.problemsOnAssignments.createMany({
     data: [
       { problemId: problem1.id, assignmentId: 1 },
-      { problemId: problem3.id, assignmentId: 1 },
-      { problemId: problem3.id, assignmentId: 2 },
-      { problemId: problem2.id, assignmentId: 3 },
+      // { problemId: problem3.id, assignmentId: 1 },
+      // { problemId: problem3.id, assignmentId: 2 },
+      // { problemId: problem2.id, assignmentId: 3 },
       { problemId: problem1.id, assignmentId: 4 },
     ],
   });
@@ -198,13 +207,13 @@ if __name__ == "__main__":
     data: [
       { problemId: problem1.id, userId: 1, score: 1 },
       { problemId: problem1.id, userId: 2, score: 2 },
-      { problemId: problem2.id, userId: 1, score: 3 },
-      { problemId: problem2.id, userId: 2, score: 4 },
-      { problemId: problem3.id, userId: 1, score: 5 },
-      { problemId: problem3.id, userId: 2, score: 5 },
+      // { problemId: problem2.id, userId: 1, score: 3 },
+      // { problemId: problem2.id, userId: 2, score: 4 },
+      // { problemId: problem3.id, userId: 1, score: 5 },
+      // { problemId: problem3.id, userId: 2, score: 5 },
       { problemId: problem1.id, userId: 3, score: 5 },
-      { problemId: problem2.id, userId: 3, score: 5 },
-      { problemId: problem3.id, userId: 3, score: 5 },
+      // { problemId: problem2.id, userId: 3, score: 5 },
+      // { problemId: problem3.id, userId: 3, score: 5 },
     ],
   });
   const ratings = await prisma.rating.findMany();

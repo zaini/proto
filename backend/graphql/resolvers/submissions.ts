@@ -39,12 +39,12 @@ module.exports = {
 
       throw new ApolloError("Could not find submission with that ID.");
     },
-    getProblemSubmissionsForAssignment: async (
+    getAssignmentSubmission: async (
       _: any,
       { assignmentId }: any,
       context: any
     ) => {
-      logger.info("GraphQL submissions/getProblemSubmissionsForAssignment");
+      logger.info("GraphQL submissions/getAssignmentSubmission");
 
       // get problems for assignment
       // get submissions for each problem

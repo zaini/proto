@@ -48,8 +48,8 @@ const GET_CURRENT_ASSIGNMENT_SUBMISSION = gql`
 `;
 
 const GET_PROBLEM_SUBMISSIONS_FOR_ASSIGNMENT = gql`
-  query getProblemSubmissionsForAssignment($assignmentId: ID!) {
-    getProblemSubmissionsForAssignment(assignmentId: $assignmentId) {
+  query getAssignmentSubmission($assignmentId: ID!) {
+    getAssignmentSubmission(assignmentId: $assignmentId) {
       problem {
         id
         specification {
@@ -132,8 +132,8 @@ const LearnerAssignmentSubmissionsPanel = () => {
   const [getProblemSubmissions, { loading, error, data }] = useLazyQuery(
     GET_PROBLEM_SUBMISSIONS_FOR_ASSIGNMENT,
     {
-      onCompleted: ({ getProblemSubmissionsForAssignment }) => {
-        setProblemSubmissions(getProblemSubmissionsForAssignment);
+      onCompleted: ({ getAssignmentSubmission }) => {
+        setProblemSubmissions(getAssignmentSubmission);
       },
       variables: {
         assignmentId: assignment.id,

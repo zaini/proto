@@ -155,10 +155,6 @@ const TeacherClassrooms = () => {
         ) : (
           <Center mb={8}>
             <Text>You do not have any classrooms!</Text>
-            <br /> <br />
-            <Button onClick={onOpen} colorScheme={"blue"}>
-              Create Classroom
-            </Button>
           </Center>
         )}
       </Box>

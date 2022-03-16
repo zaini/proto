@@ -29,6 +29,7 @@
     "@uiw/react-tooltip": "^4.14.0",
     "apollo": "^2.33.9",
     "axios": "^0.24.0",
+    "chakra-react-select": "^3.1.1",
     "chakra-ui-markdown-renderer": "^4.0.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",

@@ -26,13 +26,13 @@ const DELETE_USER = gql`
 `;
 
 const Settings = () => {
-  const { user }: any = useContext(AuthContext);
+  const { user, logout }: any = useContext(AuthContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [username, setUsername] = useState("");
 
   const [deleteUser] = useMutation(DELETE_USER, {
     onCompleted: ({ deleteUser }) => {
-      window.location.href = `/logout`;
+      logout();
     },
     onError(err) {
       const message =

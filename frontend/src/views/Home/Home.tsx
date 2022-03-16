@@ -39,7 +39,7 @@ const Home = () => {
               <Text>
                 Search through many problems to practice programming questions
                 available in various languages, including Python, Java and
-                TypeScript. Also create your own problems and share them with
+                JavaScript. Also create your own problems and share them with
                 others to solve.
               </Text>
             </Box>

@@ -137,7 +137,6 @@ process.stdin.on("data", buffer => {
   const b = parseInt(ab[1]);
   console.log(add(a, b));
 });`,
-        74: `ts 3.7.4`,
         28: `java 7`,
         27: `java 8`,
       });

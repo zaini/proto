@@ -162,7 +162,9 @@ const ProblemTestCaseTab = () => {
                       {testCaseSubmittion.stderr && (
                         <>
                           Errors:{" "}
-                          <Code>{testCaseSubmittion.stderr || "N/A"}</Code>
+                          <Textarea readOnly>
+                            {testCaseSubmittion.stderr || "N/A"}
+                          </Textarea>
                           <br />
                         </>
                       )}

@@ -200,7 +200,10 @@ const CustomTestCaseTab = () => {
                   <br />
                   {testCaseSubmittion.stderr && (
                     <>
-                      Errors: <Code>{testCaseSubmittion.stderr || "N/A"}</Code>
+                      Errors:{" "}
+                      <Textarea readOnly>
+                        {testCaseSubmittion.stderr || "N/A"}
+                      </Textarea>
                       <br />
                     </>
                   )}

@@ -1,7 +1,16 @@
+import axios, { Method } from "axios";
 import { ApolloError } from "apollo-server";
+import {
+  TestCaseInput,
+  MutationSubmitTestsArgs,
+  MutationSubmitProblemArgs,
+} from "./../../gql-types.d";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { isAuth } from "../../utils/isAuth";
+import { getSubmissionStatistics } from "../../utils/problem";
+
+const JUDGE_API_URL = process.env.JUDGE_API_URL as string;
 
 module.exports = {
   Query: {
@@ -338,6 +347,175 @@ module.exports = {
       }
 
       return false;
+    },
+    submitTests: async (
+      _: any,
+      { code, language, testCases }: MutationSubmitTestsArgs,
+      context: any
+    ) => {
+      logger.info("GraphQL problems/submitTests");
+
+      const authUser = isAuth(context);
+
+      const testCaseObjects = await prisma.$transaction(
+        testCases.map((testCase: TestCaseInput) =>
+          prisma.testCase.create({ data: { ...testCase, userId: authUser.id } })
+        )
+      );
+
+      const testCaseSubmissions = await Promise.all(
+        testCaseObjects.map(async (testCase) => {
+          const options = {
+            method: "POST" as Method,
+            url: `${JUDGE_API_URL}/submissions`,
+            params: { base64_encoded: "false", fields: "*", wait: true },
+            headers: { "content-type": "application/json" },
+            data: {
+              language_id: language,
+              source_code: code,
+              stdin: testCase.stdin,
+              expected_output: testCase.expectedOutput,
+            },
+          };
+
+          const response = await axios.request(options);
+
+          const testResult = response.data;
+
+          return await prisma.testCaseSubmission.create({
+            data: {
+              testCaseId: testCase.id,
+              userId: authUser.id,
+              description: testResult.status.description,
+              passed: testResult.status.description === "Accepted",
+              stdout: testResult.stdout ? testResult.stdout : "",
+              stderr: testResult.stderr ? testResult.stderr : "",
+              time: testResult.time * 1000,
+              memory: testResult.memory / 1024,
+            },
+            include: {
+              testCase: true,
+            },
+          });
+        })
+      );
+
+      // Deleting the test case submission and test cases that were created.
+      // They were made because they're convinent objects but they are not required to stay since we don't show these test cases anywhere.
+      // We only keep TestCaseSubmissions for actual Submissions.
+      await prisma.testCaseSubmission.deleteMany({
+        where: {
+          id: {
+            in: testCaseSubmissions.map((e) => e.id),
+          },
+        },
+      });
+
+      await prisma.testCase.deleteMany({
+        where: {
+          id: {
+            in: testCaseObjects.map((e) => e.id),
+          },
+        },
+      });
+
+      logger.info("Test Case Submission results: ", {
+        meta: [JSON.stringify(testCaseSubmissions)],
+      });
+
+      return testCaseSubmissions;
+    },
+    submitProblem: async (
+      _: any,
+      { problemId, code, language }: MutationSubmitProblemArgs,
+      context: any
+    ) => {
+      logger.info("GraphQL problems/submitProblem");
+
+      const authUser = isAuth(context);
+
+      const problem = await prisma.problem.findUnique({
+        where: { id: parseInt(problemId) },
+        include: {
+          specification: {
+            include: {
+              testCases: true,
+            },
+          },
+        },
+      });
+
+      if (!problem) {
+        throw new ApolloError("This problem does not exist.");
+      }
+
+      const testCaseObjects = problem.specification.testCases;
+
+      const testCaseSubmissions = await Promise.all(
+        testCaseObjects.map(async (testCase) => {
+          const options = {
+            method: "POST" as Method,
+            url: `${JUDGE_API_URL}/submissions`,
+            params: { base64_encoded: "false", fields: "*", wait: true },
+            headers: { "content-type": "application/json" },
+            data: {
+              language_id: language,
+              source_code: code,
+              stdin: testCase.stdin,
+              expected_output: testCase.expectedOutput,
+            },
+          };
+
+          const response = await axios.request(options);
+
+          const testResult = response.data;
+
+          return await prisma.testCaseSubmission.create({
+            data: {
+              testCaseId: testCase.id,
+              userId: authUser.id,
+              description: testResult.status.description,
+              passed: testResult.status.description === "Accepted",
+              stdout: testResult.stdout ? testResult.stdout : "",
+              stderr: testResult.stderr ? testResult.stderr : "",
+              time: testResult.time * 1000,
+              memory: testResult.memory / 1024,
+            },
+          });
+        })
+      );
+
+      const submissionStats = getSubmissionStatistics(
+        testCaseSubmissions as any
+      );
+
+      const submission = await prisma.submission.create({
+        data: {
+          userId: authUser.id,
+          problemId: problem.id,
+          createdAt: new Date(),
+          language,
+          code,
+          passed: submissionStats.passed,
+          avgTime: submissionStats.avgTime,
+          avgMemory: submissionStats.avgMemory,
+        },
+      });
+
+      await prisma.$transaction(
+        testCaseSubmissions.map((testCaseSubmission) =>
+          prisma.testCaseSubmission.update({
+            where: { id: testCaseSubmission.id },
+            data: { submissionId: submission.id },
+          })
+        )
+      );
+
+      logger.info("Submission results: ", {
+        meta: [JSON.stringify(submission)],
+      });
+
+      return submission;
     },
   },
 };

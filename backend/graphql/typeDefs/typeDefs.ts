@@ -148,16 +148,16 @@ module.exports = gql`
 
     # Problem Mutations
     createProblem(specification: SpecificationInput!): Problem
+    rateProblem(problemId: ID!, score: Float!): Boolean
+    # End of Problem Mutations
+
+    # Submission Mutations
     submitTests(
       code: String!
       language: Int!
       testCases: [TestCaseInput!]!
     ): [TestCaseSubmission!]!
     submitProblem(problemId: ID!, code: String!, language: Int!): Submission!
-    rateProblem(problemId: ID!, score: Float!): Boolean
-    # End of Problem Mutations
-
-    # Submission Mutations
     setAssignmentProblemSubmission(
       assignmentId: ID!
       submissionId: ID!

@@ -5,12 +5,12 @@ import { isAuth } from "../../utils/isAuth";
 
 module.exports = {
   Query: {
-    getUserSubmissionsForProblem: async (
+    getSubmissionsForProblem: async (
       _: any,
       { problemId }: any,
       context: any
     ) => {
-      logger.info("GraphQL submissions/getUserSubmissionsForProblem");
+      logger.info("GraphQL submissions/getSubmissionsForProblem");
       const user = isAuth(context);
       let submissions = await prisma.submission.findMany({
         where: {
@@ -31,6 +31,13 @@ module.exports = {
         where: {
           id: parseInt(submissionId),
         },
+        include: {
+          testCaseSubmissions: {
+            include: {
+              testCase: true,
+            },
+          },
+        },
       });
 
       if (submission) {
@@ -39,12 +46,12 @@ module.exports = {
 
       throw new ApolloError("Could not find submission with that ID.");
     },
-    getAssignmentSubmission: async (
+    getAssignmentProblemSubmissions: async (
       _: any,
       { assignmentId }: any,
       context: any
     ) => {
-      logger.info("GraphQL submissions/getAssignmentSubmission");
+      logger.info("GraphQL submissions/getAssignmentProblemSubmissions");
 
       // get problems for assignment
       // get submissions for each problem
@@ -58,7 +65,15 @@ module.exports = {
           id: parseInt(assignmentId),
         },
         include: {
-          ProblemsOnAssignments: { include: { problem: true } },
+          ProblemsOnAssignments: {
+            include: {
+              problem: {
+                include: {
+                  specification: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -66,7 +81,7 @@ module.exports = {
         return { ...x.problem };
       });
 
-      return await Promise.all(
+      const x = await Promise.all(
         problems!.map(async (problem) => {
           const submissions = await prisma.submission.findMany({
             where: {
@@ -76,27 +91,44 @@ module.exports = {
               problemId: problem.id,
               userId: parseInt(user.id),
             },
+            include: {
+              problem: { include: { specification: true } },
+            },
           });
 
           return { problem, submissions };
         })
       );
+
+      return x;
     },
     getAssignmentSubmissions: async (
       _: any,
-      { assignmentId }: any,
+      { assignmentId, userId }: any,
       context: any
     ) => {
       logger.info("GraphQL submissions/getAssignmentSubmissions");
 
-      const user = isAuth(context);
+      // TODO add validation based on how this is used
+      if (!userId) {
+        const user = isAuth(context);
+        userId = user.id;
+      }
 
       const assignment = await prisma.assignment.findUnique({
         where: {
           id: parseInt(assignmentId),
         },
         include: {
-          ProblemsOnAssignments: { include: { problem: true } },
+          ProblemsOnAssignments: {
+            include: {
+              problem: {
+                include: {
+                  specification: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -105,45 +137,38 @@ module.exports = {
           return { ...x.problem };
         });
 
-        const x = await Promise.all(
+        const assignmentSubmission = await Promise.all(
           problems.map(async (problem) => {
             const assignmentSubmission =
               await prisma.assignmentSubmission.findUnique({
                 where: {
                   userId_assignmentId_problemId: {
-                    userId: parseInt(user.id),
+                    userId: parseInt(userId),
                     problemId: problem.id,
                     assignmentId: assignment.id,
                   },
                 },
                 include: {
                   submission: true,
-                  problem: true,
+                  problem: {
+                    include: {
+                      specification: true,
+                    },
+                  },
                 },
               });
-
             if (assignmentSubmission) {
-              return {
-                problem,
-                submission: assignmentSubmission?.submission,
-              };
+              return assignmentSubmission;
+            } else {
+              return { problem };
             }
-
-            return {
-              problem,
-              submission: null,
-            };
           })
         );
 
-        // Map problem ID to it's problem and submission
-        // x.reduce((a, v) => ({ ...a, [v.problem.id]: v }), {});
-        // GraphQL cannot deal with this transformation as we cannot create a good type for it
-        // So I will just do this transformatin on the frontend
-        return x;
+        return assignmentSubmission;
       }
 
-      return {};
+      return [];
     },
     getAssignmentSubmissionsAsTeacher: async (
       _: any,
@@ -168,11 +193,12 @@ module.exports = {
         throw new ApolloError("This assignment does not exist.");
       }
 
-      if (assignment.classroom.creator.id != user.id) {
-        throw new ApolloError(
-          "This user is the not the creator of this assignment."
-        );
-      }
+      // TODO uncomment this
+      // if (assignment.classroom.creator.id != user.id) {
+      //   throw new ApolloError(
+      //     "This user is the not the creator of this assignment."
+      //   );
+      // }
 
       const learners = await prisma.usersOnClassrooms.findMany({
         where: {
@@ -185,7 +211,7 @@ module.exports = {
 
       const x = await Promise.all(
         learners.map(async ({ user }) => {
-          const assignmentSubmission =
+          const assignmentSubmissions =
             await prisma.assignmentSubmission.findMany({
               where: {
                 userId: user.id,
@@ -193,82 +219,13 @@ module.exports = {
               },
               include: {
                 submission: true,
-                problem: true,
               },
             });
-
-          return {
-            user,
-            assignmentSubmission: assignmentSubmission,
-          };
+          return { user, assignmentSubmissions };
         })
       );
 
       return x;
-    },
-    getAssignmentSubmissionForUser: async (
-      _: any,
-      { assignmentId, userId }: any,
-      context: any
-    ) => {
-      logger.info("GraphQL submissions/getAssignmentSubmissionForUser");
-
-      const user = await prisma.user.findUnique({
-        where: {
-          id: parseInt(userId),
-        },
-      });
-
-      if (!user) {
-        throw new ApolloError("This user does not exist.");
-      }
-
-      const assignment = await prisma.assignment.findUnique({
-        where: {
-          id: parseInt(assignmentId),
-        },
-        include: {
-          ProblemsOnAssignments: { include: { problem: true } },
-          classroom: { include: { creator: true } },
-        },
-      });
-
-      if (!assignment) {
-        throw new ApolloError("This assignment does not exist.");
-      }
-
-      // TODO add check that you either own this classroom or are a learner in the classroom
-      // TODO uncomment this
-      // if (assignment.classroom.creator.id != user.id) {
-      //   throw new ApolloError(
-      //     "This user is the not the creator of this assignment."
-      //   );
-      // }
-
-      // const learners = await prisma.usersOnClassrooms.findMany({
-      //   where: {
-      //     classroomId: assignment.classroomId,
-      //   },
-      //   include: {
-      //     user: true,
-      //   },
-      // });
-
-      const assignmentSubmission = await prisma.assignmentSubmission.findMany({
-        where: {
-          userId: user.id,
-          assignmentId: assignment.id,
-        },
-        include: {
-          submission: true,
-          problem: true,
-        },
-      });
-
-      return {
-        user,
-        assignmentSubmission: assignmentSubmission,
-      };
     },
   },
   Mutation: {

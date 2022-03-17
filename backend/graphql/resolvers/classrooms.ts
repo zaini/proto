@@ -52,7 +52,7 @@ module.exports = {
     getClassroom: async (_: any, { classroomId }: any, context: any) => {
       logger.info("GraphQL classrooms/getClassroom");
 
-      let classroom = await prisma.classroom.findUnique({
+      const classroom = await prisma.classroom.findUnique({
         where: {
           id: parseInt(classroomId),
         },
@@ -65,25 +65,16 @@ module.exports = {
         },
       });
 
-      const res = {
-        id: classroom?.id,
-        name: classroom?.name,
-        password: classroom?.password,
-        creator: classroom?.creator,
-        createdAt: classroom?.createdAt,
-        users: classroom?.UsersOnClassrooms.map((e) => e.user),
-        assignments: classroom?.assignments.map((assignment) => {
-          return {
-            id: assignment.id,
-            name: assignment.name,
-            problems: assignment.ProblemsOnAssignments.map((e) => e.problem),
-            setDate: assignment.setDate,
-            dueDate: assignment.dueDate,
-          };
-        }),
-      };
+      if (classroom) {
+        const x = {
+          ...classroom,
+          users: classroom.UsersOnClassrooms.map((e) => e.user),
+        };
 
-      return res;
+        return x;
+      }
+
+      throw new ApolloError("This classroom does not exist.");
     },
   },
   Mutation: {
@@ -239,10 +230,14 @@ module.exports = {
     ) => {
       const user = isAuth(context);
 
+      // To remove a student, you must either be the student or the teacher of the classroom
+
       const classroom = await prisma.classroom.findFirst({
         where: {
           id: parseInt(classroomId),
-          userId: user.id,
+        },
+        include: {
+          creator: true,
         },
       });
 
@@ -265,16 +260,21 @@ module.exports = {
         );
       }
 
-      await prisma.usersOnClassrooms.delete({
-        where: {
-          userId_classroomId: {
-            userId: student?.userId,
-            classroomId: classroom.id,
+      if (classroom.creator.id === user.id || student.userId === user.id) {
+        await prisma.usersOnClassrooms.delete({
+          where: {
+            userId_classroomId: {
+              userId: student?.userId,
+              classroomId: classroom.id,
+            },
           },
-        },
-      });
+        });
+        return true;
+      }
 
-      return true;
+      throw new ApolloError(
+        "You do not have permission to remove this student from this classroom."
+      );
     },
   },
 };

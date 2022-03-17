@@ -299,6 +299,7 @@ export type TestCaseInput = {
 
 export type TestCaseSubmission = {
   __typename?: 'TestCaseSubmission';
+  compile_output: Scalars['String'];
   description: Scalars['String'];
   id: Scalars['ID'];
   memory: Scalars['Float'];

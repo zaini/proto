@@ -8,6 +8,7 @@ import {
   Box,
   Code,
   Button,
+  Textarea,
 } from "@chakra-ui/react";
 import { TestCaseInput, TestCaseSubmission } from "../../../../gql-types";
 import { ProblemContext } from "../../../../views/Problem/Problem";
@@ -25,6 +26,7 @@ const SUBMIT_TESTS = gql`
       passed
       stdout
       stderr
+      compile_output
       time
       description
       memory
@@ -157,8 +159,22 @@ const ProblemTestCaseTab = () => {
                       Your Output:{" "}
                       <Code>{testCaseSubmittion.stdout || "N/A"}</Code>
                       <br />
-                      Errors: <Code>{testCaseSubmittion.stderr || "N/A"}</Code>
-                      <br />
+                      {testCaseSubmittion.stderr && (
+                        <>
+                          Errors:{" "}
+                          <Code>{testCaseSubmittion.stderr || "N/A"}</Code>
+                          <br />
+                        </>
+                      )}
+                      {testCaseSubmittion.compile_output && (
+                        <>
+                          Compiler Output:{" "}
+                          <Textarea readOnly>
+                            {testCaseSubmittion.compile_output}
+                          </Textarea>
+                          <br />
+                        </>
+                      )}
                     </>
                   )}
                   Passed: {testCaseSubmittion.passed ? "✔" : "❌"}

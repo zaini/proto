@@ -89,6 +89,7 @@ module.exports = gql`
     stdout: String!
     stderr: String!
     description: String!
+    compile_output: String!
     time: Float!
     memory: Float!
   }

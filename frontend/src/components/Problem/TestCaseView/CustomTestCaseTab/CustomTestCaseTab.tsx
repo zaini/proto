@@ -33,6 +33,7 @@ const SUBMIT_TESTS = gql`
       passed
       stdout
       stderr
+      compile_output
       time
       description
       memory
@@ -197,8 +198,21 @@ const CustomTestCaseTab = () => {
                   <br />
                   Your Output: <Code>{testCaseSubmittion.stdout || "N/A"}</Code>
                   <br />
-                  Errors: <Code>{testCaseSubmittion.stderr || "N/A"}</Code>
-                  <br />
+                  {testCaseSubmittion.stderr && (
+                    <>
+                      Errors: <Code>{testCaseSubmittion.stderr || "N/A"}</Code>
+                      <br />
+                    </>
+                  )}
+                  {testCaseSubmittion.compile_output && (
+                    <>
+                      Compiler Output:{" "}
+                      <Textarea readOnly>
+                        {testCaseSubmittion.compile_output}
+                      </Textarea>
+                      <br />
+                    </>
+                  )}
                   Passed: {testCaseSubmittion.passed ? "✔" : "❌"}
                   <ButtonGroup float={"right"}>
                     <Button

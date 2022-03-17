@@ -100,11 +100,10 @@ module.exports = {
       logger.info("GraphQL problems/getDefaultInitialCodes");
 
       // 71: "Python (3.8.1)",
-      // 36: "Python (2.7.9)",
+      // 70: "Python (2.7.9)",
       // 63: "JavaScript (Node.js 12.14.0)",
       // 74: "TypeScript (3.7.4)",
-      // 28: "Java 7",
-      // 27: "Java 8",
+      // 62: "Java (OpenJDK 13.0.1)",
 
       return JSON.stringify({
         71: `#!/bin/python3
@@ -117,7 +116,7 @@ if __name__ == "__main__":
   a, b = stdin.split()
   a, b = int(a), int(b)
   print(add(a, b))`,
-        36: `def add(a, b):
+        70: `def add(a, b):
   return a + b
 
 if __name__ == "__main__":
@@ -135,7 +134,7 @@ process.stdin.on("data", buffer => {
   const b = parseInt(ab[1]);
   console.log(add(a, b));
 });`,
-        28: `import java.util.Scanner;
+        62: `import java.util.Scanner;
 
 public class Main {
     public static int add(int a, int b) {
@@ -146,28 +145,7 @@ public class Main {
         Scanner myObj = new Scanner(System.in);
         String stdin = myObj.nextLine();
 
-        String[] ab = stdin.split("\\s+");
-
-        int a = Integer.parseInt(ab[0]);
-        int b = Integer.parseInt(ab[1]);
-
-        int result = add(a, b);
-
-        System.out.println(result);
-    }
-}`,
-        27: `import java.util.Scanner;
-
-public class Main {
-    public static int add(int a, int b) {
-        return a + b;
-    }
-
-    public static void main(String[] args) {
-        Scanner myObj = new Scanner(System.in);
-        String stdin = myObj.nextLine();
-
-        String[] ab = stdin.split("\\s+");
+        String[] ab = stdin.split("\\\\s+");
 
         int a = Integer.parseInt(ab[0]);
         int b = Integer.parseInt(ab[1]);

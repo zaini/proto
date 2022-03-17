@@ -43,6 +43,7 @@ const GET_SUBMISSION = gql`
         passed
         stdout
         stderr
+        compile_output
         description
         time
         memory

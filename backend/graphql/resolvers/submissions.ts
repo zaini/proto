@@ -387,6 +387,9 @@ module.exports = {
               testCaseId: testCase.id,
               userId: authUser.id,
               description: testResult.status.description,
+              compile_output: testResult.compile_output
+                ? testResult.compile_output
+                : "",
               passed: testResult.status.description === "Accepted",
               stdout: testResult.stdout ? testResult.stdout : "",
               stderr: testResult.stderr ? testResult.stderr : "",
@@ -475,6 +478,9 @@ module.exports = {
               testCaseId: testCase.id,
               userId: authUser.id,
               description: testResult.status.description,
+              compile_output: testResult.compile_output
+                ? testResult.compile_output
+                : "",
               passed: testResult.status.description === "Accepted",
               stdout: testResult.stdout ? testResult.stdout : "",
               stderr: testResult.stderr ? testResult.stderr : "",

@@ -7,7 +7,6 @@ module.exports = gql`
     HARD
   }
   input TestCaseInput {
-    id: ID!
     stdin: String!
     expectedOutput: String!
     isHidden: Boolean!
@@ -89,6 +88,7 @@ module.exports = gql`
     passed: Boolean!
     stdout: String!
     stderr: String!
+    description: String!
     time: Float!
     memory: Float!
   }
@@ -108,8 +108,16 @@ module.exports = gql`
     user: User!
     assignment: Assignment!
     problem: Problem!
-    submission: Submission!
+    submission: Submission
     createdAt: String!
+  }
+  type UserAssignmentSubmission {
+    user: User!
+    assignmentSubmissions: [AssignmentSubmission!]!
+  }
+  type ProblemSubmissions {
+    problem: Problem!
+    submissions: [Submission!]!
   }
 
   type Mutation {
@@ -132,21 +140,20 @@ module.exports = gql`
     createAssignment(
       classroomId: ID!
       assignmentName: String!
-      problemIds: [ID!]
+      problemIds: [ID!]!
       dueDate: String!
-    ): Assignment
+    ): Assignment!
     removeAssignment(assignmentId: ID!, assignmentName: String!): Boolean
     # End of Assignment Mutations
 
     # Problem Mutations
     createProblem(specification: SpecificationInput!): Problem
     submitTests(
-      problemId: ID!
-      code: String
-      language: Int
-      testCases: [TestCaseInput!]
-    ): TestCaseSubmission
-    submitProblem(problemId: ID!, code: String, language: Int): Submission
+      code: String!
+      language: Int!
+      testCases: [TestCaseInput!]!
+    ): [TestCaseSubmission!]!
+    submitProblem(problemId: ID!, code: String!, language: Int!): Submission!
     rateProblem(problemId: ID!, score: Float!): Boolean
     # End of Problem Mutations
 
@@ -172,32 +179,31 @@ module.exports = gql`
     # Classroom Queries
     getTeacherClassrooms: [Classroom!]!
     getLearnerClassrooms: [Classroom!]!
-    getClassroom(classroomId: ID!): Classroom
+    getClassroom(classroomId: ID!): Classroom!
     # End of Classroom Queries
 
     # Assignment Queries
-    getAssignment(assignmentId: ID!, classroomId: ID!): Assignment
-    getAssignments: [Assignment!]
+    getAssignment(assignmentId: ID!, classroomId: ID!): Assignment!
+    getAssignments: [Assignment!]!
     # End of Assignment Queries
 
     # Problem Queries
-    getProblems: [Problem!]
+    getProblems: [Problem!]!
     getProblem(problemId: ID!): Problem
     getDefaultInitialCodes: String!
     # End of Problem Queries
 
     # Submission Queries
-    getUserSubmissionsForProblem(problemId: ID!): [Submission!]!
-    getAssignmentSubmissions(assignmentId: ID!): [AssignmentSubmission!]!
-    getAssignmentSubmission(assignmentId: ID!): [AssignmentSubmission!]!
+    getSubmissionsForProblem(problemId: ID!): [Submission!]!
+    getAssignmentSubmissions(
+      assignmentId: ID!
+      userId: ID
+    ): [AssignmentSubmission]!
+    getAssignmentProblemSubmissions(assignmentId: ID!): [ProblemSubmissions!]!
     getAssignmentSubmissionsAsTeacher(
       assignmentId: ID!
-    ): [AssignmentSubmission!]!
-    getAssignmentSubmissionForUser(
-      assignmentId: ID!
-      userId: ID!
-    ): AssignmentSubmission
-    getSubmission(submissionId: ID!): Submission
+    ): [UserAssignmentSubmission!]!
+    getSubmission(submissionId: ID!): Submission!
     # End of Submission Queries
   }
 `;

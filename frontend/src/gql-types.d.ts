@@ -29,7 +29,7 @@ export type AssignmentSubmission = {
   assignment: Assignment;
   createdAt: Scalars['String'];
   problem: Problem;
-  submission: Submission;
+  submission?: Maybe<Submission>;
   user: User;
 };
 
@@ -57,7 +57,7 @@ export enum Difficulty {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createAssignment?: Maybe<Assignment>;
+  createAssignment: Assignment;
   createClassroom?: Maybe<Classroom>;
   createProblem?: Maybe<Problem>;
   deleteClassroom?: Maybe<Scalars['Boolean']>;
@@ -68,8 +68,8 @@ export type Mutation = {
   removeAssignmentProblemSubmission?: Maybe<Scalars['Boolean']>;
   removeStudent?: Maybe<Scalars['Boolean']>;
   setAssignmentProblemSubmission?: Maybe<Scalars['Boolean']>;
-  submitProblem?: Maybe<Submission>;
-  submitTests?: Maybe<TestCaseSubmission>;
+  submitProblem: Submission;
+  submitTests: Array<TestCaseSubmission>;
 };
 
 
@@ -77,7 +77,7 @@ export type MutationCreateAssignmentArgs = {
   assignmentName: Scalars['String'];
   classroomId: Scalars['ID'];
   dueDate: Scalars['String'];
-  problemIds?: InputMaybe<Array<Scalars['ID']>>;
+  problemIds: Array<Scalars['ID']>;
 };
 
 
@@ -142,17 +142,16 @@ export type MutationSetAssignmentProblemSubmissionArgs = {
 
 
 export type MutationSubmitProblemArgs = {
-  code?: InputMaybe<Scalars['String']>;
-  language?: InputMaybe<Scalars['Int']>;
+  code: Scalars['String'];
+  language: Scalars['Int'];
   problemId: Scalars['ID'];
 };
 
 
 export type MutationSubmitTestsArgs = {
-  code?: InputMaybe<Scalars['String']>;
-  language?: InputMaybe<Scalars['Int']>;
-  problemId: Scalars['ID'];
-  testCases?: InputMaybe<Array<TestCaseInput>>;
+  code: Scalars['String'];
+  language: Scalars['Int'];
+  testCases: Array<TestCaseInput>;
 };
 
 export type Problem = {
@@ -173,23 +172,28 @@ export type ProblemRating = {
   userRating?: Maybe<Rating>;
 };
 
+export type ProblemSubmissions = {
+  __typename?: 'ProblemSubmissions';
+  problem: Problem;
+  submissions: Array<Submission>;
+};
+
 export type Query = {
   __typename?: 'Query';
-  getAssignment?: Maybe<Assignment>;
-  getAssignmentSubmission: Array<AssignmentSubmission>;
-  getAssignmentSubmissionForUser?: Maybe<AssignmentSubmission>;
-  getAssignmentSubmissions: Array<AssignmentSubmission>;
-  getAssignmentSubmissionsAsTeacher: Array<AssignmentSubmission>;
-  getAssignments?: Maybe<Array<Assignment>>;
-  getClassroom?: Maybe<Classroom>;
+  getAssignment: Assignment;
+  getAssignmentProblemSubmissions: Array<ProblemSubmissions>;
+  getAssignmentSubmissions: Array<Maybe<AssignmentSubmission>>;
+  getAssignmentSubmissionsAsTeacher: Array<UserAssignmentSubmission>;
+  getAssignments: Array<Assignment>;
+  getClassroom: Classroom;
   getDefaultInitialCodes: Scalars['String'];
   getLearnerClassrooms: Array<Classroom>;
   getProblem?: Maybe<Problem>;
-  getProblems?: Maybe<Array<Problem>>;
-  getSubmission?: Maybe<Submission>;
+  getProblems: Array<Problem>;
+  getSubmission: Submission;
+  getSubmissionsForProblem: Array<Submission>;
   getTeacherClassrooms: Array<Classroom>;
   getUser?: Maybe<User>;
-  getUserSubmissionsForProblem: Array<Submission>;
   getUsers?: Maybe<Array<User>>;
   isLoggedIn: Scalars['String'];
 };
@@ -201,19 +205,14 @@ export type QueryGetAssignmentArgs = {
 };
 
 
-export type QueryGetAssignmentSubmissionArgs = {
+export type QueryGetAssignmentProblemSubmissionsArgs = {
   assignmentId: Scalars['ID'];
-};
-
-
-export type QueryGetAssignmentSubmissionForUserArgs = {
-  assignmentId: Scalars['ID'];
-  userId: Scalars['ID'];
 };
 
 
 export type QueryGetAssignmentSubmissionsArgs = {
   assignmentId: Scalars['ID'];
+  userId?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -237,13 +236,13 @@ export type QueryGetSubmissionArgs = {
 };
 
 
-export type QueryGetUserArgs = {
-  userId: Scalars['ID'];
+export type QueryGetSubmissionsForProblemArgs = {
+  problemId: Scalars['ID'];
 };
 
 
-export type QueryGetUserSubmissionsForProblemArgs = {
-  problemId: Scalars['ID'];
+export type QueryGetUserArgs = {
+  userId: Scalars['ID'];
 };
 
 export type Rating = {
@@ -294,13 +293,13 @@ export type TestCase = {
 
 export type TestCaseInput = {
   expectedOutput: Scalars['String'];
-  id: Scalars['ID'];
   isHidden: Scalars['Boolean'];
   stdin: Scalars['String'];
 };
 
 export type TestCaseSubmission = {
   __typename?: 'TestCaseSubmission';
+  description: Scalars['String'];
   id: Scalars['ID'];
   memory: Scalars['Float'];
   passed: Scalars['Boolean'];
@@ -320,4 +319,10 @@ export type User = {
   problems: Array<Problem>;
   recentSubmissions: Array<Submission>;
   username: Scalars['String'];
+};
+
+export type UserAssignmentSubmission = {
+  __typename?: 'UserAssignmentSubmission';
+  assignmentSubmissions: Array<AssignmentSubmission>;
+  user: User;
 };

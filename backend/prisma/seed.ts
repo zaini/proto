@@ -84,13 +84,29 @@ async function main() {
           testCases: {
             createMany: {
               data: [
-                { stdin: "10 22", expectedOutput: "32", isHidden: false },
-                { stdin: "10 20", expectedOutput: "30", isHidden: false },
-                { stdin: "70 20", expectedOutput: "90", isHidden: true },
+                {
+                  stdin: "10 22",
+                  expectedOutput: "32",
+                  isHidden: false,
+                  userId: 1,
+                },
+                {
+                  stdin: "10 20",
+                  expectedOutput: "30",
+                  isHidden: false,
+                  userId: 1,
+                },
+                {
+                  stdin: "70 20",
+                  expectedOutput: "90",
+                  isHidden: true,
+                  userId: 1,
+                },
                 {
                   stdin: "242323 22342340",
                   expectedOutput: "22584663",
                   isHidden: true,
+                  userId: 1,
                 },
               ],
             },

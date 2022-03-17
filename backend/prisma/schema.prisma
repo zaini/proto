@@ -27,6 +27,8 @@ model User {
   Submission           Submission[]
   AssignmentSubmission AssignmentSubmission[]
   Rating               Rating[]
+  TestCaseSubmission   TestCaseSubmission[]
+  TestCase             TestCase[]
 }
 
 model Classroom {
@@ -46,6 +48,8 @@ model UsersOnClassrooms {
   classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
   classroomId Int
   assignedAt  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
 
   @@id([userId, classroomId])
 }
@@ -70,6 +74,8 @@ model Specification {
   testCases   TestCase[]
   difficulty  Difficulty
   Problem     Problem[]
+  createdAt   DateTime   @default(now())
+
 }
 
 model Problem {
@@ -82,14 +88,17 @@ model Problem {
   AssignmentSubmission  AssignmentSubmission[]
   Ratings               Rating[]
   specificationId       Int
+  createdAt             DateTime                @default(now())
+
 }
 
 model Rating {
   score     Float
-  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   problemId Int
   userId    Int
+  createdAt DateTime @default(now())
 
   @@id([problemId, userId])
 }
@@ -99,22 +108,31 @@ model TestCase {
   stdin              String
   expectedOutput     String
   isHidden           Boolean
+  user               User                 @relation(fields: [userId], references: [id])
   TestCaseSubmission TestCaseSubmission[]
   Specification      Specification?       @relation(fields: [specificationId], references: [id])
   specificationId    Int?
+  userId             Int
+  createdAt          DateTime             @default(now())
+
 }
 
 model TestCaseSubmission {
   id           Int         @id @default(autoincrement())
   testCase     TestCase    @relation(fields: [testCaseId], references: [id])
+  user         User        @relation(fields: [userId], references: [id])
   passed       Boolean
   stdout       String
   stderr       String
+  description  String
   time         Float
   memory       Float
   testCaseId   Int
   Submission   Submission? @relation(fields: [submissionId], references: [id])
   submissionId Int?
+  userId       Int
+  createdAt    DateTime    @default(now())
+
 }
 
 model Submission {

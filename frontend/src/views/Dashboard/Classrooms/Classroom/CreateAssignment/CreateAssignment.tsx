@@ -16,7 +16,6 @@ import {
   InputRightElement,
   IconButton,
   Box,
-  List,
   ListItem,
   UnorderedList,
   Text,

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
   Assignment,
+  AssignmentSubmission,
   UserAssignmentSubmission,
 } from "../../../../../../gql-types";
 import { AssignmentSubmissionQueryData } from "../../../../../../utils";
@@ -12,7 +13,6 @@ import {
   Button,
   ButtonGroup,
   Center,
-  Heading,
   Spinner,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -26,24 +26,17 @@ const GET_ASSIGNMENT_SUBMISSION = gql`
         id
         username
       }
-      assignmentSubmission {
+      assignmentSubmissions {
         createdAt
-        problem {
-          id
-          specification {
-            title
-          }
-        }
         submission {
           id
-          passed
+          code
+          language
           avgTime
           avgMemory
-          language
+          passed
           createdAt
-          submissionResults {
-            passed
-          }
+          userId
         }
       }
     }
@@ -107,7 +100,7 @@ const TeacherAssignmentSubmissionsPanel = () => {
           data={userAssignmentSubmissions.map((userAssignmentSubmission) => {
             const user = userAssignmentSubmission.user;
             const assignmentSubmissions =
-              userAssignmentSubmission.assignmentSubmission;
+              userAssignmentSubmission.assignmentSubmissions;
 
             const numOfProblems = assignment.problems?.length;
 

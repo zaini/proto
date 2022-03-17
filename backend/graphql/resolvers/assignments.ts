@@ -51,7 +51,15 @@ module.exports = {
         },
         include: {
           classroom: { include: { creator: true } },
-          ProblemsOnAssignments: { include: { problem: true } },
+          ProblemsOnAssignments: {
+            include: {
+              problem: {
+                include: {
+                  specification: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -116,6 +124,17 @@ module.exports = {
         );
       }
 
+      const dueDateObject = new Date(dueDate);
+      console.log(dueDateObject);
+      if (
+        !(dueDateObject instanceof Date && !isNaN(dueDateObject.getTime())) ||
+        new Date() > dueDateObject
+      ) {
+        throw new ApolloError(
+          "Failed to create assignment due to invalid due date."
+        );
+      }
+
       const existingAssignment = await prisma.assignment.findFirst({
         where: {
           name: assignmentName,
@@ -137,36 +156,46 @@ module.exports = {
         },
       });
 
-      const assignment = await prisma.assignment.create({
-        data: {
-          name: assignmentName,
-          classroomId: classroom!.id,
-          setDate: new Date(),
-          createdAt: new Date(),
-          dueDate: new Date(dueDate),
-        },
-      });
+      if (problems.length === 0) {
+        throw new ApolloError(
+          "Cannot create assignment without valid problems."
+        );
+      }
 
-      await prisma.problemsOnAssignments.createMany({
-        data: [
-          ...problems.map((problem) => {
-            return {
-              assignmentId: assignment.id,
-              problemId: problem.id,
-            };
-          }),
-        ],
-      });
+      try {
+        const assignment = await prisma.assignment.create({
+          data: {
+            name: assignmentName,
+            classroomId: classroom!.id,
+            setDate: new Date(),
+            createdAt: new Date(),
+            dueDate: dueDateObject,
+          },
+        });
 
-      const res = await prisma.assignment.findUnique({
-        where: {
-          id: assignment.id,
-        },
-      });
+        await prisma.problemsOnAssignments.createMany({
+          data: [
+            ...problems.map((problem) => {
+              return {
+                assignmentId: assignment.id,
+                problemId: problem.id,
+              };
+            }),
+          ],
+        });
 
-      logger.info("Created assignment", { meta: JSON.stringify(res) });
+        const res = await prisma.assignment.findUnique({
+          where: {
+            id: assignment.id,
+          },
+        });
 
-      return res;
+        logger.info("Created assignment", { meta: JSON.stringify(res) });
+
+        return res;
+      } catch (error) {
+        throw new ApolloError("Failed to create assignment.");
+      }
     },
     removeAssignment: async (
       _: any,

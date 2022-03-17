@@ -26,9 +26,6 @@ const GET_ASSIGNMENT = gql`
           id
         }
       }
-      submissions {
-        id
-      }
       problems {
         id
         specification {

@@ -14,8 +14,7 @@ import {
 import { useQuery } from "@apollo/client";
 import gql from "graphql-tag";
 import { AssignmentSubmissionQueryData } from "../../utils";
-import { UserAssignmentSubmission } from "../../gql-types";
-import AssignmentSubmissionModalStatistics from "./AssignmentSubmissionModalStatistics/AssignmentSubmissionModalStatistics";
+import { AssignmentSubmission } from "../../gql-types";
 
 type Props = {
   assignmentSubmissionQueryData: AssignmentSubmissionQueryData;
@@ -23,34 +22,22 @@ type Props = {
   onClose: any;
 };
 
-const GET_ASSIGNMENT_SUBMISSION = gql`
-  query getAssignmentSubmissionForUser($assignmentId: ID!, $userId: ID!) {
-    getAssignmentSubmissionForUser(
-      assignmentId: $assignmentId
-      userId: $userId
-    ) {
-      user {
+const GET_ASSIGNMENT_SUBMISSIONS = gql`
+  query getAssignmentSubmissions($assignmentId: ID!, $userId: ID) {
+    getAssignmentSubmissions(assignmentId: $assignmentId, userId: $userId) {
+      submission {
         id
-        username
+        code
+        language
+        avgTime
+        avgMemory
+        passed
+        createdAt
       }
-      assignmentSubmission {
-        problem {
-          id
-          specification {
-            title
-          }
-        }
-        submission {
-          id
-          passed
-          avgTime
-          avgMemory
-          language
-          createdAt
-          submissionResults {
-            passed
-          }
-          code
+      problem {
+        id
+        specification {
+          title
         }
       }
     }
@@ -62,7 +49,7 @@ const AssignmentSubmissionModal = ({
   isOpen,
   onClose,
 }: Props) => {
-  const { loading, error, data } = useQuery(GET_ASSIGNMENT_SUBMISSION, {
+  const { loading, error, data } = useQuery(GET_ASSIGNMENT_SUBMISSIONS, {
     variables: {
       assignmentId: assignmentSubmissionQueryData.assignmentId,
       userId: assignmentSubmissionQueryData.userId,
@@ -110,8 +97,8 @@ const AssignmentSubmissionModal = ({
       </Modal>
     );
 
-  const userAssignmentSubmission: UserAssignmentSubmission =
-    data.getAssignmentSubmissionForUser;
+  const assignmentSubmission: AssignmentSubmission =
+    data.getAssignmentSubmission;
 
   return (
     <Modal
@@ -130,9 +117,8 @@ const AssignmentSubmissionModal = ({
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <AssignmentSubmissionModalStatistics
-            userAssignmentSubmission={userAssignmentSubmission}
-          />
+          {/* TODO this */}
+          summary of ths assignment submission for this user goes here
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="blue" mr={3} onClick={onClose}>

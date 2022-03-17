@@ -1,9 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
   Assignment,
-  AssignmentProblemSubmissions,
   AssignmentSubmission,
-  Submission,
+  ProblemSubmissions,
 } from "../../../../../../gql-types";
 import { AssignmentSubmissionMap } from "../../../../../../utils";
 import { AssignmentContext } from "../Assignment";
@@ -23,33 +22,31 @@ import {
 import CustomTable from "../../../../../../components/CustomTable/CustomTable";
 import SubmissionModal from "../../../../../../components/SubmissionModal/SubmissionModal";
 
-const GET_CURRENT_ASSIGNMENT_SUBMISSION = gql`
+const GET_ASSIGNMENT_SUBMISSIONS = gql`
   query getAssignmentSubmissions($assignmentId: ID!) {
     getAssignmentSubmissions(assignmentId: $assignmentId) {
+      submission {
+        id
+        code
+        language
+        avgTime
+        avgMemory
+        passed
+        createdAt
+      }
       problem {
         id
         specification {
           title
         }
       }
-      submission {
-        id
-        passed
-        avgTime
-        avgMemory
-        language
-        createdAt
-        submissionResults {
-          passed
-        }
-      }
     }
   }
 `;
 
-const GET_PROBLEM_SUBMISSIONS_FOR_ASSIGNMENT = gql`
-  query getAssignmentSubmission($assignmentId: ID!) {
-    getAssignmentSubmission(assignmentId: $assignmentId) {
+const GET_PROBLEM_SUBMISSIONS = gql`
+  query getAssignmentProblemSubmissions($assignmentId: ID!) {
+    getAssignmentProblemSubmissions(assignmentId: $assignmentId) {
       problem {
         id
         specification {
@@ -58,13 +55,17 @@ const GET_PROBLEM_SUBMISSIONS_FOR_ASSIGNMENT = gql`
       }
       submissions {
         id
-        passed
+        code
+        language
         avgTime
         avgMemory
-        language
+        passed
         createdAt
-        submissionResults {
-          passed
+        problem {
+          id
+          specification {
+            title
+          }
         }
       }
     }
@@ -102,26 +103,21 @@ const LearnerAssignmentSubmissionsPanel = () => {
   const [assignmentSubmissions, setAssignmentSubmissions] =
     useState<AssignmentSubmissionMap>({});
 
-  const [problemSubmissions, setProblemSubmissions] = useState<
-    AssignmentProblemSubmissions[]
+  const [problemSubmissionsList, setProblemSubmissionsList] = useState<
+    ProblemSubmissions[]
   >([]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalSubmissionId, setModalSubmissionId] = useState<number>(-1);
 
-  const [
-    getAssignmentSubmissions,
-    {
-      loading: currentSubmissionLoading,
-      error: currentSubmissionError,
-      data: currentSubmissionData,
-    },
-  ] = useLazyQuery(GET_CURRENT_ASSIGNMENT_SUBMISSION, {
+  const [getAssignmentSubmissions] = useLazyQuery(GET_ASSIGNMENT_SUBMISSIONS, {
     onCompleted: ({ getAssignmentSubmissions }) => {
-      const x: AssignmentSubmissionMap = getAssignmentSubmissions.reduce(
+      const aS: AssignmentSubmission[] = getAssignmentSubmissions;
+      const x: AssignmentSubmissionMap = aS.reduce(
         (a: any, v: AssignmentSubmission) => ({ ...a, [v.problem.id]: v }),
         {}
       );
+      console.log("here", x);
       setAssignmentSubmissions(x);
     },
     variables: {
@@ -129,11 +125,11 @@ const LearnerAssignmentSubmissionsPanel = () => {
     },
   });
 
-  const [getProblemSubmissions, { loading, error, data }] = useLazyQuery(
-    GET_PROBLEM_SUBMISSIONS_FOR_ASSIGNMENT,
+  const [getProblemSubmissions, { loading, error }] = useLazyQuery(
+    GET_PROBLEM_SUBMISSIONS,
     {
-      onCompleted: ({ getAssignmentSubmission }) => {
-        setProblemSubmissions(getAssignmentSubmission);
+      onCompleted: ({ getAssignmentProblemSubmissions }) => {
+        setProblemSubmissionsList(getAssignmentProblemSubmissions);
       },
       variables: {
         assignmentId: assignment.id,
@@ -273,9 +269,9 @@ const LearnerAssignmentSubmissionsPanel = () => {
           ]}
         />
       </Box>
-      {problemSubmissions.map((x: AssignmentProblemSubmissions) => {
-        const problem = x.problem;
-        const submissions = x.submissions;
+      {problemSubmissionsList.map((problemSubmissions) => {
+        const problem = problemSubmissions.problem;
+        const submissions = problemSubmissions.submissions;
 
         return (
           <Box key={problem.id} mt={16}>
@@ -298,7 +294,7 @@ const LearnerAssignmentSubmissionsPanel = () => {
             <Box>
               {submissions && submissions.length > 0 ? (
                 <CustomTable
-                  data={submissions.map((submission: Submission) => {
+                  data={submissions.map((submission) => {
                     return {
                       id: submission.id,
                       passed: "" + submission.passed,

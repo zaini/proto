@@ -1,7 +1,8 @@
 import {
   MutationCreateProblemArgs,
+  TestCaseInput,
   MutationSubmitTestsArgs,
-  TestCaseSubmission,
+  MutationSubmitProblemArgs,
 } from "./../../gql-types.d";
 import { ApolloError } from "apollo-server";
 import axios, { Method } from "axios";
@@ -12,15 +13,13 @@ import { getSubmissionStatistics } from "../../utils/problem";
 import { LanguageCodeToName } from "../../utils/types";
 
 const JUDGE_API_URL = process.env.JUDGE_API_URL as string;
-const TEST_TIMELIMIT = 60 * 1000;
-const SUBMISSION_TIMELIMIT = 300 * 1000;
 
 module.exports = {
   Query: {
     getProblems: async (_: any, __: any, context: any) => {
       logger.info("GraphQL problems/getProblems");
       const problems = await prisma.problem.findMany({
-        include: { creator: true, Ratings: true },
+        include: { creator: true, Ratings: true, specification: true },
       });
 
       const user = isAuth(context);
@@ -65,7 +64,15 @@ module.exports = {
       logger.info("GraphQL problems/getProblem");
       const problem = await prisma.problem.findUnique({
         where: { id: parseInt(problemId) },
-        include: { creator: true, Ratings: true },
+        include: {
+          creator: true,
+          Ratings: true,
+          specification: {
+            include: {
+              testCases: true,
+            },
+          },
+        },
       });
 
       if (problem) {
@@ -155,10 +162,6 @@ process.stdin.on("data", buffer => {
       const { title, description, testCases, initialCode, difficulty } =
         specification;
 
-      const newSpecification = await prisma.specification.create({
-        data: specification,
-      });
-
       const initialCodeObj = JSON.parse(initialCode);
 
       if (title === "") {
@@ -178,8 +181,26 @@ process.stdin.on("data", buffer => {
 
       const problem = await prisma.problem.create({
         data: {
-          userId: user.id,
-          specificationId: newSpecification.id,
+          creator: {
+            connect: {
+              id: user.id,
+            },
+          },
+          specification: {
+            create: {
+              title,
+              difficulty,
+              description,
+              initialCode,
+              testCases: {
+                createMany: {
+                  data: testCases.map((testCase) => {
+                    return { ...testCase, userId: user.id };
+                  }),
+                },
+              },
+            },
+          },
         },
       });
 
@@ -191,75 +212,85 @@ process.stdin.on("data", buffer => {
       context: any
     ) => {
       logger.info("GraphQL problems/submitTests");
-      const SUBMISSION_START_TIME = Date.now();
 
-      var axios = require("axios").default;
-      let options;
-      let res: TestCaseSubmission[] = [];
+      const authUser = isAuth(context);
 
-      await Promise.all(
-        testCases!.map(async (testCase: any) => {
-          if (Date.now() - SUBMISSION_START_TIME >= SUBMISSION_TIMELIMIT) {
-            console.log("SUBMISSIONS HAVE TIMED OUT");
-          }
-          options = {
-            method: "POST",
+      const testCaseObjects = await prisma.$transaction(
+        testCases.map((testCase: TestCaseInput) =>
+          prisma.testCase.create({ data: { ...testCase, userId: authUser.id } })
+        )
+      );
+
+      const testCaseSubmissions = await Promise.all(
+        testCaseObjects.map(async (testCase) => {
+          const options = {
+            method: "POST" as Method,
             url: `${JUDGE_API_URL}/submissions`,
-            params: { base64_encoded: "false", fields: "*" },
+            params: { base64_encoded: "false", fields: "*", wait: true },
             headers: { "content-type": "application/json" },
             data: {
               language_id: language,
               source_code: code,
               stdin: testCase.stdin,
+              expected_output: testCase.expectedOutput,
             },
           };
 
-          let submission_token;
-          await axios
-            .request(options)
-            .then(function (response: any) {
-              submission_token = response.data.token;
-            })
-            .catch(function (error: any) {
-              logger.error("Error submitting code to Judge0", error);
-              return [];
-            });
+          const response = await axios.request(options);
 
-          let time;
-          let x;
-          while (!time) {
-            x = await axios.get(
-              `${JUDGE_API_URL}/submissions/${submission_token}`
-            );
-            time = x.data.time;
-          }
+          const testResult = response.data;
 
-          const result: TestCaseSubmission = {
-            id: testCase.id,
-            testCase,
-            passed: x.data.stdout === testCase.expectedOutput + "\n",
-            stdout: x.data.stdout,
-            stderr: x.data.stderr,
-            time: x.data.time * 1000,
-            memory: x.data.memory / 1024,
-          };
-
-          res.push(result);
+          return await prisma.testCaseSubmission.create({
+            data: {
+              testCaseId: testCase.id,
+              userId: authUser.id,
+              description: testResult.status.description,
+              passed: testResult.status.description === "Accepted",
+              stdout: testResult.stdout ? testResult.stdout : "",
+              stderr: testResult.stderr ? testResult.stderr : "",
+              time: testResult.time * 1000,
+              memory: testResult.memory / 1024,
+            },
+            include: {
+              testCase: true,
+            },
+          });
         })
       );
-      logger.info("Test case results: ", {
-        meta: [JSON.stringify(res)],
+
+      // Deleting the test case submission and test cases that were created.
+      // They were made because they're convinent objects but they are not required to stay since we don't show these test cases anywhere.
+      // We only keep TestCaseSubmissions for actual Submissions.
+      await prisma.testCaseSubmission.deleteMany({
+        where: {
+          id: {
+            in: testCaseSubmissions.map((e) => e.id),
+          },
+        },
       });
-      return { results: res };
+
+      await prisma.testCase.deleteMany({
+        where: {
+          id: {
+            in: testCaseObjects.map((e) => e.id),
+          },
+        },
+      });
+
+      logger.info("Test Case Submission results: ", {
+        meta: [JSON.stringify(testCaseSubmissions)],
+      });
+
+      return testCaseSubmissions;
     },
     submitProblem: async (
       _: any,
-      { problemId, code, language }: any,
+      { problemId, code, language }: MutationSubmitProblemArgs,
       context: any
     ) => {
       logger.info("GraphQL problems/submitProblem");
 
-      const user = isAuth(context);
+      const authUser = isAuth(context);
 
       const problem = await prisma.problem.findUnique({
         where: { id: parseInt(problemId) },
@@ -273,94 +304,76 @@ process.stdin.on("data", buffer => {
       });
 
       if (!problem) {
-        throw new ApolloError("Invalid Problem ID");
+        throw new ApolloError("This problem does not exist.");
       }
 
-      const specification = problem.specification;
-      const testCases = specification.testCases;
+      const testCaseObjects = problem.specification.testCases;
 
-      let res: TestCaseSubmission[] = [];
-
-      const options = {
-        method: "POST" as Method,
-        url: `${JUDGE_API_URL}/submissions/batch`,
-        params: { base64_encoded: "false", fields: "*" },
-        headers: { "content-type": "application/json" },
-        data: {
-          submissions: testCases.map((testCase) => {
-            return {
+      const testCaseSubmissions = await Promise.all(
+        testCaseObjects.map(async (testCase) => {
+          const options = {
+            method: "POST" as Method,
+            url: `${JUDGE_API_URL}/submissions`,
+            params: { base64_encoded: "false", fields: "*", wait: true },
+            headers: { "content-type": "application/json" },
+            data: {
               language_id: language,
               source_code: code,
               stdin: testCase.stdin,
               expected_output: testCase.expectedOutput,
-              callback_url: "http://172.17.0.1:5000/submission",
-            };
-          }),
+            },
+          };
+
+          const response = await axios.request(options);
+
+          const testResult = response.data;
+
+          return await prisma.testCaseSubmission.create({
+            data: {
+              testCaseId: testCase.id,
+              userId: authUser.id,
+              description: testResult.status.description,
+              passed: testResult.status.description === "Accepted",
+              stdout: testResult.stdout ? testResult.stdout : "",
+              stderr: testResult.stderr ? testResult.stderr : "",
+              time: testResult.time * 1000,
+              memory: testResult.memory / 1024,
+            },
+          });
+        })
+      );
+
+      const submissionStats = getSubmissionStatistics(
+        testCaseSubmissions as any
+      );
+
+      const submission = await prisma.submission.create({
+        data: {
+          userId: authUser.id,
+          problemId: problem.id,
+          createdAt: new Date(),
+          language,
+          code,
+          passed: submissionStats.passed,
+          avgTime: submissionStats.avgTime,
+          avgMemory: submissionStats.avgMemory,
         },
-      };
+      });
 
-      let tokens: string[] = [];
-      try {
-        const response = await axios.request(options);
-        const tokenArray: { token: string }[] = response.data;
-        tokens = tokenArray.reduce((r: any, obj) => r.concat(obj.token), []);
-      } catch (error) {
-        logger.error("Error submitting code to Judge0", error);
-        return [];
-      }
+      await prisma.$transaction(
+        testCaseSubmissions.map((testCaseSubmission) =>
+          prisma.testCaseSubmission.update({
+            where: { id: testCaseSubmission.id },
+            data: { submissionId: submission.id },
+          })
+        )
+      );
 
-      console.log("submission_tokens", tokens);
+      logger.info("Submission results: ", {
+        meta: [JSON.stringify(submission)],
+      });
 
-      const delay = (ms: any) => new Promise((res) => setTimeout(res, ms));
-      await delay(5000);
-
-      try {
-        const results = await axios.get(
-          `${JUDGE_API_URL}/submissions/${tokens[0]}`,
-          {
-            params: { base64_encoded: "false", fields: "*" },
-          }
-        );
-
-        console.log("results", results.data);
-
-        // const result: TestCaseResult = {
-        //   id: testCase.id,
-        //   testCase,
-        //   passed: results.data.stdout === testCase.expectedOutput + "\n",
-        //   stdout: results.data.stdout,
-        //   stderr: results.data.stderr,
-        //   time: results.data.time * 1000,
-        //   memory: results.data.memory / 1024,
-        // };
-
-        // res.push(result);
-
-        // const submissionResultStats = getSubmissionStatistics(res);
-
-        // const submission = await prisma.submission.create({
-        //   data: {
-        //     userId: user.id,
-        //     problemId: parseInt(problemId),
-        //     submissionResults: res,
-        //     createdAt: new Date(),
-        //     language: parseInt(language),
-        //     code: code,
-        //     passed: submissionResultStats.passed,
-        //     avgTime: submissionResultStats.avgTime,
-        //     avgMemory: submissionResultStats.avgMemory,
-        //   },
-        // });
-        const submission = {};
-        logger.info("Submission results: ", {
-          meta: [JSON.stringify(submission)],
-        });
-
-        return submission;
-      } catch (error) {
-        logger.error("Error getting submissions from Judge0", error);
-        return [];
-      }
+      return submission;
     },
     rateProblem: async (_: any, { problemId, score }: any, context: any) => {
       logger.info("GraphQL problems/rateProblem");

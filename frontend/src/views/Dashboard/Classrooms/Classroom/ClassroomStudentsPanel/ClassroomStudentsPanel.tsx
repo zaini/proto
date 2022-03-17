@@ -75,6 +75,7 @@ const ClassroomStudentsPanel = () => {
               }
               text={"Copy Invite Link"}
             />
+            <br />
           </Stack>
         </Center>
       )}

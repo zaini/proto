@@ -62,7 +62,6 @@ const NewProblem = () => {
   );
   const [testCases, setTestCases] = useState<TestCaseInput[]>([
     {
-      id: `${1}`,
       expectedOutput: `7`,
       isHidden: false,
       stdin: `3 4`,

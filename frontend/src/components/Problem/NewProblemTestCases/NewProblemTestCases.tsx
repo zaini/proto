@@ -34,7 +34,6 @@ const NewProblemTestCases = ({
   const addToCustomTestCases = () => {
     let cases = testCases;
     cases.push({
-      id: `${cases.length + 1}`,
       expectedOutput: customOutput,
       isHidden: isHidden,
       stdin: customInput,
@@ -47,7 +46,6 @@ const NewProblemTestCases = ({
   const removeFromCustomTestCases = (i: number) => {
     let cases = testCases;
     cases.splice(i, 1);
-    cases.forEach((e, i) => (e.id = `${i + 1}`));
     setTestCases([...cases]);
   };
 
@@ -94,42 +92,40 @@ const NewProblemTestCases = ({
       </Stack>
       <br />
       <Accordion allowMultiple>
-        {testCases
-          .sort((a, b) => parseInt(a.id) - parseInt(b.id))
-          .map((e: TestCaseInput, i: number) => {
-            return (
-              <AccordionItem key={e.id}>
-                <h2>
-                  <AccordionButton>
-                    <Box flex="1" textAlign="left">
-                      {e.isHidden && "Hidden"} Test #{i + 1}
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
-                  <Box>
-                    Input: <Code>{e.stdin}</Code>
-                    <br />
-                    Expected Output: <Code>{e.expectedOutput}</Code>
-                    <br />
-                    Hidden?: <Code>{`${e.isHidden}`}</Code>
-                    <br />
-                    <ButtonGroup float={"right"}>
-                      <Button
-                        colorScheme={"red"}
-                        onClick={() => removeFromCustomTestCases(i)}
-                      >
-                        Remove
-                      </Button>
-                    </ButtonGroup>
-                    <br />
-                    <br />
+        {testCases.map((e: TestCaseInput, i: number) => {
+          return (
+            <AccordionItem key={i}>
+              <h2>
+                <AccordionButton>
+                  <Box flex="1" textAlign="left">
+                    {e.isHidden && "Hidden"} Test #{i + 1}
                   </Box>
-                </AccordionPanel>
-              </AccordionItem>
-            );
-          })}
+                  <AccordionIcon />
+                </AccordionButton>
+              </h2>
+              <AccordionPanel pb={4}>
+                <Box>
+                  Input: <Code>{e.stdin}</Code>
+                  <br />
+                  Expected Output: <Code>{e.expectedOutput}</Code>
+                  <br />
+                  Hidden?: <Code>{`${e.isHidden}`}</Code>
+                  <br />
+                  <ButtonGroup float={"right"}>
+                    <Button
+                      colorScheme={"red"}
+                      onClick={() => removeFromCustomTestCases(i)}
+                    >
+                      Remove
+                    </Button>
+                  </ButtonGroup>
+                  <br />
+                  <br />
+                </Box>
+              </AccordionPanel>
+            </AccordionItem>
+          );
+        })}
       </Accordion>
     </>
   );

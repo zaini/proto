@@ -40,24 +40,19 @@ const CREATE_ASSIGNMENT = gql`
     $classroomId: ID!
     $assignmentName: String!
     $dueDate: String!
-    $problemIds: [ID!]
+    $problemIds: [ID!]!
   ) {
     createAssignment(
       classroomId: $classroomId
-      assignmentName: $assignmentName
       dueDate: $dueDate
       problemIds: $problemIds
+      assignmentName: $assignmentName
     ) {
       id
       name
       createdAt
+      setDate
       dueDate
-      problems {
-        id
-        specification {
-          title
-        }
-      }
     }
   }
 `;

@@ -9,36 +9,29 @@ import {
   Code,
   Button,
 } from "@chakra-ui/react";
-import { TestCase, TestCaseResult } from "../../../../gql-types";
+import { TestCaseInput, TestCaseSubmission } from "../../../../gql-types";
 import { ProblemContext } from "../../../../views/Problem/Problem";
 import { gql, useMutation } from "@apollo/client";
 import { EditorContext } from "../../CodeEditor/CodeEditor";
 
 const SUBMIT_TESTS = gql`
   mutation submitTests(
-    $problemId: ID!
-    $code: String
-    $language: Int
-    $testCases: [TestCaseInput!]
+    $code: String!
+    $language: Int!
+    $testCases: [TestCaseInput!]!
   ) {
-    submitTests(
-      problemId: $problemId
-      code: $code
-      language: $language
-      testCases: $testCases
-    ) {
-      results {
-        id
-        passed
-        stdout
-        stderr
-        time
-        memory
-        testCase {
-          stdin
-          expectedOutput
-          isHidden
-        }
+    submitTests(code: $code, language: $language, testCases: $testCases) {
+      id
+      passed
+      stdout
+      stderr
+      time
+      description
+      memory
+      testCase {
+        stdin
+        expectedOutput
+        isHidden
       }
     }
   }
@@ -47,31 +40,46 @@ const SUBMIT_TESTS = gql`
 const ProblemTestCaseTab = () => {
   const problem = useContext(ProblemContext);
   const { selectedLanguage, code } = useContext(EditorContext);
+  const testCases: TestCaseInput[] = problem.specification.testCases!;
 
-  const [testCaseData, setTestCaseData] = useState<TestCaseResult[]>([]);
-
-  useEffect(() => {
-    const testCases: TestCase[] = problem.specification.testCases!;
-    setTestCaseData(
-      testCases.map((e: TestCase) => {
-        return {
-          id: e.id,
-          testCase: {
-            id: e.id,
-            expectedOutput: e.expectedOutput,
-            isHidden: e.isHidden,
-            stdin: e.stdin,
+  const [testCaseAndSubmissions, setTestCaseAndSubmissions] = useState<any>(
+    Object.fromEntries(
+      testCases.map((testCase) => {
+        return [
+          JSON.stringify({
+            stdin: testCase.stdin,
+            expectedOutput: testCase.expectedOutput,
+            isHidden: testCase.isHidden,
+          }),
+          {
+            id: null,
+            memory: null,
+            passed: false,
+            stderr: null,
+            description: null,
+            stdout: null,
+            time: null,
+            testCase,
           },
-          passed: false,
-        };
+        ];
       })
-    );
-  }, []);
+    )
+  );
 
   const [submitTests, { data, loading, error }] = useMutation(SUBMIT_TESTS, {
     onCompleted: ({ submitTests }) => {
-      let results: TestCaseResult[] = submitTests.results;
-      setTestCaseData(results);
+      const x = submitTests.map((testCaseSubmission: TestCaseSubmission) => {
+        const testCase = testCaseSubmission.testCase;
+        return [
+          JSON.stringify({
+            stdin: testCase.stdin,
+            expectedOutput: testCase.expectedOutput,
+            isHidden: testCase.isHidden,
+          }),
+          testCaseSubmission,
+        ];
+      });
+      setTestCaseAndSubmissions(Object.fromEntries(x));
     },
   });
 
@@ -88,10 +96,15 @@ const ProblemTestCaseTab = () => {
         onClick={() => {
           submitTests({
             variables: {
-              problemId: problem.id as String,
               language: selectedLanguage,
-              code: code,
-              testCases: testCaseData.map((e) => e.testCase),
+              code,
+              testCases: testCases.map((testCase) => {
+                return {
+                  stdin: testCase.stdin,
+                  expectedOutput: testCase.expectedOutput,
+                  isHidden: testCase.isHidden,
+                };
+              }),
             },
           });
         }}
@@ -101,76 +114,60 @@ const ProblemTestCaseTab = () => {
       <br />
       <br />
       <Accordion allowMultiple>
-        {testCaseData
-          .sort((a, b) => parseInt(a.id) - parseInt(b.id))
-          .sort((a, b) =>
-            a.testCase.isHidden === b.testCase.isHidden
-              ? 0
-              : a.testCase.isHidden
-              ? 1
-              : -1
-          )
-          .map((e: TestCaseResult, i: number) => {
-            return (
-              <AccordionItem key={e.id}>
-                <h2>
-                  <AccordionButton>
-                    <Box flex="1" textAlign="left">
-                      {e.testCase.isHidden && "Hidden"} Test #{i + 1}
-                    </Box>
-                    <Box>{e.passed ? "✔" : "❌"}</Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
-                  <Box>
-                    {!e.testCase.isHidden && (
-                      <>
-                        Input: <Code>{e.testCase.stdin}</Code>
-                        <br />
-                        Expected Output:{" "}
-                        <Code>{e.testCase.expectedOutput}</Code>
-                        <br />
-                        💾{" "}
-                        <Code>
-                          {e.memory ? e.memory.toFixed(2) + " MB" : "N/A"}
-                        </Code>{" "}
-                        | 🕓{" "}
-                        <Code>
-                          {e.time ? e.time.toFixed(2) + " ms" : "N/A"}
-                        </Code>
-                        <br />
-                        Your Output: <Code>{e.stdout || "N/A"}</Code>
-                        <br />
-                        Errors: <Code>{e.stderr || "N/A"}</Code>
-                        <br />
-                      </>
-                    )}
-                    Passed: {e.passed ? "✔" : "❌"}
-                    {/* TODO run only a specific test rather than all the required tests */}
-                    {/* <Button
-                      float={"right"}
-                      colorScheme={"teal"}
-                      isLoading={loading}
-                      onClick={() => {
-                        submitTests({
-                          variables: {
-                            problemId: problem.id as String,
-                            language: selectedLanguage,
-                            code,
-                            testCases: [e.testCase],
-                          },
-                        });
-                      }}
-                    >
-                      Run
-                    </Button> */}
-                    <br />
+        {Object.keys(testCaseAndSubmissions).map((testCaseString, i) => {
+          const testCase: TestCaseInput = JSON.parse(testCaseString);
+          const testCaseSubmittion: TestCaseSubmission =
+            testCaseAndSubmissions[testCaseString];
+
+          return (
+            <AccordionItem key={i}>
+              <h2>
+                <AccordionButton>
+                  <Box flex="1" textAlign="left">
+                    {testCase.isHidden && "Hidden"} Test #{i + 1}
                   </Box>
-                </AccordionPanel>
-              </AccordionItem>
-            );
-          })}
+                  <Box>{testCaseSubmittion.passed ? "✔" : "❌"}</Box>
+                  <AccordionIcon />
+                </AccordionButton>
+              </h2>
+              <AccordionPanel pb={4}>
+                <Box>
+                  {!testCase.isHidden && (
+                    <>
+                      Input: <Code>{testCase.stdin}</Code>
+                      <br />
+                      Expected Output: <Code>{testCase.expectedOutput}</Code>
+                      <br />
+                      💾{" "}
+                      <Code>
+                        {testCaseSubmittion.memory
+                          ? testCaseSubmittion.memory.toFixed(2) + " MB"
+                          : "N/A"}
+                      </Code>{" "}
+                      | 🕓{" "}
+                      <Code>
+                        {testCaseSubmittion.time
+                          ? testCaseSubmittion.time.toFixed(2) + " ms"
+                          : "N/A"}
+                      </Code>
+                      <br />
+                      Description:{" "}
+                      <Code>{testCaseSubmittion.description || "N/A"}</Code>
+                      <br />
+                      Your Output:{" "}
+                      <Code>{testCaseSubmittion.stdout || "N/A"}</Code>
+                      <br />
+                      Errors: <Code>{testCaseSubmittion.stderr || "N/A"}</Code>
+                      <br />
+                    </>
+                  )}
+                  Passed: {testCaseSubmittion.passed ? "✔" : "❌"}
+                  <br />
+                </Box>
+              </AccordionPanel>
+            </AccordionItem>
+          );
+        })}
       </Accordion>
     </>
   );

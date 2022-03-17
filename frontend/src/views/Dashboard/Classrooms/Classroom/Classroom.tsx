@@ -16,30 +16,22 @@ const GET_CLASSROOM = gql`
     getClassroom(classroomId: $classroomId) {
       id
       name
-      password
-      creator {
-        id
-        username
-      }
       createdAt
+      password
       users {
-        id
         username
+        id
+      }
+      creator {
+        username
+        id
       }
       assignments {
         id
         name
+        createdAt
         setDate
         dueDate
-        submissions {
-          id
-        }
-        problems {
-          id
-          specification {
-            title
-          }
-        }
       }
     }
   }

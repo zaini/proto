@@ -51,21 +51,22 @@ const GET_PROBLEM = gql`
 `;
 
 const SUBMIT_PROBLEM = gql`
-  mutation submitProblem($problemId: ID!, $code: String, $language: Int) {
+  mutation submitProblem($problemId: ID!, $code: String!, $language: Int!) {
     submitProblem(problemId: $problemId, code: $code, language: $language) {
       id
+      userId
       createdAt
       passed
-      avgTime
       avgMemory
+      avgTime
       language
     }
   }
 `;
 
 const GET_SUBMISSIONS = gql`
-  query GetUserSubmissionsForProblem($problemId: ID!) {
-    getUserSubmissionsForProblem(problemId: $problemId) {
+  query getSubmissionsForProblem($problemId: ID!) {
+    getSubmissionsForProblem(problemId: $problemId) {
       id
       createdAt
       passed
@@ -91,16 +92,9 @@ const Problem = () => {
 
   // Use query is automatically called when we had a new submissions since the state changes
   // Could add caching to this
-  const [
-    getUserSubmissions,
-    {
-      loading: submissionsLoading,
-      error: submissionsError,
-      data: submissionsData,
-    },
-  ] = useLazyQuery(GET_SUBMISSIONS, {
-    onCompleted: ({ getUserSubmissionsForProblem }) => {
-      setUserSubmissions(getUserSubmissionsForProblem);
+  const [getUserSubmissions] = useLazyQuery(GET_SUBMISSIONS, {
+    onCompleted: ({ getSubmissionsForProblem }) => {
+      setUserSubmissions(getSubmissionsForProblem);
     },
     variables: {
       problemId: params.problemId,

@@ -26,15 +26,27 @@ const GET_SUBMISSION = gql`
   query getSubmission($submissionId: ID!) {
     getSubmission(submissionId: $submissionId) {
       id
-      passed
-      avgTime
-      avgMemory
-      language
+      userId
       createdAt
-      submissionResults {
-        passed
-      }
+      passed
+      avgMemory
+      avgTime
+      language
       code
+      testCaseSubmissions {
+        testCase {
+          id
+          stdin
+          expectedOutput
+          isHidden
+        }
+        passed
+        stdout
+        stderr
+        description
+        time
+        memory
+      }
     }
   }
 `;

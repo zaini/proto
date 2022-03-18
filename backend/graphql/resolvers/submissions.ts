@@ -317,6 +317,10 @@ module.exports = {
       );
 
       if (!assignmentSubmission) {
+        throw new ApolloError("Failed to find assignment submission.");
+      }
+
+      if (assignmentSubmission.assignment.classroom.creator.id !== user.id) {
         throw new ApolloError(
           "You do not have permission to set the mark for this assignment submission."
         );

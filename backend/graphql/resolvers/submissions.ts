@@ -1,4 +1,3 @@
-import axios, { Method } from "axios";
 import { ApolloError } from "apollo-server";
 import {
   TestCaseInput,
@@ -8,9 +7,10 @@ import {
 import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { isAuth } from "../../utils/isAuth";
-import { getSubmissionStatistics } from "../../utils/problem";
-
-const JUDGE_API_URL = process.env.JUDGE_API_URL as string;
+import {
+  getSubmissionStatistics,
+  submitTestCases,
+} from "../../utils/resolverUtils";
 
 module.exports = {
   Query: {
@@ -20,22 +20,37 @@ module.exports = {
       context: any
     ) => {
       logger.info("GraphQL submissions/getSubmissionsForProblem");
+
+      // Get all submissions from user for a problem.
+      // Used when viewing submissions on a problem.
+
       const user = isAuth(context);
-      let submissions = await prisma.submission.findMany({
+
+      const problem = await prisma.problem.findUnique({
         where: {
-          userId: user.id,
-          problemId: parseInt(problemId),
+          id: parseInt(problemId),
         },
       });
 
-      if (submissions.length === 0) {
-        return [];
+      if (!problem) {
+        throw new ApolloError("This problem does not exist.");
       }
+
+      const submissions = await prisma.submission.findMany({
+        where: {
+          userId: user.id,
+          problemId: problem.id,
+        },
+      });
 
       return submissions;
     },
     getSubmission: async (_: any, { submissionId }: any, context: any) => {
       logger.info("GraphQL submissions/getSubmission");
+
+      // Gets a specific submission to be view.
+      // Anyone can view a submission.
+
       const submission = await prisma.submission.findUnique({
         where: {
           id: parseInt(submissionId),
@@ -62,6 +77,8 @@ module.exports = {
     ) => {
       logger.info("GraphQL submissions/getAssignmentProblemSubmissions");
 
+      // Returns the submissions made for the problems in an assignment
+
       // get problems for assignment
       // get submissions for each problem
       // filter for submissions made after assignment was created
@@ -74,7 +91,7 @@ module.exports = {
           id: parseInt(assignmentId),
         },
         include: {
-          ProblemsOnAssignments: {
+          problems: {
             include: {
               problem: {
                 include: {
@@ -86,12 +103,15 @@ module.exports = {
         },
       });
 
-      const problems = assignment?.ProblemsOnAssignments.map((x) => {
-        return { ...x.problem };
-      });
+      if (!assignment) {
+        throw new ApolloError("Assignment does not exist.");
+      }
 
-      const x = await Promise.all(
-        problems!.map(async (problem) => {
+      const problems = assignment.problems.map((e) => e.problem);
+
+      // Map each problem in the assignment to the submissions made
+      const problemSubmissionsMap = await Promise.all(
+        problems.map(async (problem) => {
           const submissions = await prisma.submission.findMany({
             where: {
               createdAt: {
@@ -109,7 +129,7 @@ module.exports = {
         })
       );
 
-      return x;
+      return problemSubmissionsMap;
     },
     getAssignmentSubmissions: async (
       _: any,
@@ -117,6 +137,8 @@ module.exports = {
       context: any
     ) => {
       logger.info("GraphQL submissions/getAssignmentSubmissions");
+
+      // Gets the AssignmentSubmission for an assignment.
 
       // TODO add validation based on how this is used
       if (!userId) {
@@ -129,7 +151,7 @@ module.exports = {
           id: parseInt(assignmentId),
         },
         include: {
-          ProblemsOnAssignments: {
+          problems: {
             include: {
               problem: {
                 include: {
@@ -141,43 +163,41 @@ module.exports = {
         },
       });
 
-      if (assignment) {
-        const problems = assignment?.ProblemsOnAssignments.map((x) => {
-          return { ...x.problem };
-        });
-
-        const assignmentSubmission = await Promise.all(
-          problems.map(async (problem) => {
-            const assignmentSubmission =
-              await prisma.assignmentSubmission.findUnique({
-                where: {
-                  userId_assignmentId_problemId: {
-                    userId: parseInt(userId),
-                    problemId: problem.id,
-                    assignmentId: assignment.id,
-                  },
-                },
-                include: {
-                  submission: true,
-                  problem: {
-                    include: {
-                      specification: true,
-                    },
-                  },
-                },
-              });
-            if (assignmentSubmission) {
-              return assignmentSubmission;
-            } else {
-              return { problem };
-            }
-          })
-        );
-
-        return assignmentSubmission;
+      if (!assignment) {
+        throw new ApolloError("Assignment does not exist.");
       }
 
-      return [];
+      const problems = assignment.problems.map((e) => e.problem);
+
+      const assignmentSubmission = await Promise.all(
+        problems.map(async (problem) => {
+          const assignmentSubmission =
+            await prisma.assignmentSubmission.findUnique({
+              where: {
+                userId_assignmentId_problemId: {
+                  userId: parseInt(userId),
+                  problemId: problem.id,
+                  assignmentId: assignment.id,
+                },
+              },
+              include: {
+                submission: true,
+                problem: {
+                  include: {
+                    specification: true,
+                  },
+                },
+              },
+            });
+          if (assignmentSubmission) {
+            return assignmentSubmission;
+          } else {
+            return { problem };
+          }
+        })
+      );
+
+      return assignmentSubmission;
     },
     getAssignmentSubmissionsAsTeacher: async (
       _: any,
@@ -186,6 +206,8 @@ module.exports = {
     ) => {
       logger.info("GraphQL submissions/getAssignmentSubmissionsAsTeacher");
 
+      // Used by teacher to view all the assignment submissions on a table
+
       const user = isAuth(context);
 
       const assignment = await prisma.assignment.findUnique({
@@ -193,7 +215,7 @@ module.exports = {
           id: parseInt(assignmentId),
         },
         include: {
-          ProblemsOnAssignments: { include: { problem: true } },
+          problems: { include: { problem: true } },
           classroom: { include: { creator: true } },
         },
       });
@@ -202,6 +224,7 @@ module.exports = {
         throw new ApolloError("This assignment does not exist.");
       }
 
+      // Only the creator of the classroom for the assignment can view all the submissions
       // TODO uncomment this
       // if (assignment.classroom.creator.id != user.id) {
       //   throw new ApolloError(
@@ -218,7 +241,7 @@ module.exports = {
         },
       });
 
-      const x = await Promise.all(
+      const userAssignmentSubmission = await Promise.all(
         learners.map(async ({ user }) => {
           const assignmentSubmissions =
             await prisma.assignmentSubmission.findMany({
@@ -234,7 +257,7 @@ module.exports = {
         })
       );
 
-      return x;
+      return userAssignmentSubmission;
     },
   },
   Mutation: {
@@ -244,19 +267,23 @@ module.exports = {
       context: any
     ) => {
       logger.info("GraphQL submissions/setAssignmentProblemSubmission");
+
+      // Used by student to set their submission for a problem in an assignment
+
       const assignment = await prisma.assignment.findUnique({
         where: {
           id: parseInt(assignmentId),
         },
         include: {
-          ProblemsOnAssignments: { include: { problem: true } },
+          problems: { include: { problem: true } },
         },
       });
 
-      const problems = assignment?.ProblemsOnAssignments.map((x) => {
-        return { ...x.problem };
-      });
+      if (!assignment) {
+        throw new ApolloError("This assignment does not exist.");
+      }
 
+      // TODO check if a submission for this problem was already done
       const submission = await prisma.submission.findUnique({
         where: {
           id: parseInt(submissionId),
@@ -267,45 +294,48 @@ module.exports = {
         },
       });
 
-      // TODO check if a submission for this problem was already done
+      if (!submission) {
+        throw new ApolloError("Submission does not exist.");
+      }
 
-      if (submission && assignment) {
-        if (problems?.some((problem) => problem.id === submission.problemId)) {
-          try {
-            await prisma.assignmentSubmission.delete({
-              where: {
-                userId_assignmentId_problemId: {
-                  userId: submission.userId,
-                  problemId: submission.problemId,
-                  assignmentId: assignment.id,
-                },
-              },
-            });
-          } catch (error) {
-            // throw new ApolloError(error as string);
-          }
+      const problems = assignment.problems.map((e) => e.problem);
 
-          const assignmentSubmission = await prisma.assignmentSubmission.create(
-            {
-              data: {
+      if (!problems) {
+        // This error shouldn't occur since we validate when problems are created.
+        throw new ApolloError("This assignment has no problems.");
+      }
+
+      if (problems.some((problem) => problem.id === submission.problemId)) {
+        try {
+          await prisma.assignmentSubmission.delete({
+            where: {
+              userId_assignmentId_problemId: {
                 userId: submission.userId,
                 problemId: submission.problemId,
                 assignmentId: assignment.id,
-                submissionId: submission.id,
-                createdAt: new Date(),
               },
-            }
-          );
-
-          return true;
-        } else {
-          throw new ApolloError(
-            "The problem this submission solves is not part of this assignment."
-          );
+            },
+          });
+        } catch (error) {
+          // throw new ApolloError(error as string);
         }
-      }
 
-      return false;
+        const assignmentSubmission = await prisma.assignmentSubmission.create({
+          data: {
+            userId: submission.userId,
+            problemId: submission.problemId,
+            assignmentId: assignment.id,
+            submissionId: submission.id,
+            createdAt: new Date(),
+          },
+        });
+
+        return assignmentSubmission;
+      } else {
+        throw new ApolloError(
+          "The problem this submission solves is not part of this assignment."
+        );
+      }
     },
     removeAssignmentProblemSubmission: async (
       _: any,
@@ -314,6 +344,8 @@ module.exports = {
     ) => {
       logger.info("GraphQL submissions/removeAssignmentProblemSubmission");
 
+      // Removes an assignment submission
+
       const user = isAuth(context);
 
       const assignment = await prisma.assignment.findUnique({
@@ -321,32 +353,29 @@ module.exports = {
           id: parseInt(assignmentId),
         },
         include: {
-          ProblemsOnAssignments: { include: { problem: true } },
+          problems: { include: { problem: true } },
         },
       });
 
-      if (assignment) {
-        try {
-          await prisma.assignmentSubmission.delete({
-            where: {
-              userId_assignmentId_problemId: {
-                userId: user.id,
-                problemId: parseInt(problemId),
-                assignmentId: assignment.id,
-              },
-            },
-          });
-          return true;
-        } catch (error) {
-          throw new ApolloError(
-            "Could not delete your submission for this assignment problem. It might not exist."
-          );
-        }
-      } else {
+      if (!assignment) {
         throw new ApolloError("This assignment does not exist");
       }
-
-      return false;
+      try {
+        await prisma.assignmentSubmission.delete({
+          where: {
+            userId_assignmentId_problemId: {
+              userId: user.id,
+              problemId: parseInt(problemId),
+              assignmentId: assignment.id,
+            },
+          },
+        });
+        return true;
+      } catch (error) {
+        throw new ApolloError(
+          "Could not delete your submission for this assignment problem. It might not exist."
+        );
+      }
     },
     submitTests: async (
       _: any,
@@ -363,44 +392,11 @@ module.exports = {
         )
       );
 
-      const testCaseSubmissions = await Promise.all(
-        testCaseObjects.map(async (testCase) => {
-          const options = {
-            method: "POST" as Method,
-            url: `${JUDGE_API_URL}/submissions`,
-            params: { base64_encoded: "false", fields: "*", wait: true },
-            headers: { "content-type": "application/json" },
-            data: {
-              language_id: language,
-              source_code: code,
-              stdin: testCase.stdin,
-              expected_output: testCase.expectedOutput,
-            },
-          };
-
-          const response = await axios.request(options);
-
-          const testResult = response.data;
-
-          return await prisma.testCaseSubmission.create({
-            data: {
-              testCaseId: testCase.id,
-              userId: authUser.id,
-              description: testResult.status.description,
-              compile_output: testResult.compile_output
-                ? testResult.compile_output
-                : "",
-              passed: testResult.status.description === "Accepted",
-              stdout: testResult.stdout ? testResult.stdout : "",
-              stderr: testResult.stderr ? testResult.stderr : "",
-              time: testResult.time * 1000,
-              memory: testResult.memory / 1024,
-            },
-            include: {
-              testCase: true,
-            },
-          });
-        })
+      const testCaseSubmissions = await submitTestCases(
+        authUser,
+        language,
+        code,
+        testCaseObjects
       );
 
       // Deleting the test case submission and test cases that were created.
@@ -454,41 +450,11 @@ module.exports = {
 
       const testCaseObjects = problem.specification.testCases;
 
-      const testCaseSubmissions = await Promise.all(
-        testCaseObjects.map(async (testCase) => {
-          const options = {
-            method: "POST" as Method,
-            url: `${JUDGE_API_URL}/submissions`,
-            params: { base64_encoded: "false", fields: "*", wait: true },
-            headers: { "content-type": "application/json" },
-            data: {
-              language_id: language,
-              source_code: code,
-              stdin: testCase.stdin,
-              expected_output: testCase.expectedOutput,
-            },
-          };
-
-          const response = await axios.request(options);
-
-          const testResult = response.data;
-
-          return await prisma.testCaseSubmission.create({
-            data: {
-              testCaseId: testCase.id,
-              userId: authUser.id,
-              description: testResult.status.description,
-              compile_output: testResult.compile_output
-                ? testResult.compile_output
-                : "",
-              passed: testResult.status.description === "Accepted",
-              stdout: testResult.stdout ? testResult.stdout : "",
-              stderr: testResult.stderr ? testResult.stderr : "",
-              time: testResult.time * 1000,
-              memory: testResult.memory / 1024,
-            },
-          });
-        })
+      const testCaseSubmissions = await submitTestCases(
+        authUser,
+        language,
+        code,
+        testCaseObjects
       );
 
       const submissionStats = getSubmissionStatistics(

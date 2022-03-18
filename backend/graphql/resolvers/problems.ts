@@ -4,19 +4,24 @@ import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { isAuth } from "../../utils/isAuth";
 import { LanguageCodeToName } from "../../utils/types";
+import { getUserProblemRatingInformation } from "../../utils/resolverUtils";
 
 module.exports = {
   Query: {
     getProblems: async (_: any, __: any, context: any) => {
       logger.info("GraphQL problems/getProblems");
-      const problems = await prisma.problem.findMany({
-        include: { creator: true, Ratings: true, specification: true },
-      });
+
+      // Get all problems with relavent user information such as ratings and whether they've solved it.
 
       const user = isAuth(context);
 
+      const problems = await prisma.problem.findMany({
+        include: { creator: true, ratings: true, specification: true },
+      });
+
       const problemsWithSolved = await Promise.all(
         problems.map(async (problem) => {
+          // Try to find a solved submission for this problem
           const submission = await prisma.submission.findFirst({
             where: {
               userId: user.id,
@@ -25,6 +30,7 @@ module.exports = {
             },
           });
 
+          // Get users rating for the problem
           const userRating = await prisma.rating.findFirst({
             where: {
               userId: user.id,
@@ -34,16 +40,7 @@ module.exports = {
 
           return {
             ...problem,
-            rating: {
-              numberOfRatings: problem.Ratings.length,
-              totalRating: problem.Ratings.reduce(
-                (total, rating) => rating.score + total,
-                0
-              ),
-              problem,
-              ratings: problem?.Ratings,
-              userRating,
-            },
+            rating: getUserProblemRatingInformation(userRating, problem),
             solved: submission ? true : false,
           };
         })
@@ -53,11 +50,16 @@ module.exports = {
     },
     getProblem: async (_: any, { problemId }: any, context: any) => {
       logger.info("GraphQL problems/getProblem");
+
+      // Get problem, used when viewing a problem to solve it.
+
+      const user = isAuth(context);
+
       const problem = await prisma.problem.findUnique({
         where: { id: parseInt(problemId) },
         include: {
           creator: true,
-          Ratings: true,
+          ratings: true,
           specification: {
             include: {
               testCases: true,
@@ -67,10 +69,9 @@ module.exports = {
       });
 
       if (problem) {
+        // Try to get user rating if they have made one.
         let userRating = {} as any;
-
         try {
-          const user = isAuth(context);
           userRating = await prisma.rating.findFirst({
             where: {
               userId: user.id,
@@ -81,16 +82,7 @@ module.exports = {
 
         return {
           ...problem,
-          rating: {
-            numberOfRatings: problem.Ratings.length,
-            totalRating: problem.Ratings.reduce(
-              (total, rating) => rating.score + total,
-              0
-            ),
-            problem,
-            ratings: problem?.Ratings,
-            userRating,
-          },
+          rating: getUserProblemRatingInformation(userRating, problem),
         };
       }
 
@@ -98,6 +90,10 @@ module.exports = {
     },
     getDefaultInitialCodes: async (_: any, __: any, context: any) => {
       logger.info("GraphQL problems/getDefaultInitialCodes");
+
+      // Return the default initial code for the supported languages.
+      // Should also be in the types in the utils for the frontend and backend.
+      // Used when creating a new problem.
 
       // 71: "Python (3.8.1)",
       // 70: "Python (2.7.9)",
@@ -166,6 +162,8 @@ public class Main {
     ) => {
       logger.info("GraphQL problems/createProblem");
 
+      // Creates a new problem from a given specification.
+
       const user = isAuth(context);
 
       const { title, description, testCases, initialCode, difficulty } =
@@ -217,12 +215,25 @@ public class Main {
     },
     rateProblem: async (_: any, { problemId, score }: any, context: any) => {
       logger.info("GraphQL problems/rateProblem");
+
+      // User can rate a problem, either creating a new rating or updating their previous one.
+
       const user = isAuth(context);
+
+      const problem = await prisma.problem.findUnique({
+        where: {
+          id: parseInt(problemId),
+        },
+      });
+
+      if (!problem) {
+        throw new ApolloError("This problem does not exist.");
+      }
 
       const existingRating = await prisma.rating.findUnique({
         where: {
           problemId_userId: {
-            problemId: parseInt(problemId),
+            problemId: problem.id,
             userId: user.id,
           },
         },
@@ -232,7 +243,7 @@ public class Main {
         await prisma.rating.update({
           where: {
             problemId_userId: {
-              problemId: parseInt(problemId),
+              problemId: problem.id,
               userId: user.id,
             },
           },
@@ -243,7 +254,7 @@ public class Main {
       } else {
         await prisma.rating.create({
           data: {
-            problemId: parseInt(problemId),
+            problemId: problem.id,
             userId: user.id,
             score: score,
           },

@@ -8,34 +8,31 @@ module.exports = {
   Query: {
     getTeacherClassrooms: async (_: any, __: any, context: any) => {
       logger.info("GraphQL classrooms/getTeacherClassrooms");
+
+      // Get all the classrooms for a teacher.
+
       const user = isAuth(context);
 
-      let classrooms = await prisma.classroom.findMany({
+      const classrooms = await prisma.classroom.findMany({
         where: {
           userId: user.id,
         },
         include: {
           creator: true,
-          UsersOnClassrooms: { include: { user: true } },
+          users: { include: { user: true } },
         },
       });
 
-      const res = classrooms.map((classroom) => {
-        return {
-          ...classroom,
-          users: classroom.UsersOnClassrooms.map((user) => {
-            return {
-              ...user,
-              ...user.user,
-            };
-          }),
-        };
-      });
-
-      return res;
+      return classrooms.map((classroom) => ({
+        ...classroom,
+        users: classroom.users.map((e) => e.user),
+      }));
     },
     getLearnerClassrooms: async (_: any, __: any, context: any) => {
       logger.info("GraphQL classrooms/getLearnerClassrooms");
+
+      // Get all the classrooms for a student.
+
       const user = isAuth(context);
 
       const usersOnClassrooms = await prisma.usersOnClassrooms.findMany({
@@ -52,26 +49,26 @@ module.exports = {
     getClassroom: async (_: any, { classroomId }: any, context: any) => {
       logger.info("GraphQL classrooms/getClassroom");
 
+      // Get a classroom to view. Also used when joining a classroom to get basic information.
+
       const classroom = await prisma.classroom.findUnique({
         where: {
           id: parseInt(classroomId),
         },
         include: {
           assignments: {
-            include: { ProblemsOnAssignments: { include: { problem: true } } },
+            include: { problems: { include: { problem: true } } },
           },
           creator: true,
-          UsersOnClassrooms: { include: { user: true } },
+          users: { include: { user: true } },
         },
       });
 
       if (classroom) {
-        const x = {
+        return {
           ...classroom,
-          users: classroom.UsersOnClassrooms.map((e) => e.user),
+          users: classroom.users.map((e) => e.user),
         };
-
-        return x;
       }
 
       throw new ApolloError("This classroom does not exist.");
@@ -83,11 +80,15 @@ module.exports = {
       { classroomName, password }: any,
       context: any
     ) => {
+      logger.info("GraphQL classrooms/createClassroom");
+
+      // Create classroom, used by teacher.
+
+      const user = isAuth(context);
+
       if (classroomName === "") {
         throw new ApolloError("Classroom name cannot be empty.");
       }
-
-      const user = isAuth(context);
 
       const existingClassroom = await prisma.classroom.findFirst({
         where: {
@@ -121,6 +122,10 @@ module.exports = {
       { classroomId, password }: any,
       context: any
     ) => {
+      logger.info("GraphQL classrooms/joinClassroom");
+
+      // Add user to a classroom, used when inviting users.
+
       const user = isAuth(context);
 
       const classroom = await prisma.classroom.findUnique({
@@ -162,6 +167,7 @@ module.exports = {
           classroomId: classroom.id,
         },
       });
+
       if (userInClassroom) {
         throw new ApolloError("You are already a member of this classroom.");
       }
@@ -181,6 +187,9 @@ module.exports = {
       context: any
     ) => {
       logger.info("GraphQL classrooms/deleteClassroom");
+
+      // Used by teacher to delete a classroom
+
       const user = isAuth(context);
 
       const classroom = await prisma.classroom.findFirst({
@@ -228,9 +237,13 @@ module.exports = {
       { studentId, classroomId }: any,
       context: any
     ) => {
-      const user = isAuth(context);
+      logger.info("GraphQL classrooms/removeStudent");
 
-      // To remove a student, you must either be the student or the teacher of the classroom
+      // Used by students and teachers to remove a student from a classroom.
+      // Teachers can remove any student.
+      // Students can only remove themselves.
+
+      const user = isAuth(context);
 
       const classroom = await prisma.classroom.findFirst({
         where: {
@@ -260,6 +273,7 @@ module.exports = {
         );
       }
 
+      // To remove a student, you must either be that same student or the creator of the classroom
       if (classroom.creator.id === user.id || student.userId === user.id) {
         await prisma.usersOnClassrooms.delete({
           where: {

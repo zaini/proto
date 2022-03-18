@@ -7,6 +7,9 @@ module.exports = {
   Query: {
     getAssignments: async (_: any, __: any, context: any) => {
       logger.info("GraphQL assignmnets/getAssignments");
+
+      // Return all the assignments in all the classrooms the user is a student in.
+
       const user = isAuth(context);
 
       const classrooms = await prisma.usersOnClassrooms.findMany({
@@ -16,9 +19,9 @@ module.exports = {
       });
 
       if (classrooms) {
-        const assignments = await Promise.all(
-          classrooms.map(async (classroom) => {
-            return await prisma.assignment.findMany({
+        const assignments = await prisma.$transaction(
+          classrooms.map((classroom) =>
+            prisma.assignment.findMany({
               where: {
                 classroomId: classroom.classroomId,
                 dueDate: { gt: new Date() },
@@ -26,8 +29,8 @@ module.exports = {
               include: {
                 classroom: { include: { creator: true } },
               },
-            });
-          })
+            })
+          )
         );
 
         return assignments.flat();
@@ -42,16 +45,18 @@ module.exports = {
     ) => {
       logger.info("GraphQL assignment/assignmentId");
 
+      // Return all information for a single assignment based on the assignmentId and classroomId for teachers and students to view
+
       const user = isAuth(context);
 
       // TODO add return stats
-      let assignment = await prisma.assignment.findUnique({
+      const assignment = await prisma.assignment.findUnique({
         where: {
           id: parseInt(assignmentId),
         },
         include: {
           classroom: { include: { creator: true } },
-          ProblemsOnAssignments: {
+          problems: {
             include: {
               problem: {
                 include: {
@@ -63,28 +68,23 @@ module.exports = {
         },
       });
 
-      if (assignment?.classroomId !== parseInt(classroomId)) {
+      if (!assignment || assignment.classroomId !== parseInt(classroomId)) {
         throw new ApolloError(
           "Cannot find that assignment for that classroom."
         );
       }
 
-      const usersInClassroom = await prisma.usersOnClassrooms.findMany({
+      const userInClassroom = await prisma.usersOnClassrooms.findUnique({
         where: {
-          classroomId: assignment?.classroom.id,
-        },
-        include: {
-          user: true,
+          userId_classroomId: {
+            classroomId: assignment.classroom.id,
+            userId: user.id,
+          },
         },
       });
 
       // If you don't own the classroom or are not a student in the classroom, you cannot view this assignment
-      if (
-        !(
-          assignment?.classroom.creator.id === user.id ||
-          usersInClassroom.some((x) => x.user.id === user.id)
-        )
-      ) {
+      if (!(assignment.classroom.creator.id === user.id || userInClassroom)) {
         throw new ApolloError(
           "You cannot get an assignment you are not associated with."
         );
@@ -92,9 +92,7 @@ module.exports = {
 
       return {
         ...assignment,
-        problems: assignment.ProblemsOnAssignments.map((x) => {
-          return { ...x.problem };
-        }),
+        problems: assignment.problems.map((e) => e.problem),
       };
     },
   },
@@ -105,6 +103,8 @@ module.exports = {
       context: any
     ) => {
       logger.info("GraphQL assignments/createAssignment");
+
+      // Used by teachers to create an assignment
 
       // check if the current user owns this classroom
       // find the problems
@@ -125,7 +125,6 @@ module.exports = {
       }
 
       const dueDateObject = new Date(dueDate);
-      console.log(dueDateObject);
       if (
         !(dueDateObject instanceof Date && !isNaN(dueDateObject.getTime())) ||
         new Date() > dueDateObject
@@ -138,7 +137,7 @@ module.exports = {
       const existingAssignment = await prisma.assignment.findFirst({
         where: {
           name: assignmentName,
-          classroomId: classroom!.id,
+          classroomId: classroom.id,
         },
       });
 
@@ -166,7 +165,7 @@ module.exports = {
         const assignment = await prisma.assignment.create({
           data: {
             name: assignmentName,
-            classroomId: classroom!.id,
+            classroomId: classroom.id,
             setDate: new Date(),
             createdAt: new Date(),
             dueDate: dueDateObject,
@@ -202,6 +201,10 @@ module.exports = {
       { assignmentId, assignmentName }: any,
       context: any
     ) => {
+      logger.info("GraphQL assignments/removeAssignment");
+
+      // Remove an assignment from a classroom. User must enter assignment name correctly.
+
       const assignment = await prisma.assignment.findFirst({
         where: {
           id: parseInt(assignmentId),

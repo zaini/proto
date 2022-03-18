@@ -27,6 +27,7 @@ const GET_ASSIGNMENT_SUBMISSION = gql`
       }
       assignmentSubmissions {
         createdAt
+        mark
         submission {
           id
           code
@@ -120,9 +121,19 @@ const TeacherAssignmentSubmissionsPanel = () => {
               })
             );
 
+            const totalMarks = assignmentSubmissions.reduce(
+              (total, assignmentSubmission) =>
+                total +
+                (assignmentSubmission.mark ? assignmentSubmission.mark : 0),
+              0
+            );
+
+            const avgMark = (totalMarks / numOfProblems).toFixed(2);
+
             const assignmentSubmissionStats = {
               learner: user.username,
               attempted: `${attempts}/${numOfProblems}`,
+              avgMark: `${avgMark}/100`,
               solved: `${solves}/${numOfProblems}`,
               lastChange:
                 lastChange === -Infinity
@@ -159,6 +170,7 @@ const TeacherAssignmentSubmissionsPanel = () => {
             },
             { Header: "Problems Attempted", accessor: "attempted" },
             { Header: "Problems Solved", accessor: "solved" },
+            { Header: "Average Mark", accessor: "avgMark" },
             { Header: "Last Submission Change", accessor: "lastChange" },
             {
               Header: "Options",

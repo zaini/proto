@@ -25,6 +25,7 @@ import SubmissionModal from "../../../../../../components/SubmissionModal/Submis
 const GET_ASSIGNMENT_SUBMISSIONS = gql`
   query getAssignmentSubmissions($assignmentId: ID!) {
     getAssignmentSubmissions(assignmentId: $assignmentId) {
+      mark
       submission {
         id
         code
@@ -197,6 +198,16 @@ const LearnerAssignmentSubmissionsPanel = () => {
   // TODO have an actual error page and log this
   if (error) return <>Error! ${error.message}</>;
 
+  const totalMarks = Object.values(assignmentSubmissions).reduce(
+    (total, assignmentSubmission) =>
+      total + (assignmentSubmission.mark ? assignmentSubmission.mark : 0),
+    0
+  );
+
+  const avgMark = (
+    totalMarks / Object.values(assignmentSubmissions).length
+  ).toFixed(2);
+
   return (
     <>
       <SubmissionModal
@@ -209,6 +220,7 @@ const LearnerAssignmentSubmissionsPanel = () => {
       <br /> */}
       <Box>
         <Heading>Current submission for this assignment</Heading>
+        <Heading size={"md"}>(Average Mark: {avgMark}/100)</Heading>
         <br />
         <CustomTable
           data={Object.entries(assignmentSubmissions).map(
@@ -216,11 +228,26 @@ const LearnerAssignmentSubmissionsPanel = () => {
               const problem = assignmentSubmission.problem;
               const submission = assignmentSubmission.submission;
 
+              const mark = assignmentSubmission.mark || 0;
+
               return {
                 id: problem.id,
                 problemName: problem.specification.title,
-                submission: submission ? "" + submission.id : "N/A",
+                submission: submission ? (
+                  <Button
+                    colorScheme={"blue"}
+                    onClick={() => {
+                      setModalSubmissionId(parseInt(submission.id));
+                      onOpen();
+                    }}
+                  >
+                    Submission #{submission.id}
+                  </Button>
+                ) : (
+                  "N/A"
+                ),
                 passed: submission ? "" + submission.passed : "N/A",
+                mark: `${mark.toFixed(2)}/100`,
                 options: (
                   <ButtonGroup>
                     {submission === null ? (
@@ -256,6 +283,7 @@ const LearnerAssignmentSubmissionsPanel = () => {
               Header: "Passed",
               accessor: "passed",
             },
+            { Header: "Mark", accessor: "mark" },
             {
               Header: "Problem",
               accessor: "problemName",
@@ -309,7 +337,7 @@ const LearnerAssignmentSubmissionsPanel = () => {
                               onOpen();
                             }}
                           >
-                            View Submission
+                            View
                           </Button>
                           {assignmentSubmissions[problem.id] &&
                           assignmentSubmissions[problem.id].submission &&

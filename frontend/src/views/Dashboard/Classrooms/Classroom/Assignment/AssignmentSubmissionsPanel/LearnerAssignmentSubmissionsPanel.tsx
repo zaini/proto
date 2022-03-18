@@ -80,7 +80,9 @@ const SET_ASSIGNMENT_PROBLEM_SUBMISSION = gql`
     setAssignmentProblemSubmission(
       assignmentId: $assignmentId
       submissionId: $submissionId
-    )
+    ) {
+      createdAt
+    }
   }
 `;
 

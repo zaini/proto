@@ -16,6 +16,7 @@ const GET_USER = gql`
       username
       githubId
       problems {
+        id
         rating {
           numberOfRatings
           totalRating
@@ -231,7 +232,10 @@ const Profile = () => {
           ]}
         />
       ) : (
-        <Text fontWeight={"bold"}>No Created Problems</Text>
+        <>
+          <Text fontWeight={"bold"}>No Created Problems</Text>
+          <br />
+        </>
       )}
     </Box>
   );

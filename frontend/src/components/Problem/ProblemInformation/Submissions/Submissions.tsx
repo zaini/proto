@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { Button, ButtonGroup, Heading, useDisclosure } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  Heading,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { Submission } from "../../../../gql-types";
 import CustomTable from "../../../CustomTable/CustomTable";
 import SubmissionModal from "../../../SubmissionModal/SubmissionModal";
@@ -40,58 +46,65 @@ const Submissions = ({
       <br />
       <Heading>Your Submissions</Heading>
       <br />
-      <CustomTable
-        data={userSubmissions.map((submission: Submission, i: number) => {
-          return {
-            time: new Date(parseInt(submission.createdAt)).toLocaleString(),
-            passed: `${submission.passed}`,
-            avgTime: submission.avgTime.toFixed(2) + " ms",
-            avgMemory: submission.avgMemory.toFixed(2) + " MB",
-            language: LanguageCodeToName[submission.language],
-            options: (
-              <>
-                <ButtonGroup>
-                  <Button
-                    colorScheme={"blue"}
-                    onClick={() => {
-                      setModalSubmissionId(parseInt(submission.id));
-                      onOpen();
-                    }}
-                  >
-                    View
-                  </Button>
-                </ButtonGroup>
-              </>
-            ),
-          };
-        })}
-        columns={[
-          {
-            Header: "Time",
-            accessor: "time",
-          },
-          {
-            Header: "Passed",
-            accessor: "passed",
-          },
-          {
-            Header: "Average Time",
-            accessor: "avgTime",
-          },
-          {
-            Header: "Average Memory",
-            accessor: "avgMemory",
-          },
-          {
-            Header: "Language",
-            accessor: "language",
-          },
-          {
-            Header: "Options",
-            accessor: "options",
-          },
-        ]}
-      />
+      {userSubmissions.length > 0 ? (
+        <CustomTable
+          data={userSubmissions.map((submission: Submission, i: number) => {
+            return {
+              time: new Date(parseInt(submission.createdAt)).toLocaleString(),
+              passed: `${submission.passed}`,
+              avgTime: submission.avgTime.toFixed(2) + " ms",
+              avgMemory: submission.avgMemory.toFixed(2) + " MB",
+              language: LanguageCodeToName[submission.language],
+              options: (
+                <>
+                  <ButtonGroup>
+                    <Button
+                      colorScheme={"blue"}
+                      onClick={() => {
+                        setModalSubmissionId(parseInt(submission.id));
+                        onOpen();
+                      }}
+                    >
+                      View
+                    </Button>
+                  </ButtonGroup>
+                </>
+              ),
+            };
+          })}
+          columns={[
+            {
+              Header: "Time",
+              accessor: "time",
+            },
+            {
+              Header: "Passed",
+              accessor: "passed",
+            },
+            {
+              Header: "Average Time",
+              accessor: "avgTime",
+            },
+            {
+              Header: "Average Memory",
+              accessor: "avgMemory",
+            },
+            {
+              Header: "Language",
+              accessor: "language",
+            },
+            {
+              Header: "Options",
+              accessor: "options",
+            },
+          ]}
+        />
+      ) : (
+        <>
+          <Text fontWeight={"bold"}>No submissions made</Text>
+          <br />
+        </>
+      )}
     </>
   );
 };

@@ -61,6 +61,11 @@ module.exports = {
               testCase: true,
             },
           },
+          problem: {
+            include: {
+              specification: true,
+            },
+          },
         },
       });
 

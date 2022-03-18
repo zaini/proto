@@ -3,6 +3,7 @@ import { Submission } from "../../gql-types";
 import {
   Button,
   Center,
+  Link,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -34,19 +35,25 @@ const GET_SUBMISSION = gql`
       language
       code
       testCaseSubmissions {
-        testCase {
-          id
-          stdin
-          expectedOutput
-          isHidden
-        }
+        id
         passed
         stdout
         stderr
         compile_output
-        description
         time
+        description
         memory
+        testCase {
+          stdin
+          expectedOutput
+          isHidden
+        }
+      }
+      problem {
+        id
+        specification {
+          title
+        }
       }
     }
   }
@@ -112,9 +119,22 @@ const SubmissionModal = ({ submissionId, isOpen, onClose }: Props) => {
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Submission #{submissionId}</ModalHeader>
+        <ModalHeader>
+          Submission #{submission.id} for #{submission.problem.id}{" "}
+          {submission.problem.specification.title}
+        </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
+          <Button
+            as={Link}
+            href={`/problems/${submission.problem.id}`}
+            target={"_blank"}
+            colorScheme={"blue"}
+          >
+            Go to problem
+          </Button>
+          <br />
+          <br />
           <SubmissionModalStatistics submission={submission} />
         </ModalBody>
         <ModalFooter>

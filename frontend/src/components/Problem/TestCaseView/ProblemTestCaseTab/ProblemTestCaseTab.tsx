@@ -14,6 +14,7 @@ import { TestCaseInput, TestCaseSubmission } from "../../../../gql-types";
 import { ProblemContext } from "../../../../views/Problem/Problem";
 import { gql, useMutation } from "@apollo/client";
 import { EditorContext } from "../../CodeEditor/CodeEditor";
+import TestCaseSubmissionAccordionPanelContent from "../../../TestCaseSubmissionAccordionPanelContent/TestCaseSubmissionAccordionPanelContent";
 
 const SUBMIT_TESTS = gql`
   mutation submitTests(
@@ -118,7 +119,7 @@ const ProblemTestCaseTab = () => {
       <Accordion allowMultiple>
         {Object.keys(testCaseAndSubmissions).map((testCaseString, i) => {
           const testCase: TestCaseInput = JSON.parse(testCaseString);
-          const testCaseSubmittion: TestCaseSubmission =
+          const testCaseSubmission: TestCaseSubmission =
             testCaseAndSubmissions[testCaseString];
 
           return (
@@ -128,60 +129,14 @@ const ProblemTestCaseTab = () => {
                   <Box flex="1" textAlign="left">
                     {testCase.isHidden && "Hidden"} Test #{i + 1}
                   </Box>
-                  <Box>{testCaseSubmittion.passed ? "✔" : "❌"}</Box>
+                  <Box>{testCaseSubmission.passed ? "✔" : "❌"}</Box>
                   <AccordionIcon />
                 </AccordionButton>
               </h2>
               <AccordionPanel pb={4}>
-                <Box>
-                  {!testCase.isHidden && (
-                    <>
-                      Input: <Code>{testCase.stdin}</Code>
-                      <br />
-                      Expected Output: <Code>{testCase.expectedOutput}</Code>
-                      <br />
-                      💾{" "}
-                      <Code>
-                        {testCaseSubmittion.memory
-                          ? testCaseSubmittion.memory.toFixed(2) + " MB"
-                          : "N/A"}
-                      </Code>{" "}
-                      | 🕓{" "}
-                      <Code>
-                        {testCaseSubmittion.time
-                          ? testCaseSubmittion.time.toFixed(2) + " ms"
-                          : "N/A"}
-                      </Code>
-                      <br />
-                      Description:{" "}
-                      <Code>{testCaseSubmittion.description || "N/A"}</Code>
-                      <br />
-                      Your Output:{" "}
-                      <Code>{testCaseSubmittion.stdout || "N/A"}</Code>
-                      <br />
-                      {testCaseSubmittion.stderr && (
-                        <>
-                          Errors:{" "}
-                          <Textarea readOnly>
-                            {testCaseSubmittion.stderr || "N/A"}
-                          </Textarea>
-                          <br />
-                        </>
-                      )}
-                      {testCaseSubmittion.compile_output && (
-                        <>
-                          Compiler Output:{" "}
-                          <Textarea readOnly>
-                            {testCaseSubmittion.compile_output}
-                          </Textarea>
-                          <br />
-                        </>
-                      )}
-                    </>
-                  )}
-                  Passed: {testCaseSubmittion.passed ? "✔" : "❌"}
-                  <br />
-                </Box>
+                <TestCaseSubmissionAccordionPanelContent
+                  testCaseSubmission={testCaseSubmission}
+                />
               </AccordionPanel>
             </AccordionItem>
           );

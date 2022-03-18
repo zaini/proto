@@ -21,6 +21,7 @@ import { ProblemContext } from "../../../../views/Problem/Problem";
 import { gql, useMutation } from "@apollo/client";
 import { EditorContext } from "../../CodeEditor/CodeEditor";
 import { TestCaseInput, TestCaseSubmission } from "../../../../gql-types";
+import TestCaseSubmissionAccordionPanelContent from "../../../TestCaseSubmissionAccordionPanelContent/TestCaseSubmissionAccordionPanelContent";
 
 const SUBMIT_TESTS = gql`
   mutation submitTests(
@@ -160,7 +161,7 @@ const CustomTestCaseTab = () => {
       <Accordion allowMultiple>
         {Object.keys(testCaseAndSubmissions).map((testCaseString, i) => {
           const testCase: TestCaseInput = JSON.parse(testCaseString);
-          const testCaseSubmittion: TestCaseSubmission =
+          const testCaseSubmission: TestCaseSubmission =
             testCaseAndSubmissions[testCaseString];
 
           return (
@@ -170,86 +171,50 @@ const CustomTestCaseTab = () => {
                   <Box flex="1" textAlign="left">
                     Custom Test #{i + 1}
                   </Box>
-                  <Box>{testCaseSubmittion.passed ? "✔" : "❌"}</Box>
+                  <Box>{testCaseSubmission.passed ? "✔" : "❌"}</Box>
                   <AccordionIcon />
                 </AccordionButton>
               </h2>
               <AccordionPanel pb={4}>
-                <Box>
-                  Input: <Code>{testCase.stdin}</Code>
-                  <br />
-                  Expected Output: <Code>{testCase.expectedOutput}</Code>
-                  <br />
-                  💾{" "}
-                  <Code>
-                    {testCaseSubmittion.memory
-                      ? testCaseSubmittion.memory.toFixed(2) + " MB"
-                      : "N/A"}
-                  </Code>{" "}
-                  | 🕓{" "}
-                  <Code>
-                    {testCaseSubmittion.time
-                      ? testCaseSubmittion.time.toFixed(2) + " ms"
-                      : "N/A"}
-                  </Code>
-                  <br />
-                  Description:{" "}
-                  <Code>{testCaseSubmittion.description || "N/A"}</Code>
-                  <br />
-                  Your Output: <Code>{testCaseSubmittion.stdout || "N/A"}</Code>
-                  <br />
-                  {testCaseSubmittion.stderr && (
+                <TestCaseSubmissionAccordionPanelContent
+                  testCaseSubmission={testCaseSubmission}
+                  children={
                     <>
-                      Errors:{" "}
-                      <Textarea readOnly>
-                        {testCaseSubmittion.stderr || "N/A"}
-                      </Textarea>
-                      <br />
-                    </>
-                  )}
-                  {testCaseSubmittion.compile_output && (
-                    <>
-                      Compiler Output:{" "}
-                      <Textarea readOnly>
-                        {testCaseSubmittion.compile_output}
-                      </Textarea>
-                      <br />
-                    </>
-                  )}
-                  Passed: {testCaseSubmittion.passed ? "✔" : "❌"}
-                  <ButtonGroup float={"right"}>
-                    <Button
-                      colorScheme={"teal"}
-                      isLoading={loading}
-                      onClick={() => {
-                        submitTests({
-                          variables: {
-                            language: selectedLanguage,
-                            code,
-                            testCases: [
-                              {
-                                stdin: testCase.stdin,
-                                expectedOutput: testCase.expectedOutput,
-                                isHidden: testCase.isHidden,
+                      <ButtonGroup float={"right"}>
+                        <Button
+                          colorScheme={"teal"}
+                          isLoading={loading}
+                          onClick={() => {
+                            submitTests({
+                              variables: {
+                                language: selectedLanguage,
+                                code,
+                                testCases: [
+                                  {
+                                    stdin: testCase.stdin,
+                                    expectedOutput: testCase.expectedOutput,
+                                    isHidden: testCase.isHidden,
+                                  },
+                                ],
                               },
-                            ],
-                          },
-                        });
-                      }}
-                    >
-                      Run
-                    </Button>
-                    <Button
-                      isLoading={loading}
-                      colorScheme={"red"}
-                      onClick={() => removeFromCustomTestCases(i)}
-                    >
-                      Remove
-                    </Button>
-                  </ButtonGroup>
-                  <br />
-                  <br />
-                </Box>
+                            });
+                          }}
+                        >
+                          Run
+                        </Button>
+                        <Button
+                          isLoading={loading}
+                          colorScheme={"red"}
+                          onClick={() => removeFromCustomTestCases(i)}
+                        >
+                          Remove
+                        </Button>
+                      </ButtonGroup>
+                      <br />
+                      <br />
+                    </>
+                  }
+                />
               </AccordionPanel>
             </AccordionItem>
           );

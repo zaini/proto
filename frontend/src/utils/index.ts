@@ -1,4 +1,4 @@
-import { AssignmentSubmission } from "../gql-types";
+import { Assignment, AssignmentSubmission, User } from "../gql-types";
 
 export enum AccountType {
   Learner = "learner",
@@ -10,8 +10,8 @@ export type AssignmentSubmissionMap = {
 };
 
 export type AssignmentSubmissionQueryData = {
-  assignmentId: number;
-  userId: number;
+  assignment: Assignment;
+  user: User;
 };
 
 export const LanguageCodeToName: { [languageCode: number]: string } = {

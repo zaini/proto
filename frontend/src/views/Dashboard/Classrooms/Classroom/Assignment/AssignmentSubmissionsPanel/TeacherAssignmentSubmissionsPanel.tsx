@@ -49,7 +49,10 @@ const TeacherAssignmentSubmissionsPanel = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [assignmentSubmissionQueryData, setAssignmentSubmissionQueryData] =
-    useState<AssignmentSubmissionQueryData>({ assignmentId: -1, userId: -1 });
+    useState<AssignmentSubmissionQueryData>({
+      assignment: {} as any,
+      user: {} as any,
+    });
 
   const [userAssignmentSubmissions, setUserAssignmentSubmissions] = useState<
     UserAssignmentSubmission[]
@@ -132,8 +135,8 @@ const TeacherAssignmentSubmissionsPanel = () => {
                     disabled={assignmentSubmissions?.length === 0}
                     onClick={() => {
                       setAssignmentSubmissionQueryData({
-                        assignmentId: parseInt(assignment.id),
-                        userId: parseInt(user.id),
+                        assignment,
+                        user,
                       });
                       onOpen();
                     }}

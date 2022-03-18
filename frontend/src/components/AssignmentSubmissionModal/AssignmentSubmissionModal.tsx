@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Box,
   Button,
   Center,
   Modal,
@@ -10,11 +11,21 @@ import {
   ModalHeader,
   ModalOverlay,
   Spinner,
+  Tabs,
+  Tab,
+  TabList,
+  TabPanels,
+  TabPanel,
+  Link,
 } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import gql from "graphql-tag";
-import { AssignmentSubmissionQueryData } from "../../utils";
+import {
+  AssignmentSubmissionMap,
+  AssignmentSubmissionQueryData,
+} from "../../utils";
 import { AssignmentSubmission } from "../../gql-types";
+import SubmissionModalStatistics from "../SubmissionModal/SubmissionModalStatistics/SubmissionModalStatistics";
 
 type Props = {
   assignmentSubmissionQueryData: AssignmentSubmissionQueryData;
@@ -25,14 +36,43 @@ type Props = {
 const GET_ASSIGNMENT_SUBMISSIONS = gql`
   query getAssignmentSubmissions($assignmentId: ID!, $userId: ID) {
     getAssignmentSubmissions(assignmentId: $assignmentId, userId: $userId) {
+      assignment {
+        id
+        name
+      }
+      user {
+        username
+      }
       submission {
         id
-        code
-        language
-        avgTime
-        avgMemory
-        passed
+        userId
         createdAt
+        passed
+        avgMemory
+        avgTime
+        language
+        code
+        testCaseSubmissions {
+          id
+          passed
+          stdout
+          stderr
+          compile_output
+          time
+          description
+          memory
+          testCase {
+            stdin
+            expectedOutput
+            isHidden
+          }
+        }
+        problem {
+          id
+          specification {
+            title
+          }
+        }
       }
       problem {
         id
@@ -51,8 +91,8 @@ const AssignmentSubmissionModal = ({
 }: Props) => {
   const { loading, error, data } = useQuery(GET_ASSIGNMENT_SUBMISSIONS, {
     variables: {
-      assignmentId: assignmentSubmissionQueryData.assignmentId,
-      userId: assignmentSubmissionQueryData.userId,
+      assignmentId: assignmentSubmissionQueryData.assignment.id,
+      userId: assignmentSubmissionQueryData.user.id,
     },
   });
 
@@ -70,7 +110,7 @@ const AssignmentSubmissionModal = ({
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            Assignment Submission #{assignmentSubmissionQueryData.assignmentId}
+            Assignment Submission #{assignmentSubmissionQueryData.assignment.id}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -97,8 +137,12 @@ const AssignmentSubmissionModal = ({
       </Modal>
     );
 
-  const assignmentSubmission: AssignmentSubmission =
-    data.getAssignmentSubmission;
+  const aS: AssignmentSubmission[] = data.getAssignmentSubmissions;
+
+  const assignmentSubmissions: AssignmentSubmissionMap = aS.reduce(
+    (a: any, v: AssignmentSubmission) => ({ ...a, [v.problem.id]: v }),
+    {}
+  );
 
   return (
     <Modal
@@ -113,12 +157,65 @@ const AssignmentSubmissionModal = ({
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          Assignment Submission #{assignmentSubmissionQueryData.assignmentId}
+          {assignmentSubmissionQueryData.user.username}'s assignment submission
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {/* TODO this */}
-          summary of ths assignment submission for this user goes here
+          {/* TODO add statistics here such as if they overall passed the assignmetn */}
+          <Box>
+            <Button
+              as={Link}
+              href={`/dashboard/classrooms/${assignmentSubmissionQueryData.assignment.classroom.id}/assignments/${assignmentSubmissionQueryData.assignment.id}`}
+              target={"_blank"}
+              colorScheme={"blue"}
+            >
+              Go to Assignment
+            </Button>
+            <br />
+            <br />
+            <Tabs>
+              <TabList>
+                {Object.entries(assignmentSubmissions).map(
+                  ([problemId, assignmentSubmission]) => {
+                    const problem = assignmentSubmission.problem;
+                    return <Tab>{problem.specification.title}</Tab>;
+                  }
+                )}
+              </TabList>
+              <TabPanels>
+                {Object.entries(assignmentSubmissions).map(
+                  ([problemId, assignmentSubmission]) => {
+                    const problem = assignmentSubmission.problem;
+                    const submission = assignmentSubmission.submission;
+
+                    return (
+                      <TabPanel>
+                        <Button
+                          as={Link}
+                          href={`/problems/${problem.id}`}
+                          target={"_blank"}
+                          colorScheme={"blue"}
+                        >
+                          Go to problem
+                        </Button>
+                        <br />
+                        <br />
+                        {submission ? (
+                          <>
+                            <SubmissionModalStatistics
+                              submission={submission}
+                            />
+                          </>
+                        ) : (
+                          "no submission"
+                        )}
+                      </TabPanel>
+                    );
+                  }
+                )}
+              </TabPanels>
+            </Tabs>
+          </Box>
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="blue" mr={3} onClick={onClose}>

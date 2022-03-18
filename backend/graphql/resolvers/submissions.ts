@@ -186,7 +186,22 @@ module.exports = {
                 },
               },
               include: {
-                submission: true,
+                assignment: true,
+                user: true,
+                submission: {
+                  include: {
+                    testCaseSubmissions: {
+                      include: {
+                        testCase: true,
+                      },
+                    },
+                    problem: {
+                      include: {
+                        specification: true,
+                      },
+                    },
+                  },
+                },
                 problem: {
                   include: {
                     specification: true,

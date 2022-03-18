@@ -9,9 +9,14 @@ export type AssignmentSubmissionMap = {
   [problemId: string]: AssignmentSubmission;
 };
 
-export type AssignmentSubmissionQueryData = {
+export type AssignmentSubmissionModalData = {
   assignment: Assignment;
   user: User;
+  assignmentSubmissionStats: {
+    attempted: any;
+    solved: any;
+    lastChange: any;
+  };
 };
 
 export const LanguageCodeToName: { [languageCode: number]: string } = {

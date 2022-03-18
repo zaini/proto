@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
   Assignment,
-  AssignmentSubmission,
   UserAssignmentSubmission,
 } from "../../../../../../gql-types";
-import { AssignmentSubmissionQueryData } from "../../../../../../utils";
+import { AssignmentSubmissionModalData } from "../../../../../../utils";
 import { AssignmentContext } from "../Assignment";
 import gql from "graphql-tag";
 import { useLazyQuery } from "@apollo/client";
@@ -48,10 +47,11 @@ const TeacherAssignmentSubmissionsPanel = () => {
     useContext(AssignmentContext);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [assignmentSubmissionQueryData, setAssignmentSubmissionQueryData] =
-    useState<AssignmentSubmissionQueryData>({
+  const [assignmentSubmissionModalData, setAssignmentSubmissionModalData] =
+    useState<AssignmentSubmissionModalData>({
       assignment: {} as any,
       user: {} as any,
+      assignmentSubmissionStats: {} as any,
     });
 
   const [userAssignmentSubmissions, setUserAssignmentSubmissions] = useState<
@@ -95,7 +95,7 @@ const TeacherAssignmentSubmissionsPanel = () => {
         {...{
           isOpen,
           onClose,
-          assignmentSubmissionQueryData,
+          assignmentSubmissionModalData,
         }}
       />
       <Box>
@@ -120,7 +120,7 @@ const TeacherAssignmentSubmissionsPanel = () => {
               })
             );
 
-            return {
+            const assignmentSubmissionStats = {
               learner: user.username,
               attempted: `${attempts}/${numOfProblems}`,
               solved: `${solves}/${numOfProblems}`,
@@ -128,15 +128,20 @@ const TeacherAssignmentSubmissionsPanel = () => {
                 lastChange === -Infinity
                   ? "N/A"
                   : new Date(lastChange).toLocaleString(),
+            };
+
+            return {
+              ...assignmentSubmissionStats,
               options: (
                 <ButtonGroup>
                   <Button
                     colorScheme={"blue"}
                     disabled={assignmentSubmissions?.length === 0}
                     onClick={() => {
-                      setAssignmentSubmissionQueryData({
+                      setAssignmentSubmissionModalData({
                         assignment,
                         user,
+                        assignmentSubmissionStats,
                       });
                       onOpen();
                     }}

@@ -26,12 +26,13 @@ const SubmissionModalStatistics = ({ submission }: Props) => {
   return (
     <Box>
       <Code fontSize={"lg"}>
-        time: {new Date(parseInt(submission.createdAt)).toLocaleString()},
-        <br /> passed: {`${submission.passed}`},
+        <b>time:</b> {new Date(parseInt(submission.createdAt)).toLocaleString()}
+        ,
+        <br /> <b>passed:</b> {`${submission.passed}`},
         <br />
-        avgTime: {submission.avgTime.toFixed(2) + " ms"}, <br />
-        avgMemory: {submission.avgMemory.toFixed(2) + " MB"}, <br />
-        language: {LanguageCodeToName[submission.language]}
+        <b>avgTime:</b> {submission.avgTime.toFixed(2) + " ms"}, <br />
+        <b>avgMemory:</b> {submission.avgMemory.toFixed(2) + " MB"}, <br />
+        <b>language:</b> {LanguageCodeToName[submission.language]}
       </Code>
       <br />
       <br />

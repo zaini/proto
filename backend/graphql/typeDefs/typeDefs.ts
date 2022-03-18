@@ -111,6 +111,7 @@ module.exports = gql`
     problem: Problem!
     submission: Submission
     createdAt: String!
+    mark: Float
   }
   type UserAssignmentSubmission {
     user: User!
@@ -167,6 +168,12 @@ module.exports = gql`
       assignmentId: ID!
       problemId: ID!
     ): Boolean
+    setAssignmentSubmissionMark(
+      userId: ID!
+      assignmentId: ID!
+      problemId: ID!
+      mark: Float!
+    ): AssignmentSubmission
     # End of Submission Mutations
   }
 

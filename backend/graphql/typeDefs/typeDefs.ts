@@ -26,10 +26,10 @@ module.exports = gql`
     githubId: String!
     username: String!
     createdAt: String!
-    classrooms: [Classroom!]! # Classrooms this user owns
+    ownedClassrooms: [Classroom!]! # Classrooms this user owns
     problems: [Problem!]! # Problems the user has created
     recentSubmissions: [Submission!]!
-    UsersOnClassrooms: [Classroom] # Classrooms this user is a student in
+    classrooms: [Classroom] # Classrooms this user is a student in
   }
   type Classroom {
     id: ID!
@@ -162,7 +162,7 @@ module.exports = gql`
     setAssignmentProblemSubmission(
       assignmentId: ID!
       submissionId: ID!
-    ): Boolean
+    ): AssignmentSubmission
     removeAssignmentProblemSubmission(
       assignmentId: ID!
       problemId: ID!
@@ -172,8 +172,7 @@ module.exports = gql`
 
   type Query {
     # User Queries
-    getUsers: [User!]
-    getUser(userId: ID!): User
+    getUser(userId: ID!): User!
     isLoggedIn: String!
     # End of User Queries
 

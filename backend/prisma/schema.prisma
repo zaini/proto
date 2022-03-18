@@ -17,29 +17,29 @@ enum Difficulty {
 }
 
 model User {
-  id                   Int                    @id @default(autoincrement())
-  githubId             String                 @unique
-  username             String                 @unique
-  createdAt            DateTime               @default(now())
-  classrooms           Classroom[] // Classrooms the User has created
-  problems             Problem[] // Problems the User has created
-  UsersOnClassrooms    UsersOnClassrooms[] // Classrooms the User is a LEARNER in
-  Submission           Submission[]
-  AssignmentSubmission AssignmentSubmission[]
-  Rating               Rating[]
-  TestCaseSubmission   TestCaseSubmission[]
-  TestCase             TestCase[]
+  id                    Int                    @id @default(autoincrement())
+  githubId              String                 @unique
+  username              String                 @unique
+  createdAt             DateTime               @default(now())
+  ownedClassrooms       Classroom[] // Classrooms the User has created
+  problems              Problem[] // Problems the User has created
+  classrooms            UsersOnClassrooms[] // Classrooms the User is a LEARNER in
+  submissions           Submission[]
+  assignmentSubmissions AssignmentSubmission[]
+  ratings               Rating[]
+  testCaseSubmissions   TestCaseSubmission[]
+  testCases             TestCase[]
 }
 
 model Classroom {
-  id                Int                 @id @default(autoincrement())
-  name              String              @default("Unnamed Classroom")
-  creator           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId            Int
-  UsersOnClassrooms UsersOnClassrooms[] // The Users who are in this Classroom
-  assignments       Assignment[] // The Assignments set for this Classroom
-  createdAt         DateTime            @default(now())
-  password          String
+  id          Int                 @id @default(autoincrement())
+  name        String              @default("Unnamed Classroom")
+  creator     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  users       UsersOnClassrooms[] // The Users who are in this Classroom
+  assignments Assignment[] // The Assignments set for this Classroom
+  createdAt   DateTime            @default(now())
+  password    String
 }
 
 model UsersOnClassrooms {
@@ -62,8 +62,8 @@ model Assignment {
   createdAt             DateTime                @default(now())
   setDate               DateTime
   dueDate               DateTime
-  ProblemsOnAssignments ProblemsOnAssignments[]
-  AssignmentSubmission  AssignmentSubmission[]
+  problems              ProblemsOnAssignments[]
+  assignmentSubmissions AssignmentSubmission[]
 }
 
 model Specification {
@@ -83,10 +83,10 @@ model Problem {
   creator               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                Int
   specification         Specification           @relation(fields: [specificationId], references: [id])
-  ProblemsOnAssignments ProblemsOnAssignments[]
-  Submission            Submission[]
-  AssignmentSubmission  AssignmentSubmission[]
-  Ratings               Rating[]
+  assignments           ProblemsOnAssignments[]
+  submission            Submission[]
+  assignmentSubmissions AssignmentSubmission[]
+  ratings               Rating[]
   specificationId       Int
   createdAt             DateTime                @default(now())
 
@@ -104,17 +104,16 @@ model Rating {
 }
 
 model TestCase {
-  id                 Int                  @id @default(autoincrement())
-  stdin              String
-  expectedOutput     String
-  isHidden           Boolean
-  user               User                 @relation(fields: [userId], references: [id])
-  TestCaseSubmission TestCaseSubmission[]
-  Specification      Specification?       @relation(fields: [specificationId], references: [id])
-  specificationId    Int?
-  userId             Int
-  createdAt          DateTime             @default(now())
-
+  id                  Int                  @id @default(autoincrement())
+  stdin               String
+  expectedOutput      String
+  isHidden            Boolean
+  user                User                 @relation(fields: [userId], references: [id])
+  testCaseSubmissions TestCaseSubmission[]
+  specification       Specification?       @relation(fields: [specificationId], references: [id])
+  specificationId     Int?
+  userId              Int
+  createdAt           DateTime             @default(now())
 }
 
 model TestCaseSubmission {
@@ -129,7 +128,7 @@ model TestCaseSubmission {
   time           Float
   memory         Float
   testCaseId     Int
-  Submission     Submission? @relation(fields: [submissionId], references: [id])
+  submission     Submission? @relation(fields: [submissionId], references: [id])
   submissionId   Int?
   userId         Int
   createdAt      DateTime    @default(now())
@@ -137,19 +136,19 @@ model TestCaseSubmission {
 }
 
 model Submission {
-  id                   Int                    @id @default(autoincrement())
-  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId               Int
-  problem              Problem                @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  testCaseSubmissions  TestCaseSubmission[]
-  problemId            Int
-  createdAt            DateTime               @default(now())
-  language             Int
-  code                 String
-  passed               Boolean
-  avgTime              Float
-  avgMemory            Float
-  AssignmentSubmission AssignmentSubmission[]
+  id                    Int                    @id @default(autoincrement())
+  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                Int
+  problem               Problem                @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  testCaseSubmissions   TestCaseSubmission[]
+  problemId             Int
+  createdAt             DateTime               @default(now())
+  language              Int
+  code                  String
+  passed                Boolean
+  avgTime               Float
+  avgMemory             Float
+  assignmentSubmissions AssignmentSubmission[]
 }
 
 model AssignmentSubmission {

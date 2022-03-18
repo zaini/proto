@@ -28,6 +28,7 @@ export type AssignmentSubmission = {
   __typename?: 'AssignmentSubmission';
   assignment: Assignment;
   createdAt: Scalars['String'];
+  mark?: Maybe<Scalars['Float']>;
   problem: Problem;
   submission?: Maybe<Submission>;
   user: User;
@@ -67,7 +68,8 @@ export type Mutation = {
   removeAssignment?: Maybe<Scalars['Boolean']>;
   removeAssignmentProblemSubmission?: Maybe<Scalars['Boolean']>;
   removeStudent?: Maybe<Scalars['Boolean']>;
-  setAssignmentProblemSubmission?: Maybe<Scalars['Boolean']>;
+  setAssignmentProblemSubmission?: Maybe<AssignmentSubmission>;
+  setAssignmentSubmissionMark?: Maybe<AssignmentSubmission>;
   submitProblem: Submission;
   submitTests: Array<TestCaseSubmission>;
 };
@@ -141,6 +143,14 @@ export type MutationSetAssignmentProblemSubmissionArgs = {
 };
 
 
+export type MutationSetAssignmentSubmissionMarkArgs = {
+  assignmentId: Scalars['ID'];
+  mark: Scalars['Float'];
+  problemId: Scalars['ID'];
+  userId: Scalars['ID'];
+};
+
+
 export type MutationSubmitProblemArgs = {
   code: Scalars['String'];
   language: Scalars['Int'];
@@ -193,8 +203,7 @@ export type Query = {
   getSubmission: Submission;
   getSubmissionsForProblem: Array<Submission>;
   getTeacherClassrooms: Array<Classroom>;
-  getUser?: Maybe<User>;
-  getUsers?: Maybe<Array<User>>;
+  getUser: User;
   isLoggedIn: Scalars['String'];
 };
 
@@ -312,11 +321,11 @@ export type TestCaseSubmission = {
 
 export type User = {
   __typename?: 'User';
-  UsersOnClassrooms?: Maybe<Array<Maybe<Classroom>>>;
-  classrooms: Array<Classroom>;
+  classrooms?: Maybe<Array<Maybe<Classroom>>>;
   createdAt: Scalars['String'];
   githubId: Scalars['String'];
   id: Scalars['ID'];
+  ownedClassrooms: Array<Classroom>;
   problems: Array<Problem>;
   recentSubmissions: Array<Submission>;
   username: Scalars['String'];

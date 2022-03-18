@@ -281,6 +281,87 @@ module.exports = {
     },
   },
   Mutation: {
+    setAssignmentSubmissionMark: async (
+      _: any,
+      { userId, assignmentId, problemId, mark }: any,
+      context: any
+    ) => {
+      logger.info("GraphQL submissions/setAssignmentSubmissionMark");
+
+      // Updates the mark for an assignment submission
+      // Only creator of the classroom for the assignment can set the mark
+
+      const user = isAuth(context);
+
+      const assignmentSubmission = await prisma.assignmentSubmission.findUnique(
+        {
+          where: {
+            userId_assignmentId_problemId: {
+              userId: parseInt(userId),
+              assignmentId: parseInt(assignmentId),
+              problemId: parseInt(problemId),
+            },
+          },
+          include: {
+            assignment: {
+              include: {
+                classroom: {
+                  include: {
+                    creator: true,
+                  },
+                },
+              },
+            },
+          },
+        }
+      );
+
+      if (!assignmentSubmission) {
+        throw new ApolloError(
+          "You do not have permission to set the mark for this assignment submission."
+        );
+      }
+
+      if (mark < 0 || mark > 100) {
+        throw new ApolloError("Mark is not valid. Must be between 1-100.");
+      }
+
+      return await prisma.assignmentSubmission.update({
+        where: {
+          userId_assignmentId_problemId: {
+            userId: assignmentSubmission.userId,
+            assignmentId: assignmentSubmission.assignmentId,
+            problemId: assignmentSubmission.problemId,
+          },
+        },
+        data: {
+          mark,
+        },
+        include: {
+          assignment: true,
+          user: true,
+          submission: {
+            include: {
+              testCaseSubmissions: {
+                include: {
+                  testCase: true,
+                },
+              },
+              problem: {
+                include: {
+                  specification: true,
+                },
+              },
+            },
+          },
+          problem: {
+            include: {
+              specification: true,
+            },
+          },
+        },
+      });
+    },
     setAssignmentProblemSubmission: async (
       _: any,
       { assignmentId, submissionId }: any,

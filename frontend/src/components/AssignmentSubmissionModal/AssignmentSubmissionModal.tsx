@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -18,8 +18,11 @@ import {
   TabPanel,
   Link,
   Text,
+  InputGroup,
+  InputLeftAddon,
+  Input,
 } from "@chakra-ui/react";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import gql from "graphql-tag";
 import {
   AssignmentSubmissionMap,
@@ -34,9 +37,72 @@ type Props = {
   onClose: any;
 };
 
+const SET_ASSIGNMENT_SUBMISSION_MARK = gql`
+  mutation setAssignmentSubmissionMark(
+    $userId: ID!
+    $problemId: ID!
+    $mark: Float!
+    $assignmentId: ID!
+  ) {
+    setAssignmentSubmissionMark(
+      userId: $userId
+      problemId: $problemId
+      mark: $mark
+      assignmentId: $assignmentId
+    ) {
+      mark
+      assignment {
+        id
+        name
+      }
+      user {
+        username
+      }
+      submission {
+        id
+        userId
+        createdAt
+        passed
+        avgMemory
+        avgTime
+        language
+        code
+        testCaseSubmissions {
+          id
+          passed
+          stdout
+          stderr
+          compile_output
+          time
+          description
+          memory
+          testCase {
+            stdin
+            expectedOutput
+            isHidden
+          }
+        }
+        problem {
+          id
+          specification {
+            title
+          }
+        }
+      }
+      problem {
+        id
+        specification {
+          title
+        }
+      }
+    }
+  }
+`;
+
 const GET_ASSIGNMENT_SUBMISSIONS = gql`
   query getAssignmentSubmissions($assignmentId: ID!, $userId: ID) {
     getAssignmentSubmissions(assignmentId: $assignmentId, userId: $userId) {
+      mark
       assignment {
         id
         name
@@ -90,12 +156,29 @@ const AssignmentSubmissionModal = ({
   isOpen,
   onClose,
 }: Props) => {
+  const [mark, setMark] = useState<number | null>();
+
   const { loading, error, data } = useQuery(GET_ASSIGNMENT_SUBMISSIONS, {
     variables: {
       assignmentId: assignmentSubmissionModalData.assignment.id,
       userId: assignmentSubmissionModalData.user.id,
     },
   });
+
+  const [setAssignmentSubmissionMark] = useMutation(
+    SET_ASSIGNMENT_SUBMISSION_MARK,
+    {
+      refetchQueries: [GET_ASSIGNMENT_SUBMISSIONS, "getAssignmentSubmissions"],
+      onError(err) {
+        const message =
+          (err.graphQLErrors &&
+            err.graphQLErrors[0] &&
+            err.graphQLErrors[0].message) ||
+          err.message;
+        window.alert(`Failed to mark assignment. \n\n${message}`);
+      },
+    }
+  );
 
   if (!data)
     return (
@@ -190,7 +273,14 @@ const AssignmentSubmissionModal = ({
               {Object.entries(assignmentSubmissions).map(
                 ([problemId, assignmentSubmission]) => {
                   const problem = assignmentSubmission.problem;
-                  return <Tab>{problem.specification.title}</Tab>;
+                  const submission = assignmentSubmission.submission;
+
+                  return (
+                    <Tab>
+                      {problem.specification.title}{" "}
+                      {submission ? (submission.passed ? "✔" : "❌") : "❔"}
+                    </Tab>
+                  );
                 }
               )}
             </TabList>
@@ -209,6 +299,44 @@ const AssignmentSubmissionModal = ({
                         colorScheme={"blue"}
                       >
                         Go to problem
+                      </Button>
+                      <br />
+                      <br />
+                      <b>Mark:</b>{" "}
+                      {assignmentSubmission.mark
+                        ? `${assignmentSubmission.mark}/100`
+                        : "N/A"}
+                      <br />
+                      <br />
+                      <InputGroup>
+                        <InputLeftAddon children="New Mark" />
+                        <Input
+                          type="number"
+                          value={`${mark}`}
+                          placeholder={String(
+                            assignmentSubmission.mark
+                              ? assignmentSubmission.mark
+                              : submission && submission.passed
+                              ? 100
+                              : 0
+                          )}
+                          onChange={(e) => setMark(parseFloat(e.target.value))}
+                        />
+                      </InputGroup>
+                      <br />
+                      <Button
+                        onClick={() =>
+                          setAssignmentSubmissionMark({
+                            variables: {
+                              userId: assignmentSubmissionModalData.user.id,
+                              problemId: problem.id,
+                              mark,
+                              assignmentId: assignmentSubmission.assignment.id,
+                            },
+                          })
+                        }
+                      >
+                        Update Mark
                       </Button>
                       <br />
                       <br />

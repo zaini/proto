@@ -8,7 +8,6 @@ import { AssignmentContext } from "../Assignment";
 import gql from "graphql-tag";
 import { useLazyQuery } from "@apollo/client";
 import {
-  Box,
   Button,
   ButtonGroup,
   Center,
@@ -17,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import CustomTable from "../../../../../../components/CustomTable/CustomTable";
 import AssignmentSubmissionModal from "../../../../../../components/AssignmentSubmissionModal/AssignmentSubmissionModal";
+import AssignmentStatisticCharts from "../../../../../../components/AssignmentStatisticCharts/AssignmentStatisticCharts";
 
 const GET_ASSIGNMENT_SUBMISSION = gql`
   query getAssignmentSubmissionsAsTeacher($assignmentId: ID!) {
@@ -28,6 +28,12 @@ const GET_ASSIGNMENT_SUBMISSION = gql`
       assignmentSubmissions {
         createdAt
         mark
+        problem {
+          id
+          specification {
+            title
+          }
+        }
         submission {
           id
           code
@@ -99,86 +105,91 @@ const TeacherAssignmentSubmissionsPanel = () => {
           assignmentSubmissionModalData,
         }}
       />
-      <Box>
-        <CustomTable
-          data={userAssignmentSubmissions.map((userAssignmentSubmission) => {
-            const user = userAssignmentSubmission.user;
-            const assignmentSubmissions =
-              userAssignmentSubmission.assignmentSubmissions;
-
-            const numOfProblems = assignment.problems?.length;
-
-            const attempts = assignmentSubmissions?.length;
-
-            const solves = assignmentSubmissions?.filter(
-              (assignmentSubmission) => assignmentSubmission?.submission?.passed
-            ).length;
-
-            const lastChange = Math.max.apply(
-              Math,
-              assignmentSubmissions!.map((o) => {
-                return o?.createdAt ? parseInt(o?.createdAt) : -Infinity;
-              })
-            );
-
-            const totalMarks = assignmentSubmissions.reduce(
-              (total, assignmentSubmission) =>
-                total +
-                (assignmentSubmission.mark ? assignmentSubmission.mark : 0),
-              0
-            );
-
-            const avgMark = (totalMarks / numOfProblems).toFixed(2);
-
-            const assignmentSubmissionStats = {
-              learner: user.username,
-              attempted: `${attempts}/${numOfProblems}`,
-              avgMark: `${avgMark}/100`,
-              solved: `${solves}/${numOfProblems}`,
-              lastChange:
-                lastChange === -Infinity
-                  ? "N/A"
-                  : new Date(lastChange).toLocaleString(),
-            };
-
-            return {
-              ...assignmentSubmissionStats,
-              options: (
-                <ButtonGroup>
-                  <Button
-                    colorScheme={"blue"}
-                    disabled={assignmentSubmissions?.length === 0}
-                    onClick={() => {
-                      setAssignmentSubmissionModalData({
-                        assignment,
-                        user,
-                        assignmentSubmissionStats,
-                      });
-                      onOpen();
-                    }}
-                  >
-                    View Submission
-                  </Button>
-                </ButtonGroup>
-              ),
-            };
-          })}
-          columns={[
-            {
-              Header: "Learner",
-              accessor: "learner",
-            },
-            { Header: "Problems Attempted", accessor: "attempted" },
-            { Header: "Problems Solved", accessor: "solved" },
-            { Header: "Average Mark", accessor: "avgMark" },
-            { Header: "Last Submission Change", accessor: "lastChange" },
-            {
-              Header: "Options",
-              accessor: "options",
-            },
-          ]}
+      <Center>
+        <AssignmentStatisticCharts
+          assignment={assignment}
+          userAssignmentSubmissions={userAssignmentSubmissions}
         />
-      </Box>
+      </Center>
+      <br />
+      <CustomTable
+        data={userAssignmentSubmissions.map((userAssignmentSubmission) => {
+          const user = userAssignmentSubmission.user;
+          const assignmentSubmissions =
+            userAssignmentSubmission.assignmentSubmissions;
+
+          const numOfProblems = assignment.problems?.length;
+
+          const attempts = assignmentSubmissions?.length;
+
+          const solves = assignmentSubmissions?.filter(
+            (assignmentSubmission) => assignmentSubmission?.submission?.passed
+          ).length;
+
+          const lastChange = Math.max.apply(
+            Math,
+            assignmentSubmissions!.map((o) => {
+              return o?.createdAt ? parseInt(o?.createdAt) : -Infinity;
+            })
+          );
+
+          const totalMarks = assignmentSubmissions.reduce(
+            (total, assignmentSubmission) =>
+              total +
+              (assignmentSubmission.mark ? assignmentSubmission.mark : 0),
+            0
+          );
+
+          const avgMark = (totalMarks / numOfProblems).toFixed(2);
+
+          const assignmentSubmissionStats = {
+            learner: user.username,
+            attempted: `${attempts}/${numOfProblems}`,
+            avgMark: `${avgMark}/100`,
+            solved: `${solves}/${numOfProblems}`,
+            lastChange:
+              lastChange === -Infinity
+                ? "N/A"
+                : new Date(lastChange).toLocaleString(),
+          };
+
+          return {
+            ...assignmentSubmissionStats,
+            options: (
+              <ButtonGroup>
+                <Button
+                  colorScheme={"blue"}
+                  disabled={assignmentSubmissions?.length === 0}
+                  onClick={() => {
+                    setAssignmentSubmissionModalData({
+                      assignment,
+                      user,
+                      assignmentSubmissionStats,
+                    });
+                    onOpen();
+                  }}
+                >
+                  View Submission
+                </Button>
+              </ButtonGroup>
+            ),
+          };
+        })}
+        columns={[
+          {
+            Header: "Learner",
+            accessor: "learner",
+          },
+          { Header: "Problems Attempted", accessor: "attempted" },
+          { Header: "Problems Solved", accessor: "solved" },
+          { Header: "Average Mark", accessor: "avgMark" },
+          { Header: "Last Submission Change", accessor: "lastChange" },
+          {
+            Header: "Options",
+            accessor: "options",
+          },
+        ]}
+      />
     </>
   );
 };

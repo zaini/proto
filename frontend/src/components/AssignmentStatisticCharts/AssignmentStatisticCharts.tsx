@@ -63,7 +63,9 @@ const AssignmentStatisticCharts = ({
     Object.entries(problemStats).map(([key, value]) => {
       problemStats[key] = {
         ...value,
-        avgMark: value.totalMarks,
+        avgMark: value.attempts
+          ? parseFloat((value.totalMarks / value.attempts).toFixed(2))
+          : 0,
       };
     });
 

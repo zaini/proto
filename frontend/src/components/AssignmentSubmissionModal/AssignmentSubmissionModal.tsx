@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -22,7 +22,7 @@ import {
   InputLeftAddon,
   Input,
 } from "@chakra-ui/react";
-import { useQuery, useMutation } from "@apollo/client";
+import { useMutation, useLazyQuery } from "@apollo/client";
 import gql from "graphql-tag";
 import {
   AssignmentSubmissionMap,
@@ -158,12 +158,15 @@ const AssignmentSubmissionModal = ({
 }: Props) => {
   const [mark, setMark] = useState<number | null>();
 
-  const { loading, error, data } = useQuery(GET_ASSIGNMENT_SUBMISSIONS, {
-    variables: {
-      assignmentId: assignmentSubmissionModalData.assignment.id,
-      userId: assignmentSubmissionModalData.user.id,
-    },
-  });
+  const [getAssignmentSubmissions, { loading, error, data }] = useLazyQuery(
+    GET_ASSIGNMENT_SUBMISSIONS,
+    {
+      variables: {
+        assignmentId: assignmentSubmissionModalData.assignment.id,
+        userId: assignmentSubmissionModalData.user.id,
+      },
+    }
+  );
 
   const [setAssignmentSubmissionMark] = useMutation(
     SET_ASSIGNMENT_SUBMISSION_MARK,
@@ -179,6 +182,12 @@ const AssignmentSubmissionModal = ({
       },
     }
   );
+
+  useEffect(() => {
+    if (assignmentSubmissionModalData.assignment.id) {
+      getAssignmentSubmissions();
+    }
+  }, [assignmentSubmissionModalData]);
 
   if (!data)
     return (

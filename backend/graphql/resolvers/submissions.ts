@@ -271,6 +271,11 @@ module.exports = {
               },
               include: {
                 submission: true,
+                problem: {
+                  include: {
+                    specification: true,
+                  },
+                },
               },
             });
           return { user, assignmentSubmissions };

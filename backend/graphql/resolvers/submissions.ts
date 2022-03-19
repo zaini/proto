@@ -151,6 +151,16 @@ module.exports = {
         userId = user.id;
       }
 
+      const userObj = await prisma.user.findUnique({
+        where: {
+          id: parseInt(userId),
+        },
+      });
+
+      if (!userObj) {
+        throw new ApolloError("User does not exist.");
+      }
+
       const assignment = await prisma.assignment.findUnique({
         where: {
           id: parseInt(assignmentId),
@@ -212,7 +222,7 @@ module.exports = {
           if (assignmentSubmission) {
             return assignmentSubmission;
           } else {
-            return { problem };
+            return { problem, assignment, user: userObj };
           }
         })
       );

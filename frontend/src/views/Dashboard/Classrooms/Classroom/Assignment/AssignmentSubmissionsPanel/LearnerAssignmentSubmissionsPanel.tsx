@@ -120,7 +120,6 @@ const LearnerAssignmentSubmissionsPanel = () => {
         (a: any, v: AssignmentSubmission) => ({ ...a, [v.problem.id]: v }),
         {}
       );
-      console.log("here", x);
       setAssignmentSubmissions(x);
     },
     variables: {

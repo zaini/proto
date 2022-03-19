@@ -159,7 +159,7 @@ const TeacherAssignmentSubmissionsPanel = () => {
               <ButtonGroup>
                 <Button
                   colorScheme={"blue"}
-                  disabled={assignmentSubmissions?.length === 0}
+                  // disabled={assignmentSubmissions?.length === 0}
                   onClick={() => {
                     setAssignmentSubmissionModalData({
                       assignment,

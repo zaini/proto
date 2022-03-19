@@ -75,7 +75,7 @@ const AssignmentStatisticCharts = ({
   return (
     <>
       <BarChart
-        width={500}
+        width={650}
         height={300}
         data={data}
         margin={{
@@ -86,7 +86,7 @@ const AssignmentStatisticCharts = ({
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="problem" />
+        <XAxis dataKey="problem" interval={0} />
         <YAxis />
         <Tooltip />
         <Legend />
@@ -96,7 +96,7 @@ const AssignmentStatisticCharts = ({
       </BarChart>
 
       <BarChart
-        width={500}
+        width={650}
         height={300}
         data={data}
         margin={{
@@ -107,7 +107,7 @@ const AssignmentStatisticCharts = ({
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="problem" />
+        <XAxis dataKey="problem" interval={0} />
         <YAxis />
         <Tooltip />
         <Legend />

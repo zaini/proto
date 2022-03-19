@@ -1,6 +1,6 @@
 import React from "react";
 import { TestCaseSubmission } from "../../gql-types";
-import { Box, Code, Textarea } from "@chakra-ui/react";
+import { Box, Code, Textarea, Tooltip } from "@chakra-ui/react";
 
 type Props = {
   testCaseSubmission: TestCaseSubmission;
@@ -20,13 +20,13 @@ const TestCaseSubmissionAccordionPanelContent = ({
           Expected Output:{" "}
           <Code>{testCaseSubmission.testCase.expectedOutput}</Code>
           <br />
-          💾{" "}
+          <Tooltip label={"Memory Usage"}>💾</Tooltip>{" "}
           <Code>
             {testCaseSubmission.memory
               ? testCaseSubmission.memory.toFixed(2) + " MB"
               : "N/A"}
           </Code>{" "}
-          | 🕓{" "}
+          | <Tooltip label={"Runtime"}>⏳</Tooltip>{" "}
           <Code>
             {testCaseSubmission.time
               ? testCaseSubmission.time.toFixed(2) + " ms"

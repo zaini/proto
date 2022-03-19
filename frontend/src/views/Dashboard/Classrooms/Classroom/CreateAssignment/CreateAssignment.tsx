@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Modal,
@@ -13,14 +13,24 @@ import {
   Stack,
   Code,
   Input,
-  InputRightElement,
-  IconButton,
   Box,
-  ListItem,
-  UnorderedList,
-  Text,
+  Spinner,
+  Center,
 } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
+import { useQuery, gql } from "@apollo/client";
+import { Select } from "chakra-react-select";
+import { Problem } from "../../../../../gql-types";
+
+const GET_PROBLEMS = gql`
+  query getProblems {
+    getProblems {
+      id
+      specification {
+        title
+      }
+    }
+  }
+`;
 
 const CreateAssignment = ({
   isOpen,
@@ -28,27 +38,44 @@ const CreateAssignment = ({
   classroom,
   createAssignment,
 }: any) => {
+  const { loading, error, data } = useQuery(GET_PROBLEMS);
+
   const [assignmentName, setAssignmentName] = useState("");
-  const [problems, setProblems] = useState<string[]>([]);
-  const [problemId, setProblemId] = useState("");
   const [dueDate, setDueDate] = useState("");
 
-  const addProblem = (problemId: string) => {
-    if (problemId) {
-      setProblems([...problems, problemId]);
-      setProblemId("");
+  const [selectedProblems, setSelectedProblems] = useState<
+    { label: string; value: string }[]
+  >([]);
+
+  const addProblem = (problem: { label: string; value: string }) => {
+    if (problem) {
+      setSelectedProblems([...selectedProblems, problem]);
     }
   };
 
-  const removeProblem = (problemId: string) => {
-    if (problemId) {
-      let problemsCopy = problems.filter((e) => e !== problemId);
-      setProblems(problemsCopy);
+  const removeProblem = (problem: { label: string; value: string }) => {
+    if (problem) {
+      let problemsCopy = selectedProblems.filter(
+        (e) => e.value !== problem.value
+      );
+      setSelectedProblems(problemsCopy);
     }
   };
+
+  if (error) {
+    window.alert("Failed to get problems.\n" + error);
+  }
+
+  const problemOptions: { label: string; value: string }[] =
+    data && data.getProblems
+      ? data.getProblems.map((problem: Problem) => ({
+          label: `#${problem.id} ${problem.specification.title}`,
+          value: problem.id,
+        }))
+      : [];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} size={"2xl"}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Create Assignment</ModalHeader>
@@ -73,24 +100,33 @@ const CreateAssignment = ({
                 onChange={(e) => setAssignmentName(e.target.value)}
               />
             </InputGroup>
-            {/* TODO: improve how to add problems with a proper search */}
             <InputGroup>
               <InputLeftAddon children="Problems" />
-              <Input
-                type="text"
-                placeholder="Two Sum"
-                value={problemId}
-                onChange={(e) => setProblemId(e.target.value)}
-              />
-              <InputRightElement
-                children={
-                  <IconButton
-                    aria-label="Add problem"
-                    icon={<AddIcon />}
-                    onClick={() => addProblem(problemId)}
+              {loading ? (
+                <Spinner />
+              ) : (
+                <Box width={"100%"}>
+                  <Select
+                    colorScheme="blue"
+                    isMulti
+                    value={selectedProblems}
+                    onChange={(e: any) => {
+                      if (e.length > selectedProblems.length) {
+                        let addedProblem = e.filter(
+                          (x: any) => !selectedProblems.includes(x)
+                        )[0];
+                        addProblem(addedProblem);
+                      } else {
+                        let removedProblem = selectedProblems.filter(
+                          (x: any) => !e.includes(x)
+                        )[0];
+                        removeProblem(removedProblem);
+                      }
+                    }}
+                    options={problemOptions}
                   />
-                }
-              />
+                </Box>
+              )}
             </InputGroup>
             <InputGroup>
               <InputLeftAddon children="Due Date" />
@@ -101,23 +137,6 @@ const CreateAssignment = ({
                 }
               />
             </InputGroup>
-            {problems.length > 0 && (
-              <Box>
-                <Text>Click on a problem to remove it.</Text>
-                <UnorderedList>
-                  {problems.map((problemId, i) => {
-                    return (
-                      <ListItem
-                        key={i}
-                        onClick={() => removeProblem(problemId)}
-                      >
-                        {problemId}
-                      </ListItem>
-                    );
-                  })}
-                </UnorderedList>
-              </Box>
-            )}
           </Stack>
         </ModalBody>
 
@@ -131,7 +150,7 @@ const CreateAssignment = ({
                   classroomId: classroom.id,
                   assignmentName: assignmentName,
                   dueDate: dueDate,
-                  problemIds: problems,
+                  problemIds: selectedProblems.map((x) => x.value),
                 },
               });
             }}

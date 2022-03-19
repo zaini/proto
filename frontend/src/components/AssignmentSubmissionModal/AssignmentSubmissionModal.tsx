@@ -311,46 +311,49 @@ const AssignmentSubmissionModal = ({
                       </Button>
                       <br />
                       <br />
-                      <b>Mark:</b>{" "}
-                      {assignmentSubmission.mark
-                        ? `${assignmentSubmission.mark}/100`
-                        : "Unmarked"}
-                      <br />
-                      <br />
-                      <InputGroup>
-                        <InputLeftAddon children="New Mark" />
-                        <Input
-                          type="number"
-                          value={`${mark}`}
-                          placeholder={String(
-                            assignmentSubmission.mark
-                              ? assignmentSubmission.mark
-                              : submission && submission.passed
-                              ? 100
-                              : 0
-                          )}
-                          onChange={(e) => setMark(parseFloat(e.target.value))}
-                        />
-                      </InputGroup>
-                      <br />
-                      <Button
-                        onClick={() =>
-                          setAssignmentSubmissionMark({
-                            variables: {
-                              userId: assignmentSubmissionModalData.user.id,
-                              problemId: problem.id,
-                              mark,
-                              assignmentId: assignmentSubmission.assignment.id,
-                            },
-                          })
-                        }
-                      >
-                        Update Mark
-                      </Button>
-                      <br />
-                      <br />
                       {submission ? (
                         <>
+                          <b>Mark:</b>{" "}
+                          {assignmentSubmission.mark
+                            ? `${assignmentSubmission.mark}/100`
+                            : "Unmarked"}
+                          <br />
+                          <br />
+                          <InputGroup>
+                            <InputLeftAddon children="New Mark" />
+                            <Input
+                              type="number"
+                              value={`${mark}`}
+                              placeholder={String(
+                                assignmentSubmission.mark
+                                  ? assignmentSubmission.mark
+                                  : submission && submission.passed
+                                  ? 100
+                                  : 0
+                              )}
+                              onChange={(e) =>
+                                setMark(parseFloat(e.target.value))
+                              }
+                            />
+                          </InputGroup>
+                          <br />
+                          <Button
+                            onClick={() =>
+                              setAssignmentSubmissionMark({
+                                variables: {
+                                  userId: assignmentSubmissionModalData.user.id,
+                                  problemId: problem.id,
+                                  mark,
+                                  assignmentId:
+                                    assignmentSubmission.assignment.id,
+                                },
+                              })
+                            }
+                          >
+                            Update Mark
+                          </Button>
+                          <br />
+                          <br />
                           <SubmissionModalStatistics submission={submission} />
                         </>
                       ) : (

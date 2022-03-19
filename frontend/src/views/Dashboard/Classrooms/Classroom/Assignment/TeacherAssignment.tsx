@@ -81,7 +81,7 @@ const TeacherAssignment = () => {
           </TabList>
           <TabPanels>
             <TabPanel pb={0}>
-              <AssignmentGeneralPanel />
+              <AssignmentGeneralPanel setTabIndex={setTabIndex} />
             </TabPanel>
             <TabPanel pb={0}>
               <AssignmentSubmissionsPanel />

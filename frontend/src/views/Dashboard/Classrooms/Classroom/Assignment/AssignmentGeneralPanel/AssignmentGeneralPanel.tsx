@@ -3,10 +3,13 @@ import { Button, ButtonGroup, Heading, Link } from "@chakra-ui/react";
 import { Assignment, Problem } from "../../../../../../gql-types";
 import { AssignmentContext } from "../Assignment";
 import CustomTable from "../../../../../../components/CustomTable/CustomTable";
+import { AuthContext } from "../../../../../../context/Auth";
+import { AccountType } from "../../../../../../utils";
 
-const AssignmentGeneralPanel = () => {
+const AssignmentGeneralPanel = ({ setTabIndex }: { setTabIndex?: any }) => {
   const { assignment }: { assignment: Assignment } =
     useContext(AssignmentContext);
+  const { user, accountType }: any = useContext(AuthContext);
 
   return (
     <>
@@ -29,7 +32,15 @@ const AssignmentGeneralPanel = () => {
                     >
                       Go to problem
                     </Button>
-                    <Button colorScheme={"blue"}>Statistics</Button>
+                    {/* Teachers can click this to view statistics for the assignments problems by looking at the submissions tab */}
+                    {accountType === AccountType.Teacher && (
+                      <Button
+                        colorScheme={"blue"}
+                        onClick={() => setTabIndex(1)}
+                      >
+                        Submission Statistics
+                      </Button>
+                    )}
                   </ButtonGroup>
                 ),
               };

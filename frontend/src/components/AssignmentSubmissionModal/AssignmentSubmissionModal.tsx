@@ -305,7 +305,7 @@ const AssignmentSubmissionModal = ({
                       <b>Mark:</b>{" "}
                       {assignmentSubmission.mark
                         ? `${assignmentSubmission.mark}/100`
-                        : "N/A"}
+                        : "Unmarked"}
                       <br />
                       <br />
                       <InputGroup>

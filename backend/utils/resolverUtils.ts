@@ -45,7 +45,7 @@ const getUserProblemRatingInformation = (
     ),
     problem,
     ratings: problem.ratings,
-    rating: userRating,
+    userRating,
   };
 };
 

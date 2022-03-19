@@ -247,7 +247,7 @@ const Profile = () => {
                         problem.rating.numberOfRatings) *
                         10
                     ) / 10
-                  : "N/A",
+                  : "Unrated",
               };
             })}
             columns={[

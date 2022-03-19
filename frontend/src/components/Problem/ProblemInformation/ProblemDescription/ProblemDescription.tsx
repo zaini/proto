@@ -15,20 +15,13 @@ const RATE_PROBLEM = gql`
 const ProblemDescription = () => {
   const problem = useContext(ProblemContext);
 
+  console.log(problem.rating);
+
   const [rating, setRating] = useState(
     problem.rating.userRating ? problem.rating.userRating.score : 0
   );
 
   const [rateProblem] = useMutation(RATE_PROBLEM);
-
-  useEffect(() => {
-    rateProblem({
-      variables: {
-        problemId: problem.id,
-        score: rating,
-      },
-    });
-  }, [rating]);
 
   return (
     <>
@@ -41,7 +34,7 @@ const ProblemDescription = () => {
                 (problem.rating.totalRating / problem.rating.numberOfRatings) *
                   10
               ) / 10
-            : "N/A"}
+            : "Unrated"}
         </Code>{" "}
         <Code>
           Your rating:{" "}
@@ -55,7 +48,14 @@ const ProblemDescription = () => {
           size={28}
           transition
           onClick={(r) => {
-            setRating(r / 20);
+            const newRating = r / 20;
+            setRating(newRating);
+            rateProblem({
+              variables: {
+                problemId: problem.id,
+                score: newRating,
+              },
+            });
           }}
           ratingValue={rating * 20}
         />

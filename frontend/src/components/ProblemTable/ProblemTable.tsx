@@ -61,7 +61,7 @@ const ProblemTable = () => {
                 (problem.rating.totalRating / problem.rating.numberOfRatings) *
                   10
               ) / 10
-            : "N/A",
+            : "Unrated",
           solved: `${problem.solved}`,
         };
       })}

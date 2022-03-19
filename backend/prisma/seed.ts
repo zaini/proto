@@ -61,25 +61,26 @@ async function main() {
           initialCode: JSON.stringify({
             71: `#!/bin/python3
   
-  def add(a, b):
+def add(a, b):
   return a + b
-  
-  if __name__ == "__main__":
+
+if __name__ == "__main__":
   stdin = input()
   a, b = stdin.split()
   a, b = int(a), int(b)
   print(add(a, b))
-          `,
+`,
             63: `const add = (a, b) => {
   return a + b;
-  }
-  
-  process.stdin.on("data", buffer => {
+}
+
+process.stdin.on("data", buffer => {
   const ab = (buffer + "").split(" ");
   const a = parseInt(ab[0]);
   const b = parseInt(ab[1]);
   console.log(add(a, b));
-  });`,
+});
+`,
           }),
           testCases: {
             createMany: {

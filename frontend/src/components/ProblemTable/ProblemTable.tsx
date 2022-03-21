@@ -5,8 +5,9 @@ import {
   InputGroup,
   InputLeftAddon,
   Input,
-  Text,
   Heading,
+  Select,
+  HStack,
 } from "@chakra-ui/react";
 import CustomTable from "../CustomTable/CustomTable";
 import gql from "graphql-tag";
@@ -38,6 +39,8 @@ const ProblemTable = () => {
 
   const [problems, setProblems] = useState<Problem[]>([]);
 
+  const [difficulty, setDifficulty] = useState("all");
+
   const [typingTimer, setTypingTimer] = useState<any>();
 
   const [getProblems, { loading, error, data }] = useLazyQuery(GET_PROBLEMS, {
@@ -50,65 +53,91 @@ const ProblemTable = () => {
     getProblems();
   }, []);
 
+  const filteredProblems = problems.filter(
+    (problem) =>
+      difficulty === "all" ||
+      problem.specification.difficulty.toLowerCase() === difficulty
+  );
+
   return (
     <>
-      <InputGroup>
-        <InputLeftAddon children="Search" />
-        <Input
-          maxW={"30%"}
-          type="text"
-          value={searchQuery}
-          placeholder={"Two Sum"}
-          onChange={(e) => {
-            const query = e.target.value;
-            setSearchQuery(query);
-            clearTimeout(typingTimer);
-            setTypingTimer(
-              setTimeout(() => {
-                getProblems({
-                  variables: {
-                    filter: query,
-                  },
-                });
-              }, 250)
-            );
-          }}
-          mr={4}
-        />
-        {loading && (
-          <Center>
-            <Spinner
-              thickness="4px"
-              speed="0.65s"
-              emptyColor="gray.200"
-              color="blue.500"
-            />
-          </Center>
-        )}
-      </InputGroup>
+      <HStack>
+        <InputGroup>
+          <InputLeftAddon children="Difficulty" />
+          <Select
+            value={difficulty}
+            onChange={(e) => {
+              setDifficulty(e.target.value);
+            }}
+          >
+            {["all", "easy", "medium", "hard"].map((x) => (
+              <option value={x}>{x}</option>
+            ))}
+          </Select>
+        </InputGroup>
+        <InputGroup>
+          <InputLeftAddon children="Search" />
+          <Input
+            type="text"
+            value={searchQuery}
+            placeholder={"Two Sum"}
+            onChange={(e) => {
+              const query = e.target.value;
+              setSearchQuery(query);
+              clearTimeout(typingTimer);
+              setTypingTimer(
+                setTimeout(() => {
+                  getProblems({
+                    variables: {
+                      filter: query,
+                    },
+                  });
+                }, 250)
+              );
+            }}
+          />
+        </InputGroup>
+      </HStack>
       <br />
-      {problems.length > 0 ? (
+      {loading && (
+        <Center>
+          <Spinner
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="blue.500"
+          />
+        </Center>
+      )}
+      <br />
+      {filteredProblems.length > 0 ? (
         <CustomTable
-          data={problems.map((problem) => {
-            return {
-              id: problem.id,
-              problem: (
-                <a href={`/problems/${problem.id}`}>
-                  {problem.specification.title}
-                </a>
-              ),
-              difficulty: problem.specification.difficulty.toLowerCase(),
-              totalRatings: problem.rating.numberOfRatings,
-              avgRating: problem.rating.numberOfRatings
-                ? Math.round(
-                    (problem.rating.totalRating /
-                      problem.rating.numberOfRatings) *
-                      10
-                  ) / 10
-                : "Unrated",
-              solved: `${problem.solved}`,
-            };
-          })}
+          data={filteredProblems
+            .filter(
+              (problem) =>
+                difficulty === "all" ||
+                problem.specification.difficulty.toLowerCase() === difficulty
+            )
+            .map((problem) => {
+              return {
+                id: problem.id,
+                problem: (
+                  <a href={`/problems/${problem.id}`}>
+                    {problem.specification.title}
+                  </a>
+                ),
+                difficulty: problem.specification.difficulty.toLowerCase(),
+                totalRatings: problem.rating.numberOfRatings,
+                avgRating: problem.rating.numberOfRatings
+                  ? Math.round(
+                      (problem.rating.totalRating /
+                        problem.rating.numberOfRatings) *
+                        10
+                    ) / 10
+                  : "Unrated",
+                solved: `${problem.solved}`,
+              };
+            })}
           columns={[
             {
               Header: "ID",

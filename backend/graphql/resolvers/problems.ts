@@ -5,17 +5,37 @@ import { logger } from "../../logger";
 import { isAuth } from "../../utils/isAuth";
 import { LanguageCodeToName } from "../../utils/types";
 import { getUserProblemRatingInformation } from "../../utils/resolverUtils";
+import { Prisma } from "@prisma/client";
 
 module.exports = {
   Query: {
-    getProblems: async (_: any, __: any, context: any) => {
+    getProblems: async (_: any, { filter }: any, context: any) => {
       logger.info("GraphQL problems/getProblems");
 
       // Get all problems with relavent user information such as ratings and whether they've solved it.
 
       const user = isAuth(context);
 
+      const where: Prisma.ProblemWhereInput = filter
+        ? {
+            OR: [
+              {
+                id: { equals: isNaN(parseInt(filter)) ? -1 : parseInt(filter) },
+              },
+              {
+                specification: {
+                  title: {
+                    contains: filter,
+                    mode: "insensitive",
+                  },
+                },
+              },
+            ],
+          }
+        : {};
+
       const problems = await prisma.problem.findMany({
+        where,
         include: { creator: true, ratings: true, specification: true },
       });
 

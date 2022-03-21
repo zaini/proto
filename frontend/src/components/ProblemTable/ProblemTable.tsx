@@ -1,13 +1,21 @@
-import React from "react";
-import { Center, Spinner } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import {
+  Center,
+  Spinner,
+  InputGroup,
+  InputLeftAddon,
+  Input,
+  Text,
+  Heading,
+} from "@chakra-ui/react";
 import CustomTable from "../CustomTable/CustomTable";
 import gql from "graphql-tag";
-import { useQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { Problem } from "../../gql-types";
 
 const GET_PROBLEMS = gql`
-  query getProblems {
-    getProblems {
+  query getProblems($filter: String) {
+    getProblems(filter: $filter) {
       id
       creator {
         username
@@ -26,68 +34,114 @@ const GET_PROBLEMS = gql`
 `;
 
 const ProblemTable = () => {
-  const { loading, error, data } = useQuery(GET_PROBLEMS);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  if (loading)
-    return (
-      <Center h="1000px">
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
-      </Center>
-    );
-  // TODO have an actual error page and log this
-  if (error) return <>Error! {error.message}</>;
+  const [problems, setProblems] = useState<Problem[]>([]);
 
-  const problems: Problem[] = data.getProblems;
+  const [typingTimer, setTypingTimer] = useState<any>();
+
+  const [getProblems, { loading, error, data }] = useLazyQuery(GET_PROBLEMS, {
+    onCompleted(data) {
+      if (data) setProblems(data.getProblems);
+    },
+  });
+
+  useEffect(() => {
+    getProblems();
+  }, []);
 
   return (
-    <CustomTable
-      data={problems.map((problem) => {
-        return {
-          problem: (
-            <a href={`/problems/${problem.id}`}>
-              {problem.specification.title}
-            </a>
-          ),
-          difficulty: problem.specification.difficulty.toLowerCase(),
-          totalRatings: problem.rating.numberOfRatings,
-          avgRating: problem.rating.numberOfRatings
-            ? Math.round(
-                (problem.rating.totalRating / problem.rating.numberOfRatings) *
-                  10
-              ) / 10
-            : "Unrated",
-          solved: `${problem.solved}`,
-        };
-      })}
-      columns={[
-        {
-          Header: "Problem",
-          accessor: "problem",
-        },
-        {
-          Header: "Difficulty",
-          accessor: "difficulty",
-        },
-        {
-          Header: "Total Ratings",
-          accessor: "totalRatings",
-        },
-        {
-          Header: "Average Rating",
-          accessor: "avgRating",
-        },
-        {
-          Header: "Solved",
-          accessor: "solved",
-        },
-      ]}
-    />
+    <>
+      <InputGroup>
+        <InputLeftAddon children="Search" />
+        <Input
+          maxW={"30%"}
+          type="text"
+          value={searchQuery}
+          placeholder={"Two Sum"}
+          onChange={(e) => {
+            const query = e.target.value;
+            setSearchQuery(query);
+            clearTimeout(typingTimer);
+            setTypingTimer(
+              setTimeout(() => {
+                getProblems({
+                  variables: {
+                    filter: query,
+                  },
+                });
+              }, 250)
+            );
+          }}
+          mr={4}
+        />
+        {loading && (
+          <Center>
+            <Spinner
+              thickness="4px"
+              speed="0.65s"
+              emptyColor="gray.200"
+              color="blue.500"
+            />
+          </Center>
+        )}
+      </InputGroup>
+      <br />
+      {problems.length > 0 ? (
+        <CustomTable
+          data={problems.map((problem) => {
+            return {
+              id: problem.id,
+              problem: (
+                <a href={`/problems/${problem.id}`}>
+                  {problem.specification.title}
+                </a>
+              ),
+              difficulty: problem.specification.difficulty.toLowerCase(),
+              totalRatings: problem.rating.numberOfRatings,
+              avgRating: problem.rating.numberOfRatings
+                ? Math.round(
+                    (problem.rating.totalRating /
+                      problem.rating.numberOfRatings) *
+                      10
+                  ) / 10
+                : "Unrated",
+              solved: `${problem.solved}`,
+            };
+          })}
+          columns={[
+            {
+              Header: "ID",
+              accessor: "id",
+            },
+            {
+              Header: "Problem",
+              accessor: "problem",
+            },
+            {
+              Header: "Difficulty",
+              accessor: "difficulty",
+            },
+            {
+              Header: "Total Ratings",
+              accessor: "totalRatings",
+            },
+            {
+              Header: "Average Rating",
+              accessor: "avgRating",
+            },
+            {
+              Header: "Solved",
+              accessor: "solved",
+            },
+          ]}
+        />
+      ) : (
+        <Center my={16}>
+          <Heading size={"md"}>No problems found.</Heading>
+        </Center>
+      )}
+    </>
   );
 };
 

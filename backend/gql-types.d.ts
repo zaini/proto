@@ -240,6 +240,11 @@ export type QueryGetProblemArgs = {
 };
 
 
+export type QueryGetProblemsArgs = {
+  filter?: InputMaybe<Scalars['String']>;
+};
+
+
 export type QueryGetSubmissionArgs = {
   submissionId: Scalars['ID'];
 };

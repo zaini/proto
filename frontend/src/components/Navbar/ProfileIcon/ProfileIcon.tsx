@@ -8,11 +8,16 @@ import {
   MenuItem,
   MenuDivider,
   Center,
+  Switch,
+  FormLabel,
+  Stack,
 } from "@chakra-ui/react";
 import { AuthContext } from "../../../context/Auth";
+import { AccountType } from "../../../utils";
 
 const ProfileIcon = () => {
-  const { user }: any = useContext(AuthContext);
+  const { user, setAccountType, accountType }: any = useContext(AuthContext);
+
   const avatarUrl =
     (user && `https://avatars.githubusercontent.com/u/${user.githubId}`) ||
     "https://avatars.dicebear.com/api/male/username.svg";
@@ -43,8 +48,25 @@ const ProfileIcon = () => {
           <MenuItem>Profile</MenuItem>
         </a>
         <a href={`/profile/settings`}>
-          <MenuItem>Account Settings</MenuItem>
+          <MenuItem>Settings</MenuItem>
         </a>
+        <MenuItem>
+          <p>Teacher Mode</p>
+          <Switch
+            ml={"auto"}
+            value={
+              accountType === AccountType.Teacher
+                ? AccountType.Teacher
+                : AccountType.Learner
+            }
+            onChange={(e) => {
+              setAccountType(
+                e.target.checked ? AccountType.Teacher : AccountType.Learner
+              );
+            }}
+          />
+        </MenuItem>
+        <MenuDivider />
         <a href="/accounts/log-out">
           <MenuItem>Logout</MenuItem>
         </a>

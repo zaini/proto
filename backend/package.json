@@ -6,9 +6,16 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development nodemon -e ts --exec \"yarn run start\"",
-    "start": "tsc && node dist/server.js",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc && node dist/server.js",
+    "test:start": "dotenv -e .env.test -- nodemon -e ts --exec \"yarn run start\"",
+    "db:migrate": "dotenv -e .env.development -- npx prisma migrate dev && npx prisma generate --skip-seed",
+    "db:reset": "dotenv -e .env.development -- npx prisma migrate reset --force --skip-seed",
+    "db:setup": "yarn run db:reset && yarn run db:migrate",
+    "test:db:migrate": "dotenv -e .env.test -- npx prisma migrate dev --skip-seed",
+    "test:db:reset": "dotenv -e .env.test -- npx prisma migrate reset --force --skip-seed",
+    "test:db:setup": "yarn run test:db:reset && yarn run test:db:migrate",
+    "test": "yarn run test:db:setup && dotenv -e .env.test jest -i",
     "generate-gql-types": "graphql-codegen"
   },
   "prisma": {
@@ -29,18 +36,25 @@
     "jsonwebtoken": "^8.5.1",
     "passport": "^0.5.0",
     "passport-github2": "^0.1.12",
-    "typescript": "^4.5.2",
+    "typescript": "^4.6.2",
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
     "@types/cors": "^2.8.12",
     "@types/express-session": "^1.17.4",
+    "@types/jest": "^27.4.1",
     "@types/jsonwebtoken": "^8.5.6",
     "@types/passport": "^1.0.7",
     "@types/passport-github2": "^1.2.5",
     "@types/winston": "^2.4.4",
+    "babel-jest": "^27.5.1",
+    "dotenv-cli": "^5.0.0",
+    "jest": "^27.5.1",
     "nodemon": "^2.0.14",
     "prisma": "^3.6.0",
+    "ts-jest": "^27.1.3",
     "ts-node": "^10.4.0"
   }
 }

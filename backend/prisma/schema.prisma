@@ -108,7 +108,7 @@ model TestCase {
   stdin               String
   expectedOutput      String
   isHidden            Boolean
-  user                User                 @relation(fields: [userId], references: [id])
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   testCaseSubmissions TestCaseSubmission[]
   specification       Specification?       @relation(fields: [specificationId], references: [id])
   specificationId     Int?
@@ -119,7 +119,7 @@ model TestCase {
 model TestCaseSubmission {
   id             Int         @id @default(autoincrement())
   testCase       TestCase    @relation(fields: [testCaseId], references: [id])
-  user           User        @relation(fields: [userId], references: [id])
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   passed         Boolean
   stdout         String
   stderr         String

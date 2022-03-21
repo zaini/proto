@@ -50,8 +50,10 @@ const App = () => {
     <ApolloProvider client={client}>
       <AuthProvider>
         <ChakraProvider theme={theme}>
-          <Navbar />
-          <IndexRouter />
+          <div className="main-content">
+            <Navbar />
+            <IndexRouter />
+          </div>
           <Footer />
         </ChakraProvider>
       </AuthProvider>

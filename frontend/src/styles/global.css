@@ -12,6 +12,10 @@ code {
     monospace;
 }
 
+.main-content {
+  min-height: calc(100vh - 150px);
+}
+
 svg.star-svg {
   display: inline !important;
 }

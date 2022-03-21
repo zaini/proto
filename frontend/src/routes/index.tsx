@@ -40,6 +40,10 @@ const IndexRouter = () => {
               element={<Classroom />}
             />
             <Route
+              path={"/dashboard/classrooms/:classroomId/assignments"}
+              element={<Classroom />}
+            />
+            <Route
               path={
                 "/dashboard/classrooms/:classroomId/assignments/:assignmentId"
               }
@@ -52,11 +56,6 @@ const IndexRouter = () => {
           </>
         )}
 
-        {/* catch all or corrective routes */}
-        <Route
-          path={"/dashboard/classrooms/:classroomId/assignments"}
-          element={<Classroom />}
-        />
         <Route path={"*"} element={<NotFound />} />
       </Routes>
     </BrowserRouter>

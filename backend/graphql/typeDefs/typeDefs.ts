@@ -195,7 +195,7 @@ module.exports = gql`
     # End of Assignment Queries
 
     # Problem Queries
-    getProblems: [Problem!]!
+    getProblems(filter: String): [Problem!]!
     getProblem(problemId: ID!): Problem
     getDefaultInitialCodes: String!
     # End of Problem Queries

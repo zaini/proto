@@ -3,7 +3,7 @@ import { logger } from "../logger";
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET as string;
 
-const createAccessToken = (data: any, duration = "2h") => {
+const createAccessToken = (data: any, duration = "8h") => {
   logger.info("Creating access token", { meta: JSON.stringify({ duration }) });
   try {
     return sign({ ...data }, JWT_TOKEN_SECRET, {

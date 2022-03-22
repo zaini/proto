@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, Heading, Stack, Box } from "@chakra-ui/layout";
+import { Text, Heading, Stack, Box, Center } from "@chakra-ui/layout";
 import { Button } from "@chakra-ui/react";
 import { BsGithub } from "react-icons/bs";
 
@@ -8,8 +8,12 @@ const REACT_APP_GITHUB_AUTH_URL = process.env
 
 const Login = () => {
   return (
-    <Stack direction={"row"} justify={"space-evenly"}>
-      <Box textAlign={"center"} py={320} w={"100%"}>
+    <Stack
+      direction={"row"}
+      justify={"space-evenly"}
+      height={"calc(100vh - 150px)"}
+    >
+      <Box textAlign={"center"} w={"100%"} my={"auto"}>
         <Heading>Login to Proto</Heading>
         <br />
         <Button
@@ -23,16 +27,17 @@ const Login = () => {
           Login with GitHub
         </Button>
       </Box>
-      <Box
+      <Center
         w={"100%"}
-        py={320}
         backgroundColor={"#393e46"}
         textAlign={"center"}
         color={"#ffffff"}
       >
-        <Heading size={"2xl"}>Proto</Heading>
-        <Text fontSize={"lg"}>Solve and create programming challenges</Text>
-      </Box>
+        <Box>
+          <Heading size={"2xl"}>Proto</Heading>
+          <Text fontSize={"lg"}>Solve and create programming challenges</Text>
+        </Box>
+      </Center>
     </Stack>
   );
 };

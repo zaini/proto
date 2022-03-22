@@ -75,35 +75,39 @@ module.exports = {
 
       const user = isAuth(context);
 
-      const problem = await prisma.problem.findUnique({
-        where: { id: parseInt(problemId) },
-        include: {
-          creator: true,
-          ratings: true,
-          specification: {
-            include: {
-              testCases: true,
+      try {
+        const problem = await prisma.problem.findUnique({
+          where: { id: parseInt(problemId) },
+          include: {
+            creator: true,
+            ratings: true,
+            specification: {
+              include: {
+                testCases: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      if (problem) {
-        // Try to get user rating if they have made one.
-        let userRating = {} as any;
-        try {
-          userRating = await prisma.rating.findFirst({
-            where: {
-              userId: user.id,
-              problemId: problem.id,
-            },
-          });
-        } catch {}
+        if (problem) {
+          // Try to get user rating if they have made one.
+          let userRating = {} as any;
+          try {
+            userRating = await prisma.rating.findFirst({
+              where: {
+                userId: user.id,
+                problemId: problem.id,
+              },
+            });
+          } catch {}
 
-        return {
-          ...problem,
-          rating: getUserProblemRatingInformation(userRating, problem),
-        };
+          return {
+            ...problem,
+            rating: getUserProblemRatingInformation(userRating, problem),
+          };
+        }
+      } catch (error) {
+        throw new ApolloError("Could not find problem.");
       }
 
       return null;
@@ -189,7 +193,14 @@ public class Main {
       const { title, description, testCases, initialCode, difficulty } =
         specification;
 
-      const initialCodeObj = JSON.parse(initialCode);
+      let initialCodeObj;
+      try {
+        initialCodeObj = JSON.parse(initialCode);
+      } catch (error) {
+        throw new ApolloError(
+          "Invalid initial code structure. Must be mapping from language code to string."
+        );
+      }
 
       if (title === "") {
         throw new ApolloError("Problem name cannot be empty.");
@@ -229,6 +240,13 @@ public class Main {
             },
           },
         },
+        include: {
+          specification: {
+            include: {
+              testCases: true,
+            },
+          },
+        },
       });
 
       return problem;
@@ -248,6 +266,10 @@ public class Main {
 
       if (!problem) {
         throw new ApolloError("This problem does not exist.");
+      }
+
+      if (score < 0 || score > 100) {
+        throw new ApolloError("Invalid score. Must be between 0 and 100.");
       }
 
       const existingRating = await prisma.rating.findUnique({

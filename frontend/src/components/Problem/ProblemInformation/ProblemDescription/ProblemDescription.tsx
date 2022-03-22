@@ -15,8 +15,6 @@ const RATE_PROBLEM = gql`
 const ProblemDescription = () => {
   const problem = useContext(ProblemContext);
 
-  console.log(problem.rating);
-
   const [rating, setRating] = useState(
     problem.rating.userRating ? problem.rating.userRating.score : 0
   );

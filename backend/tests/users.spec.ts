@@ -1,9 +1,5 @@
 import axios from "axios";
 import { createAccessToken } from "../utils/tokens";
-// @ts-ignore
-import { XMLHttpRequest } from "xmlhttprequest";
-
-global.XMLHttpRequest = XMLHttpRequest;
 
 const GRAPHQL_BACKEND_URL = "http://localhost:5000/graphql";
 

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createAccessToken } from "../utils/tokens";
+import { createAccessToken } from "../../utils/tokens";
 
 const GRAPHQL_BACKEND_URL = "http://localhost:5000/graphql";
 

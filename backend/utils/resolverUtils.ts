@@ -1,3 +1,4 @@
+import { ApolloError } from "apollo-server";
 import {
   Problem,
   Rating,
@@ -7,6 +8,7 @@ import {
 } from "@prisma/client";
 import axios, { Method } from "axios";
 import { prisma } from "../index";
+import { LanguageCodeToName } from "./types";
 
 const JUDGE_API_URL = process.env.JUDGE_API_URL as string;
 
@@ -59,6 +61,13 @@ const submitTestCases = async (
     testCase: TestCase;
   })[]
 > => {
+  if (!(language in LanguageCodeToName)) {
+    throw new ApolloError("This language is not supported.");
+  }
+  if (testCases.length === 0) {
+    throw new ApolloError("Cannot submit tests without test cases.");
+  }
+
   const res = await Promise.all(
     testCases.map(async (testCase) => {
       const options = {

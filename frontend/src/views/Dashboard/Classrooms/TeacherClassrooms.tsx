@@ -27,7 +27,7 @@ const CREATE_CLASSROOM = gql`
 `;
 
 const GET_CLASSROOMS = gql`
-  query getClassrooms {
+  query getTeacherClassrooms {
     getTeacherClassrooms {
       id
       name

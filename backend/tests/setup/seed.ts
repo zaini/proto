@@ -1,5 +1,6 @@
 import { prisma } from "../..";
 import { logger } from "../../logger";
+import * as argon2 from "argon2";
 
 enum Difficulty {
   Easy = "EASY",
@@ -21,11 +22,26 @@ const seed = async () => {
   logger.info("Successfully seeded users");
   logger.debug(JSON.stringify(allUsers));
 
+  const testClassroomPassword = await argon2.hash("password123");
   await prisma.classroom.createMany({
     data: [
       { userId: 1, name: "Classroom A", password: "" },
       { userId: 2, name: "Classroom B", password: "" },
-      { userId: 4, name: "Classroom Test", password: "" },
+      {
+        userId: 4,
+        name: "Classroom Test",
+        password: "",
+      },
+      {
+        userId: 4,
+        name: "Classroom Test 2",
+        password: testClassroomPassword,
+      },
+      {
+        userId: 1,
+        name: "Test Classroom",
+        password: testClassroomPassword,
+      },
     ],
   });
   const allClassrooms = await prisma.classroom.findMany();

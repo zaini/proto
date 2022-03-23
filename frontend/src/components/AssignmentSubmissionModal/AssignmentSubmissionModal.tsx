@@ -54,50 +54,6 @@ const SET_ASSIGNMENT_SUBMISSION_MARK = gql`
     ) {
       mark
       comments
-      assignment {
-        id
-        name
-      }
-      user {
-        username
-      }
-      submission {
-        id
-        userId
-        createdAt
-        passed
-        avgMemory
-        avgTime
-        language
-        code
-        testCaseSubmissions {
-          id
-          passed
-          stdout
-          stderr
-          compile_output
-          time
-          description
-          memory
-          testCase {
-            stdin
-            expectedOutput
-            isHidden
-          }
-        }
-        problem {
-          id
-          specification {
-            title
-          }
-        }
-      }
-      problem {
-        id
-        specification {
-          title
-        }
-      }
     }
   }
 `;

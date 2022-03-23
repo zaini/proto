@@ -127,6 +127,7 @@ module.exports = {
           id: parseInt(assignmentId),
         },
         include: {
+          classroom: true,
           problems: {
             include: {
               problem: {
@@ -141,6 +142,19 @@ module.exports = {
 
       if (!assignment) {
         throw new ApolloError("Assignment does not exist.");
+      }
+
+      const userInClassroom = await prisma.usersOnClassrooms.findUnique({
+        where: {
+          userId_classroomId: {
+            userId: parseInt(user.id),
+            classroomId: assignment.classroom.id,
+          },
+        },
+      });
+
+      if (!userInClassroom) {
+        throw new ApolloError("You do you have access to this assignment.");
       }
 
       const problems = assignment.problems.map((e) => e.problem);
@@ -176,19 +190,18 @@ module.exports = {
 
       // Gets the AssignmentSubmission for an assignment.
 
-      // TODO add validation based on how this is used
-      if (!userId) {
-        const user = isAuth(context);
-        userId = user.id as string;
-      }
+      const user = isAuth(context);
 
-      const userObj = await prisma.user.findUnique({
+      // Search for our assignment submission if no userId is given
+      const userIdToFind = parseInt(userId || user.id);
+
+      const userToFind = await prisma.user.findUnique({
         where: {
-          id: parseInt(userId),
+          id: userIdToFind,
         },
       });
 
-      if (!userObj) {
+      if (!userToFind) {
         throw new ApolloError("User does not exist.");
       }
 
@@ -197,6 +210,11 @@ module.exports = {
           id: parseInt(assignmentId),
         },
         include: {
+          classroom: {
+            include: {
+              creator: true,
+            },
+          },
           problems: {
             include: {
               problem: {
@@ -213,6 +231,30 @@ module.exports = {
         throw new ApolloError("Assignment does not exist.");
       }
 
+      if (
+        !(
+          userIdToFind === parseInt(user.id) ||
+          assignment.classroom.creator.id === parseInt(user.id)
+        )
+      ) {
+        throw new ApolloError(
+          "You do not have permission to get this assignment submission."
+        );
+      }
+
+      const userInClassroom = await prisma.usersOnClassrooms.findUnique({
+        where: {
+          userId_classroomId: {
+            userId: userIdToFind,
+            classroomId: assignment.classroom.id,
+          },
+        },
+      });
+
+      if (!userInClassroom) {
+        throw new ApolloError("Could not find user for this assignment.");
+      }
+
       const problems = assignment.problems.map((e) => e.problem);
 
       const assignmentSubmission = await Promise.all(
@@ -221,7 +263,7 @@ module.exports = {
             await prisma.assignmentSubmission.findUnique({
               where: {
                 userId_assignmentId_problemId: {
-                  userId: userObj.id,
+                  userId: userToFind.id,
                   problemId: problem.id,
                   assignmentId: assignment.id,
                 },
@@ -253,7 +295,7 @@ module.exports = {
           if (assignmentSubmission) {
             return assignmentSubmission;
           } else {
-            return { problem, assignment, user: userObj };
+            return { problem, assignment, user: userToFind };
           }
         })
       );
@@ -286,12 +328,11 @@ module.exports = {
       }
 
       // Only the creator of the classroom for the assignment can view all the submissions
-      // TODO uncomment this
-      // if (assignment.classroom.creator.id != user.id) {
-      //   throw new ApolloError(
-      //     "This user is the not the creator of this assignment."
-      //   );
-      // }
+      if (assignment.classroom.creator.id != user.id) {
+        throw new ApolloError(
+          "This user is the not the creator of this assignment."
+        );
+      }
 
       const learners = await prisma.usersOnClassrooms.findMany({
         where: {
@@ -312,6 +353,7 @@ module.exports = {
               },
               include: {
                 submission: true,
+                user: true,
                 problem: {
                   include: {
                     specification: true,
@@ -351,9 +393,12 @@ module.exports = {
         where: {
           id: parseInt(classroomId),
         },
+        include: {
+          creator: true,
+        },
       });
 
-      if (!classroom || user.id === classroom.id) {
+      if (!classroom || user.id !== classroom.creator.id) {
         throw new ApolloError(
           "You cannot create an assignment for a classroom you do not own."
         );
@@ -422,11 +467,25 @@ module.exports = {
           where: {
             id: assignment.id,
           },
+          include: {
+            problems: {
+              include: {
+                problem: {
+                  include: {
+                    specification: true,
+                  },
+                },
+              },
+            },
+          },
         });
 
         logger.info("Created assignment", { meta: JSON.stringify(res) });
 
-        return res;
+        return {
+          ...res,
+          problems: res?.problems.map((problem) => problem.problem),
+        };
       } catch (error) {
         throw new ApolloError("Failed to create assignment.");
       }
@@ -440,9 +499,18 @@ module.exports = {
 
       // Remove an assignment from a classroom. User must enter assignment name correctly.
 
+      const user = isAuth(context);
+
       const assignment = await prisma.assignment.findFirst({
         where: {
           id: parseInt(assignmentId),
+        },
+        include: {
+          classroom: {
+            include: {
+              creator: true,
+            },
+          },
         },
       });
 
@@ -456,6 +524,10 @@ module.exports = {
         throw new ApolloError(
           "Failed to remove assignment as the name you entered is not correct."
         );
+      }
+
+      if (assignment.classroom.creator.id !== parseInt(user.id)) {
+        throw new ApolloError("You do not own this assignment.");
       }
 
       await prisma.assignment.delete({
@@ -518,7 +590,7 @@ module.exports = {
       }
 
       if (mark < 0 || mark > 100) {
-        throw new ApolloError("Mark is not valid. Must be between 1-100.");
+        throw new ApolloError("Mark is not valid. Must be between 0-100.");
       }
 
       return await prisma.assignmentSubmission.update({
@@ -570,12 +642,15 @@ module.exports = {
 
       // Used by student to set their submission for a problem in an assignment
 
+      const user = isAuth(context);
+
       const assignment = await prisma.assignment.findUnique({
         where: {
           id: parseInt(assignmentId),
         },
         include: {
           problems: { include: { problem: true } },
+          classroom: true,
         },
       });
 
@@ -583,7 +658,19 @@ module.exports = {
         throw new ApolloError("This assignment does not exist.");
       }
 
-      // TODO check if a submission for this problem was already done
+      const userInClassroom = await prisma.usersOnClassrooms.findUnique({
+        where: {
+          userId_classroomId: {
+            classroomId: assignment.classroom.id,
+            userId: user.id,
+          },
+        },
+      });
+
+      if (!userInClassroom) {
+        throw new ApolloError("You are not a student for this assignment.");
+      }
+
       const submission = await prisma.submission.findUnique({
         where: {
           id: parseInt(submissionId),
@@ -594,8 +681,8 @@ module.exports = {
         },
       });
 
-      if (!submission) {
-        throw new ApolloError("Submission does not exist.");
+      if (!submission || submission.user.id != parseInt(user.id)) {
+        throw new ApolloError("Invalid submission.");
       }
 
       const problems = assignment.problems.map((e) => e.problem);
@@ -627,6 +714,16 @@ module.exports = {
             assignmentId: assignment.id,
             submissionId: submission.id,
             createdAt: new Date(),
+          },
+          include: {
+            assignment: true,
+            user: true,
+            submission: true,
+            problem: {
+              include: {
+                specification: true,
+              },
+            },
           },
         });
 

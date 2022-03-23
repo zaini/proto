@@ -16,6 +16,7 @@ const seed = async () => {
       { githubId: "22", username: "bob" },
       { githubId: "33", username: "cathy" },
       { githubId: "51179189", username: "zaini" },
+      { githubId: "55", username: "edward" },
     ],
   });
   const allUsers = await prisma.user.findMany();
@@ -316,6 +317,7 @@ process.stdin.on("data", buffer => {
       { problemId: problem2.id, assignmentId: 1 },
       { problemId: problem3.id, assignmentId: 1 },
       { problemId: problem3.id, assignmentId: 2 },
+      { problemId: problem1.id, assignmentId: 3 },
       { problemId: problem2.id, assignmentId: 3 },
       { problemId: problem1.id, assignmentId: 4 },
     ],
@@ -347,6 +349,24 @@ process.stdin.on("data", buffer => {
         avgTime: 3,
         avgMemory: 3,
       },
+      {
+        userId: 2,
+        problemId: 1,
+        code: "random code",
+        language: 71,
+        passed: true,
+        avgTime: 3,
+        avgMemory: 3,
+      },
+      {
+        userId: 1,
+        problemId: 1,
+        code: "random code",
+        language: 71,
+        passed: true,
+        avgTime: 3,
+        avgMemory: 3,
+      },
     ],
   });
   logger.info("Successfully seeded submissions");
@@ -359,6 +379,18 @@ process.stdin.on("data", buffer => {
         problemId: 1,
         assignmentId: 4,
         submissionId: 1,
+      },
+      {
+        userId: 2,
+        problemId: 1,
+        assignmentId: 1,
+        submissionId: 2,
+      },
+      {
+        userId: 1,
+        problemId: 1,
+        assignmentId: 3,
+        submissionId: 3,
       },
     ],
   });

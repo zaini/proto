@@ -60,7 +60,7 @@ describe("submissions resolvers", () => {
 
     expect(data.errors[0].message).toBe("This problem does not exist.");
   });
-  test("getSubmissionsForProblem with one submissions made", async () => {
+  test("getSubmissionsForProblem with one submission made", async () => {
     const validUserAccessToken = `Bearer ${createAccessToken({ id: 1 })}`;
 
     const submissionResponse = await axios.post(
@@ -68,7 +68,6 @@ describe("submissions resolvers", () => {
       {
         query: `mutation submitProblem($problemId: ID!, $code: String!, $language: Int!) {
           submitProblem(problemId: $problemId, code: $code, language: $language) {
-            id
             userId
             passed
             language
@@ -92,7 +91,6 @@ describe("submissions resolvers", () => {
     expect(submissionData).toMatchObject({
       data: {
         submitProblem: {
-          id: "2",
           userId: "1",
           passed: false,
           language: 71,
@@ -105,7 +103,7 @@ describe("submissions resolvers", () => {
       {
         query: `query getSubmissionsForProblem($problemId: ID!) {
           getSubmissionsForProblem(problemId: $problemId) {
-            id
+            userId
           }
         }`,
         variables: {
@@ -125,7 +123,7 @@ describe("submissions resolvers", () => {
       data: {
         getSubmissionsForProblem: [
           {
-            id: "2",
+            userId: "1",
           },
         ],
       },
@@ -191,7 +189,7 @@ describe("submissions resolvers", () => {
     expect(submissionData).toMatchObject({
       data: {
         submitProblem: {
-          id: "2",
+          id: "3",
           userId: "1",
           passed: false,
           language: 71,
@@ -413,7 +411,7 @@ describe("submissions resolvers", () => {
     expect(data).toMatchObject({
       data: {
         submitProblem: {
-          id: "2",
+          id: "3",
           userId: "1",
           passed: false,
           language: 71,

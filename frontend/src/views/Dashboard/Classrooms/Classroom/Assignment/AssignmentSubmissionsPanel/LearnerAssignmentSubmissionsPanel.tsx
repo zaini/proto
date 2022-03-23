@@ -26,6 +26,7 @@ const GET_ASSIGNMENT_SUBMISSIONS = gql`
   query getAssignmentSubmissions($assignmentId: ID!) {
     getAssignmentSubmissions(assignmentId: $assignmentId) {
       mark
+      comments
       submission {
         id
         code
@@ -228,10 +229,10 @@ const LearnerAssignmentSubmissionsPanel = () => {
               const submission = assignmentSubmission.submission;
 
               const mark = assignmentSubmission.mark || 0;
+              const comments = assignmentSubmission.comments || "N/A";
 
               return {
-                id: problem.id,
-                problemName: problem.specification.title,
+                problemName: `#${problem.id} ${problem.specification.title}`,
                 submission: submission ? (
                   <Button
                     colorScheme={"blue"}
@@ -247,6 +248,7 @@ const LearnerAssignmentSubmissionsPanel = () => {
                 ),
                 passed: submission ? "" + submission.passed : "N/A",
                 mark: `${mark.toFixed(2)}/100`,
+                comments,
                 options: (
                   <ButtonGroup>
                     {submission === null ? (
@@ -275,18 +277,15 @@ const LearnerAssignmentSubmissionsPanel = () => {
           )}
           columns={[
             {
-              Header: "ID",
-              accessor: "id",
+              Header: "Problem",
+              accessor: "problemName",
             },
             {
               Header: "Passed",
               accessor: "passed",
             },
             { Header: "Mark", accessor: "mark" },
-            {
-              Header: "Problem",
-              accessor: "problemName",
-            },
+            { Header: "Comments", accessor: "comments" },
             {
               Header: "Submission",
               accessor: "submission",

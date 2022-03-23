@@ -92,7 +92,7 @@ describe("submissions resolvers", () => {
     expect(submissionData).toMatchObject({
       data: {
         submitProblem: {
-          id: "1",
+          id: "2",
           userId: "1",
           passed: false,
           language: 71,
@@ -125,7 +125,7 @@ describe("submissions resolvers", () => {
       data: {
         getSubmissionsForProblem: [
           {
-            id: "1",
+            id: "2",
           },
         ],
       },
@@ -191,7 +191,7 @@ describe("submissions resolvers", () => {
     expect(submissionData).toMatchObject({
       data: {
         submitProblem: {
-          id: "1",
+          id: "2",
           userId: "1",
           passed: false,
           language: 71,
@@ -413,7 +413,7 @@ describe("submissions resolvers", () => {
     expect(data).toMatchObject({
       data: {
         submitProblem: {
-          id: "1",
+          id: "2",
           userId: "1",
           passed: false,
           language: 71,

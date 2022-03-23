@@ -335,6 +335,35 @@ process.stdin.on("data", buffer => {
   const ratings = await prisma.rating.findMany();
   logger.info("Successfully seeded ratings");
   logger.debug(JSON.stringify(ratings));
+
+  const submissions = await prisma.submission.createMany({
+    data: [
+      {
+        userId: 3,
+        problemId: 1,
+        code: "random code",
+        language: 71,
+        passed: true,
+        avgTime: 3,
+        avgMemory: 3,
+      },
+    ],
+  });
+  logger.info("Successfully seeded submissions");
+  logger.debug(JSON.stringify(submissions));
+
+  const assignmentSubmissions = await prisma.assignmentSubmission.createMany({
+    data: [
+      {
+        userId: 3,
+        problemId: 1,
+        assignmentId: 4,
+        submissionId: 1,
+      },
+    ],
+  });
+  logger.info("Successfully seeded assignmentSubmissions");
+  logger.debug(JSON.stringify(assignmentSubmissions));
 };
 
 export { seed };

@@ -27,6 +27,7 @@ export type Assignment = {
 export type AssignmentSubmission = {
   __typename?: 'AssignmentSubmission';
   assignment: Assignment;
+  comments?: Maybe<Scalars['String']>;
   createdAt: Scalars['String'];
   mark?: Maybe<Scalars['Float']>;
   problem: Problem;
@@ -69,7 +70,7 @@ export type Mutation = {
   removeAssignmentProblemSubmission?: Maybe<Scalars['Boolean']>;
   removeStudent?: Maybe<Scalars['Boolean']>;
   setAssignmentProblemSubmission?: Maybe<AssignmentSubmission>;
-  setAssignmentSubmissionMark?: Maybe<AssignmentSubmission>;
+  setAssignmentSubmissionFeedback?: Maybe<AssignmentSubmission>;
   submitProblem: Submission;
   submitTests: Array<TestCaseSubmission>;
 };
@@ -143,8 +144,9 @@ export type MutationSetAssignmentProblemSubmissionArgs = {
 };
 
 
-export type MutationSetAssignmentSubmissionMarkArgs = {
+export type MutationSetAssignmentSubmissionFeedbackArgs = {
   assignmentId: Scalars['ID'];
+  comments: Scalars['String'];
   mark: Scalars['Float'];
   problemId: Scalars['ID'];
   userId: Scalars['ID'];

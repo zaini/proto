@@ -38,19 +38,22 @@ type Props = {
 };
 
 const SET_ASSIGNMENT_SUBMISSION_MARK = gql`
-  mutation setAssignmentSubmissionMark(
+  mutation setAssignmentSubmissionFeedback(
     $userId: ID!
     $problemId: ID!
     $mark: Float!
+    $comments: String!
     $assignmentId: ID!
   ) {
-    setAssignmentSubmissionMark(
+    setAssignmentSubmissionFeedback(
       userId: $userId
       problemId: $problemId
       mark: $mark
+      comments: $comments
       assignmentId: $assignmentId
     ) {
       mark
+      comments
       assignment {
         id
         name
@@ -103,6 +106,7 @@ const GET_ASSIGNMENT_SUBMISSIONS = gql`
   query getAssignmentSubmissions($assignmentId: ID!, $userId: ID) {
     getAssignmentSubmissions(assignmentId: $assignmentId, userId: $userId) {
       mark
+      comments
       assignment {
         id
         name
@@ -157,6 +161,7 @@ const AssignmentSubmissionModal = ({
   onClose,
 }: Props) => {
   const [mark, setMark] = useState<number | null>();
+  const [comments, setComments] = useState<string>("");
 
   const [getAssignmentSubmissions, { loading, error, data }] = useLazyQuery(
     GET_ASSIGNMENT_SUBMISSIONS,
@@ -168,7 +173,7 @@ const AssignmentSubmissionModal = ({
     }
   );
 
-  const [setAssignmentSubmissionMark] = useMutation(
+  const [setAssignmentSubmissionFeedback] = useMutation(
     SET_ASSIGNMENT_SUBMISSION_MARK,
     {
       refetchQueries: [GET_ASSIGNMENT_SUBMISSIONS, "getAssignmentSubmissions"],
@@ -313,11 +318,18 @@ const AssignmentSubmissionModal = ({
                       <br />
                       {submission ? (
                         <>
-                          <b>Mark:</b>{" "}
-                          {assignmentSubmission.mark
-                            ? `${assignmentSubmission.mark}/100`
-                            : "Unmarked"}
-                          <br />
+                          <Box>
+                            <Text>
+                              <b>Current Mark:</b>{" "}
+                              {assignmentSubmission.mark
+                                ? `${assignmentSubmission.mark}/100`
+                                : "Unmarked"}
+                            </Text>
+                            <Text>
+                              <b>Current Comments:</b>{" "}
+                              {assignmentSubmission.comments || "N/A"}
+                            </Text>
+                          </Box>
                           <br />
                           <InputGroup>
                             <InputLeftAddon children="New Mark" />
@@ -325,11 +337,7 @@ const AssignmentSubmissionModal = ({
                               type="number"
                               value={`${mark}`}
                               placeholder={String(
-                                assignmentSubmission.mark
-                                  ? assignmentSubmission.mark
-                                  : submission && submission.passed
-                                  ? 100
-                                  : 0
+                                assignmentSubmission.mark || "Unmarked"
                               )}
                               onChange={(e) =>
                                 setMark(parseFloat(e.target.value))
@@ -337,20 +345,31 @@ const AssignmentSubmissionModal = ({
                             />
                           </InputGroup>
                           <br />
+                          <InputGroup>
+                            <InputLeftAddon children="Comments" />
+                            <Input
+                              type="text"
+                              value={`${comments}`}
+                              placeholder={"Feedback for this submission"}
+                              onChange={(e) => setComments(e.target.value)}
+                            />
+                          </InputGroup>
+                          <br />
                           <Button
                             onClick={() =>
-                              setAssignmentSubmissionMark({
+                              setAssignmentSubmissionFeedback({
                                 variables: {
                                   userId: assignmentSubmissionModalData.user.id,
                                   problemId: problem.id,
                                   mark,
+                                  comments,
                                   assignmentId:
                                     assignmentSubmission.assignment.id,
                                 },
                               })
                             }
                           >
-                            Update Mark
+                            Update Feedback
                           </Button>
                           <br />
                           <br />

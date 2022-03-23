@@ -4,11 +4,11 @@ import {
   MutationRemoveAssignmentArgs,
   MutationRemoveAssignmentProblemSubmissionArgs,
   MutationSetAssignmentProblemSubmissionArgs,
-  MutationSetAssignmentSubmissionMarkArgs,
   QueryGetAssignmentArgs,
   QueryGetAssignmentProblemSubmissionsArgs,
   QueryGetAssignmentSubmissionsArgs,
   QueryGetAssignmentSubmissionsAsTeacherArgs,
+  MutationSetAssignmentSubmissionFeedbackArgs,
 } from "../../gql-types";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
@@ -111,7 +111,7 @@ module.exports = {
       { assignmentId }: QueryGetAssignmentProblemSubmissionsArgs,
       context: any
     ) => {
-      logger.info("GraphQL submissions/getAssignmentProblemSubmissions");
+      logger.info("GraphQL assignments/getAssignmentProblemSubmissions");
 
       // Returns the submissions made for the problems in an assignment
 
@@ -172,7 +172,7 @@ module.exports = {
       { assignmentId, userId }: QueryGetAssignmentSubmissionsArgs,
       context: any
     ) => {
-      logger.info("GraphQL submissions/getAssignmentSubmissions");
+      logger.info("GraphQL assignments/getAssignmentSubmissions");
 
       // Gets the AssignmentSubmission for an assignment.
 
@@ -265,7 +265,7 @@ module.exports = {
       { assignmentId }: QueryGetAssignmentSubmissionsAsTeacherArgs,
       context: any
     ) => {
-      logger.info("GraphQL submissions/getAssignmentSubmissionsAsTeacher");
+      logger.info("GraphQL assignments/getAssignmentSubmissionsAsTeacher");
 
       // Used by teacher to view all the assignment submissions on a table
 
@@ -466,17 +466,18 @@ module.exports = {
 
       return true;
     },
-    setAssignmentSubmissionMark: async (
+    setAssignmentSubmissionFeedback: async (
       _: any,
       {
         userId,
         assignmentId,
         problemId,
         mark,
-      }: MutationSetAssignmentSubmissionMarkArgs,
+        comments,
+      }: MutationSetAssignmentSubmissionFeedbackArgs,
       context: any
     ) => {
-      logger.info("GraphQL submissions/setAssignmentSubmissionMark");
+      logger.info("GraphQL assignments/setAssignmentSubmissionFeedback");
 
       // Updates the mark for an assignment submission
       // Only creator of the classroom for the assignment can set the mark
@@ -530,6 +531,7 @@ module.exports = {
         },
         data: {
           mark,
+          comments,
         },
         include: {
           assignment: true,
@@ -564,7 +566,7 @@ module.exports = {
       }: MutationSetAssignmentProblemSubmissionArgs,
       context: any
     ) => {
-      logger.info("GraphQL submissions/setAssignmentProblemSubmission");
+      logger.info("GraphQL assignments/setAssignmentProblemSubmission");
 
       // Used by student to set their submission for a problem in an assignment
 
@@ -643,7 +645,7 @@ module.exports = {
       }: MutationRemoveAssignmentProblemSubmissionArgs,
       context: any
     ) => {
-      logger.info("GraphQL submissions/removeAssignmentProblemSubmission");
+      logger.info("GraphQL assignments/removeAssignmentProblemSubmission");
 
       // Removes an assignment submission
 

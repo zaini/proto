@@ -82,9 +82,7 @@ const TeacherClassroomAssignmentsPanel = ({ onOpen }: any) => {
                   classroom.users !== []
                     ? `${assignment.submissions.length}/${classroom.users.length}`
                     : "0/0",
-                numberOfProblems: assignment.problems
-                  ? assignment.problems.length
-                  : 0,
+                numberOfProblems: assignment.problems.length,
                 options: (
                   <ButtonGroup>
                     <Link

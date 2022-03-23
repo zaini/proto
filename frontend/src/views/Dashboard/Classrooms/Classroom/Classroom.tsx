@@ -32,6 +32,9 @@ const GET_CLASSROOM = gql`
         createdAt
         setDate
         dueDate
+        problems {
+          id
+        }
       }
     }
   }

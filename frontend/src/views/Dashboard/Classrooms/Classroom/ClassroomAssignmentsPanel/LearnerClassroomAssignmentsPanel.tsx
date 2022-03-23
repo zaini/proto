@@ -50,9 +50,7 @@ const LearnerClassroomAssignmentsPanel = () => {
                 dueDate: new Date(
                   parseInt(assignment.dueDate)
                 ).toLocaleString(),
-                numberOfProblems: assignment.problems
-                  ? assignment.problems.length
-                  : 0,
+                numberOfProblems: assignment.problems.length,
                 options: (
                   <ButtonGroup>
                     <Link

@@ -3,6 +3,8 @@ import {
   TestCaseInput,
   MutationSubmitTestsArgs,
   MutationSubmitProblemArgs,
+  QueryGetSubmissionsForProblemArgs,
+  QueryGetSubmissionArgs,
 } from "./../../gql-types.d";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
@@ -16,7 +18,7 @@ module.exports = {
   Query: {
     getSubmissionsForProblem: async (
       _: any,
-      { problemId }: any,
+      { problemId }: QueryGetSubmissionsForProblemArgs,
       context: any
     ) => {
       logger.info("GraphQL submissions/getSubmissionsForProblem");
@@ -45,7 +47,11 @@ module.exports = {
 
       return submissions;
     },
-    getSubmission: async (_: any, { submissionId }: any, context: any) => {
+    getSubmission: async (
+      _: any,
+      { submissionId }: QueryGetSubmissionArgs,
+      context: any
+    ) => {
       logger.info("GraphQL submissions/getSubmission");
 
       // Gets a specific submission to be view.

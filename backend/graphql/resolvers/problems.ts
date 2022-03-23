@@ -1,4 +1,9 @@
-import { MutationCreateProblemArgs } from "./../../gql-types.d";
+import {
+  MutationCreateProblemArgs,
+  MutationRateProblemArgs,
+  QueryGetProblemArgs,
+  QueryGetProblemsArgs,
+} from "./../../gql-types.d";
 import { ApolloError } from "apollo-server";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
@@ -9,7 +14,11 @@ import { Prisma } from "@prisma/client";
 
 module.exports = {
   Query: {
-    getProblems: async (_: any, { filter }: any, context: any) => {
+    getProblems: async (
+      _: any,
+      { filter }: QueryGetProblemsArgs,
+      context: any
+    ) => {
       logger.info("GraphQL problems/getProblems");
 
       // Get all problems with relavent user information such as ratings and whether they've solved it.
@@ -68,7 +77,11 @@ module.exports = {
 
       return problemsWithSolved;
     },
-    getProblem: async (_: any, { problemId }: any, context: any) => {
+    getProblem: async (
+      _: any,
+      { problemId }: QueryGetProblemArgs,
+      context: any
+    ) => {
       logger.info("GraphQL problems/getProblem");
 
       // Get problem, used when viewing a problem to solve it.
@@ -251,7 +264,11 @@ public class Main {
 
       return problem;
     },
-    rateProblem: async (_: any, { problemId, score }: any, context: any) => {
+    rateProblem: async (
+      _: any,
+      { problemId, score }: MutationRateProblemArgs,
+      context: any
+    ) => {
       logger.info("GraphQL problems/rateProblem");
 
       // User can rate a problem, either creating a new rating or updating their previous one.

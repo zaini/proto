@@ -4,10 +4,11 @@ import { logger } from "../../logger";
 import { authenticateToken } from "../../utils/tokens";
 import { isAuth } from "../../utils/isAuth";
 import { getUserProblemRatingInformation } from "../../utils/resolverUtils";
+import { MutationDeleteUserArgs, QueryGetUserArgs } from "../../gql-types";
 
 module.exports = {
   Query: {
-    getUser: async (_: any, { userId }: any, context: any) => {
+    getUser: async (_: any, { userId }: QueryGetUserArgs, context: any) => {
       logger.info("GraphQL users/getUser");
 
       // Get user information for profile page
@@ -70,7 +71,11 @@ module.exports = {
     },
   },
   Mutation: {
-    deleteUser: async (_: any, { userId, username }: any, context: any) => {
+    deleteUser: async (
+      _: any,
+      { userId, username }: MutationDeleteUserArgs,
+      context: any
+    ) => {
       logger.info("GraphQL users/deleteUser");
 
       // Delete a user.

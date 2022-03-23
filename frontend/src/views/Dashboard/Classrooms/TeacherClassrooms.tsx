@@ -121,9 +121,7 @@ const TeacherClassrooms = () => {
             data={classrooms.map((classroom: Classroom) => {
               return {
                 classroomName: `#${classroom.id} ${classroom.name}`,
-                numberOfStudents: classroom.users
-                  ? 0
-                  : classroom!.users!.length,
+                numberOfStudents: classroom.users ? classroom.users.length : 0,
                 publicOrPrivate:
                   classroom.password === "" ? "public" : "private",
                 createdAt: new Date(

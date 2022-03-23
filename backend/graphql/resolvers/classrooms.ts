@@ -78,6 +78,10 @@ module.exports = {
       if (classroom) {
         return {
           ...classroom,
+          assignments: classroom.assignments.map((assignment) => ({
+            ...assignment,
+            problems: assignment.problems.map((x) => x.problem),
+          })),
           users: classroom.users.map((e) => e.user),
         };
       }

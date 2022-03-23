@@ -1,3 +1,9 @@
+import {
+  MutationCreateClassroomArgs,
+  MutationDeleteClassroomArgs,
+  MutationJoinClassroomArgs,
+  QueryGetClassroomArgs,
+} from "./../../gql-types.d";
 import { ApolloError } from "apollo-server";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
@@ -46,7 +52,11 @@ module.exports = {
 
       return usersOnClassrooms.map((e) => e.classroom);
     },
-    getClassroom: async (_: any, { classroomId }: any, context: any) => {
+    getClassroom: async (
+      _: any,
+      { classroomId }: QueryGetClassroomArgs,
+      context: any
+    ) => {
       logger.info("GraphQL classrooms/getClassroom");
 
       // Get a classroom to view. Also used when joining a classroom to get basic information.
@@ -77,7 +87,7 @@ module.exports = {
   Mutation: {
     createClassroom: async (
       _: any,
-      { classroomName, password }: any,
+      { classroomName, password }: MutationCreateClassroomArgs,
       context: any
     ) => {
       logger.info("GraphQL classrooms/createClassroom");
@@ -111,7 +121,7 @@ module.exports = {
         data: {
           userId: user.id,
           name: classroomName,
-          password: password,
+          password: password || "",
         },
       });
 
@@ -119,7 +129,7 @@ module.exports = {
     },
     joinClassroom: async (
       _: any,
-      { classroomId, password }: any,
+      { classroomId, password }: MutationJoinClassroomArgs,
       context: any
     ) => {
       logger.info("GraphQL classrooms/joinClassroom");
@@ -143,7 +153,7 @@ module.exports = {
       if (classroom.password) {
         const isValidPasword = await argon2.verify(
           classroom.password,
-          password
+          password || ""
         );
 
         if (!isValidPasword) {
@@ -183,7 +193,7 @@ module.exports = {
     },
     deleteClassroom: async (
       _: any,
-      { classroomId, classroomName, password }: any,
+      { classroomId, classroomName, password }: MutationDeleteClassroomArgs,
       context: any
     ) => {
       logger.info("GraphQL classrooms/deleteClassroom");
@@ -208,7 +218,7 @@ module.exports = {
       if (classroom.password) {
         const isValidPasword = await argon2.verify(
           classroom.password,
-          password
+          password || ""
         );
 
         if (!isValidPasword) {

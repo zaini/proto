@@ -16,7 +16,7 @@ import { Classroom } from "../../../gql-types";
 import CopyLink from "../../../components/CopyLink/CopyLink";
 
 const GET_CLASSROOMS = gql`
-  query getClassrooms {
+  query getLearnerClassrooms {
     getLearnerClassrooms {
       id
       name

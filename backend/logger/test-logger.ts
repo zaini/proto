@@ -1,5 +1,4 @@
-import { createLogger, format, transports } from "winston";
-const { combine, timestamp, label, printf, colorize, errors } = format;
+import { createLogger } from "winston";
 
 const buildTestLogger = () => {
   return createLogger({

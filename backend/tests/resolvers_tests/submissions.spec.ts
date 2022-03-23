@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createAccessToken } from "../utils/tokens";
+import { createAccessToken } from "../../utils/tokens";
 
 const GRAPHQL_BACKEND_URL = "http://localhost:5000/graphql";
 
@@ -16,7 +16,7 @@ describe("submissions resolvers", () => {
           }
         }`,
         variables: {
-          problemId: "1",
+          problemId: "3",
         },
       },
       {
@@ -119,15 +119,7 @@ describe("submissions resolvers", () => {
 
     const { data } = response;
 
-    expect(data).toMatchObject({
-      data: {
-        getSubmissionsForProblem: [
-          {
-            userId: "1",
-          },
-        ],
-      },
-    });
+    expect(data.data.getSubmissionsForProblem).toBeInstanceOf(Array);
   });
   test("getSubmission for invalid submission id", async () => {
     const validUserAccessToken = `Bearer ${createAccessToken({ id: 1 })}`;
@@ -165,7 +157,6 @@ describe("submissions resolvers", () => {
       {
         query: `mutation submitProblem($problemId: ID!, $code: String!, $language: Int!) {
           submitProblem(problemId: $problemId, code: $code, language: $language) {
-            id
             userId
             passed
             language
@@ -189,7 +180,6 @@ describe("submissions resolvers", () => {
     expect(submissionData).toMatchObject({
       data: {
         submitProblem: {
-          id: "3",
           userId: "1",
           passed: false,
           language: 71,
@@ -387,7 +377,6 @@ describe("submissions resolvers", () => {
       {
         query: `mutation submitProblem($problemId: ID!, $code: String!, $language: Int!) {
           submitProblem(problemId: $problemId, code: $code, language: $language) {
-            id
             userId
             passed
             language
@@ -411,7 +400,6 @@ describe("submissions resolvers", () => {
     expect(data).toMatchObject({
       data: {
         submitProblem: {
-          id: "3",
           userId: "1",
           passed: false,
           language: 71,
@@ -427,7 +415,6 @@ describe("submissions resolvers", () => {
       {
         query: `mutation submitProblem($problemId: ID!, $code: String!, $language: Int!) {
           submitProblem(problemId: $problemId, code: $code, language: $language) {
-            id
             userId
             passed
             language

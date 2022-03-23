@@ -1,13 +1,12 @@
 import axios from "axios";
-import { createAccessToken } from "../utils/tokens";
+import { createAccessToken } from "../../utils/tokens";
 
 const GRAPHQL_BACKEND_URL = "http://localhost:5000/graphql";
 
 describe("users resolvers", () => {
   test("getUser that exists", async () => {
     const response = await axios.post(GRAPHQL_BACKEND_URL, {
-      query: `
-            query getUser($userId: ID!) {
+      query: `query getUser($userId: ID!) {
                 getUser(userId: $userId) {
                   id
                   username
@@ -86,7 +85,21 @@ describe("users resolvers", () => {
               },
             },
           ],
-          recentSubmissions: [],
+          recentSubmissions: [
+            {
+              id: "3",
+              passed: false,
+              avgTime: 3,
+              avgMemory: 3,
+              language: 71,
+              problem: {
+                id: "1",
+                specification: {
+                  title: "Addition",
+                },
+              },
+            },
+          ],
         },
       },
     });

@@ -54,11 +54,7 @@ const ProfileIcon = () => {
           <p>Teacher Mode</p>
           <Switch
             ml={"auto"}
-            value={
-              accountType === AccountType.Teacher
-                ? AccountType.Teacher
-                : AccountType.Learner
-            }
+            checked={accountType === AccountType.Teacher}
             onChange={(e) => {
               setAccountType(
                 e.target.checked ? AccountType.Teacher : AccountType.Learner

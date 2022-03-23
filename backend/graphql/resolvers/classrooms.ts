@@ -2,6 +2,7 @@ import {
   MutationCreateClassroomArgs,
   MutationDeleteClassroomArgs,
   MutationJoinClassroomArgs,
+  MutationRemoveStudentArgs,
   QueryGetClassroomArgs,
 } from "./../../gql-types.d";
 import { ApolloError } from "apollo-server";
@@ -244,7 +245,7 @@ module.exports = {
     },
     removeStudent: async (
       _: any,
-      { studentId, classroomId }: any,
+      { studentId, classroomId }: MutationRemoveStudentArgs,
       context: any
     ) => {
       logger.info("GraphQL classrooms/removeStudent");

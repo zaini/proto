@@ -1,4 +1,15 @@
 import { ApolloError } from "apollo-server";
+import {
+  MutationCreateAssignmentArgs,
+  MutationRemoveAssignmentArgs,
+  MutationRemoveAssignmentProblemSubmissionArgs,
+  MutationSetAssignmentProblemSubmissionArgs,
+  MutationSetAssignmentSubmissionMarkArgs,
+  QueryGetAssignmentArgs,
+  QueryGetAssignmentProblemSubmissionsArgs,
+  QueryGetAssignmentSubmissionsArgs,
+  QueryGetAssignmentSubmissionsAsTeacherArgs,
+} from "../../gql-types";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
 import { isAuth } from "../../utils/isAuth";
@@ -40,7 +51,7 @@ module.exports = {
     },
     getAssignment: async (
       _: any,
-      { assignmentId, classroomId }: any,
+      { assignmentId, classroomId }: QueryGetAssignmentArgs,
       context: any
     ) => {
       logger.info("GraphQL assignment/assignmentId");
@@ -97,7 +108,7 @@ module.exports = {
     },
     getAssignmentProblemSubmissions: async (
       _: any,
-      { assignmentId }: any,
+      { assignmentId }: QueryGetAssignmentProblemSubmissionsArgs,
       context: any
     ) => {
       logger.info("GraphQL submissions/getAssignmentProblemSubmissions");
@@ -158,7 +169,7 @@ module.exports = {
     },
     getAssignmentSubmissions: async (
       _: any,
-      { assignmentId, userId }: any,
+      { assignmentId, userId }: QueryGetAssignmentSubmissionsArgs,
       context: any
     ) => {
       logger.info("GraphQL submissions/getAssignmentSubmissions");
@@ -168,7 +179,7 @@ module.exports = {
       // TODO add validation based on how this is used
       if (!userId) {
         const user = isAuth(context);
-        userId = user.id;
+        userId = user.id as string;
       }
 
       const userObj = await prisma.user.findUnique({
@@ -210,7 +221,7 @@ module.exports = {
             await prisma.assignmentSubmission.findUnique({
               where: {
                 userId_assignmentId_problemId: {
-                  userId: parseInt(userId),
+                  userId: userObj.id,
                   problemId: problem.id,
                   assignmentId: assignment.id,
                 },
@@ -251,7 +262,7 @@ module.exports = {
     },
     getAssignmentSubmissionsAsTeacher: async (
       _: any,
-      { assignmentId }: any,
+      { assignmentId }: QueryGetAssignmentSubmissionsAsTeacherArgs,
       context: any
     ) => {
       logger.info("GraphQL submissions/getAssignmentSubmissionsAsTeacher");
@@ -318,7 +329,12 @@ module.exports = {
   Mutation: {
     createAssignment: async (
       _: any,
-      { classroomId, assignmentName, dueDate, problemIds }: any,
+      {
+        classroomId,
+        assignmentName,
+        dueDate,
+        problemIds,
+      }: MutationCreateAssignmentArgs,
       context: any
     ) => {
       logger.info("GraphQL assignments/createAssignment");
@@ -417,7 +433,7 @@ module.exports = {
     },
     removeAssignment: async (
       _: any,
-      { assignmentId, assignmentName }: any,
+      { assignmentId, assignmentName }: MutationRemoveAssignmentArgs,
       context: any
     ) => {
       logger.info("GraphQL assignments/removeAssignment");
@@ -452,7 +468,12 @@ module.exports = {
     },
     setAssignmentSubmissionMark: async (
       _: any,
-      { userId, assignmentId, problemId, mark }: any,
+      {
+        userId,
+        assignmentId,
+        problemId,
+        mark,
+      }: MutationSetAssignmentSubmissionMarkArgs,
       context: any
     ) => {
       logger.info("GraphQL submissions/setAssignmentSubmissionMark");
@@ -537,7 +558,10 @@ module.exports = {
     },
     setAssignmentProblemSubmission: async (
       _: any,
-      { assignmentId, submissionId }: any,
+      {
+        assignmentId,
+        submissionId,
+      }: MutationSetAssignmentProblemSubmissionArgs,
       context: any
     ) => {
       logger.info("GraphQL submissions/setAssignmentProblemSubmission");
@@ -613,7 +637,10 @@ module.exports = {
     },
     removeAssignmentProblemSubmission: async (
       _: any,
-      { assignmentId, problemId }: any,
+      {
+        assignmentId,
+        problemId,
+      }: MutationRemoveAssignmentProblemSubmissionArgs,
       context: any
     ) => {
       logger.info("GraphQL submissions/removeAssignmentProblemSubmission");

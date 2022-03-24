@@ -17,30 +17,42 @@ const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET as string;
 const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI as string;
 const SESSION_SECRET = process.env.SESSION_SECRET as string;
 
+let sessionConfig: any = {
+  secret: SESSION_SECRET,
+  resave: true,
+  saveUninitialized: true,
+};
+let originConfig = [FRONTEND_URL, "https://studio.apollographql.com"];
+
+if (process.env.NODE_ENV === "production") {
+  sessionConfig = {
+    secret: SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+      sameSite: "none",
+      secure: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7, // One Week
+    },
+  };
+  originConfig = [FRONTEND_URL];
+} else if (process.env.NODE_ENV === "development") {
+  // Use default configs
+} else if (process.env.NODE_ENV === "test") {
+  // Use default configs
+}
+
 const app = express();
 app.use(express.json());
-// https://studio.apollographql.com is there so I can use GraphQL studio, will remove for deployment.
 app.use(
   cors({
-    origin: [FRONTEND_URL, "https://studio.apollographql.com"],
+    origin: originConfig,
     credentials: true,
     optionsSuccessStatus: 200,
   })
 );
 app.set("trust proxy", 1);
-app.use(
-  session({
-    secret: SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true,
-    // Doesn't work locally if I use this
-    // cookie: {
-    //   sameSite: "none",
-    //   secure: true,
-    //   maxAge: 1000 * 60 * 60 * 24 * 7, // One Week
-    // },
-  })
-);
+app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -129,7 +141,7 @@ const corsOptions = {
 };
 
 let apolloServer: any = null;
-async function startApolloServer() {
+const startApolloServer = async () => {
   logger.info("Attempting to start Apollo Server");
   try {
     apolloServer = new ApolloServer({
@@ -143,7 +155,7 @@ async function startApolloServer() {
   } catch (error) {
     logger.error("Failed to start Apollo Server", error);
   }
-}
+};
 startApolloServer();
 
 export { app, apolloServer, prisma };

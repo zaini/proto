@@ -5,7 +5,9 @@
   "author": "zaini <alimzaini@outlook.com>",
   "license": "MIT",
   "scripts": {
-    "build": "(nvm use 16.13) && (cd backend && yarn install && yarn run build) & (cd frontend && yarn install && yarn run build)",
+    "install": "(cd backend && yarn) & (cd frontend && yarn install)",
+    "setup": "(cd backend && yarn run judge)",
+    "build": "(cd backend && yarn run build) & (cd frontend yarn run build)",
     "start": "(pm2 delete all || true) && ((cd frontend && pm2 start npm --name \"proto_frontend\" -- start) & (cd backend && pm2 start npm --name \"proto_backend\" -- start))"
   }
 }

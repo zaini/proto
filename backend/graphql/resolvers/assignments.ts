@@ -60,7 +60,6 @@ module.exports = {
 
       const user = isAuth(context);
 
-      // TODO add return stats
       const assignment = await prisma.assignment.findUnique({
         where: {
           id: parseInt(assignmentId),

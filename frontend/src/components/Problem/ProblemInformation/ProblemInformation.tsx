@@ -33,7 +33,7 @@ const ProblemInformation = ({
         <TabList>
           <Tab>Description</Tab>
           <Tab>Submissions</Tab>
-          <Tab>Leaderboard</Tab>
+          {/* <Tab>Leaderboard</Tab> */}
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -45,7 +45,7 @@ const ProblemInformation = ({
               latestSubmission={latestSubmission}
             />
           </TabPanel>
-          <TabPanel>TODO maybe make a leaderboard?</TabPanel>
+          {/* <TabPanel>TODO maybe make a leaderboard?</TabPanel> */}
         </TabPanels>
       </Tabs>
     </>

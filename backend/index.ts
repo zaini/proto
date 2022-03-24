@@ -12,9 +12,9 @@ const typeDefs = require("./graphql/typeDefs/typeDefs");
 const resolvers = require("./graphql/resolvers");
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
-const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID as string;
-const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET as string;
-const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI as string;
+const GITHUB_CLIENT_ID = process.env.CLIENT_ID_GITHUB as string;
+const GITHUB_CLIENT_SECRET = process.env.CLIENT_SECRET_GITHUB as string;
+const GITHUB_REDIRECT_URI = process.env.REDIRECT_URI_GITHUB as string;
 const SESSION_SECRET = process.env.SESSION_SECRET as string;
 
 let sessionConfig: any = {

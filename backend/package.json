@@ -19,6 +19,7 @@
     "test:db:setup": "yarn run test:db:reset && yarn run test:db:migrate",
     "test": "dotenv -e .env.test jest --verbose --runInBand -i",
     "build": "tsc",
+    "judge": "cd judge0-v1.13.0 ; sh start.sh",
     "generate-gql-types": "graphql-codegen"
   },
   "prisma": {

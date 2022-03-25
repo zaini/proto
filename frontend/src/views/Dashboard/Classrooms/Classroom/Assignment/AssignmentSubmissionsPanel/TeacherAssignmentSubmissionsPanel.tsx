@@ -20,6 +20,7 @@ import AssignmentSubmissionModal from "../../../../../../components/AssignmentSu
 import AssignmentStatisticCharts from "../../../../../../components/AssignmentStatisticCharts/AssignmentStatisticCharts";
 import Loading from "../../../../../../components/Loading/Loading";
 import Error from "../../../../../../components/Error/Error";
+import TeacherAssignmentSubmissionsTable from "../../../../../../components/TeacherAssignmentSubmissionsTable/TeacherAssignmentSubmissionsTable";
 
 const GET_ASSIGNMENT_SUBMISSION = gql`
   query getAssignmentSubmissionsAsTeacher($assignmentId: ID!) {
@@ -27,6 +28,7 @@ const GET_ASSIGNMENT_SUBMISSION = gql`
       user {
         id
         username
+        organisationId
       }
       assignmentSubmissions {
         createdAt
@@ -108,83 +110,10 @@ const TeacherAssignmentSubmissionsPanel = () => {
         />
       </Center>
       <br />
-      <CustomTable
-        data={userAssignmentSubmissions.map((userAssignmentSubmission) => {
-          const user = userAssignmentSubmission.user;
-          const assignmentSubmissions =
-            userAssignmentSubmission.assignmentSubmissions;
-
-          const numOfProblems = assignment.problems?.length;
-
-          const attempts = assignmentSubmissions?.length;
-
-          const solves = assignmentSubmissions?.filter(
-            (assignmentSubmission) => assignmentSubmission?.submission?.passed
-          ).length;
-
-          const lastChange = Math.max.apply(
-            Math,
-            assignmentSubmissions!.map((o) => {
-              return o?.createdAt ? parseInt(o?.createdAt) : -Infinity;
-            })
-          );
-
-          const totalMarks = assignmentSubmissions.reduce(
-            (total, assignmentSubmission) =>
-              total +
-              (assignmentSubmission.mark ? assignmentSubmission.mark : 0),
-            0
-          );
-
-          const avgMark = (totalMarks / numOfProblems).toFixed(2);
-
-          const assignmentSubmissionStats = {
-            learner: user.username,
-            attempted: `${attempts}/${numOfProblems}`,
-            avgMark: `${avgMark}/100`,
-            solved: `${solves}/${numOfProblems}`,
-            lastChange:
-              lastChange === -Infinity
-                ? "N/A"
-                : new Date(lastChange).toLocaleString(),
-          };
-
-          return {
-            ...assignmentSubmissionStats,
-            options: (
-              <ButtonGroup>
-                <Button
-                  colorScheme={"blue"}
-                  // disabled={assignmentSubmissions?.length === 0}
-                  onClick={() => {
-                    setAssignmentSubmissionModalData({
-                      assignment,
-                      user,
-                      assignmentSubmissionStats,
-                    });
-                    onOpen();
-                  }}
-                >
-                  View Submission
-                </Button>
-              </ButtonGroup>
-            ),
-          };
-        })}
-        columns={[
-          {
-            Header: "Learner",
-            accessor: "learner",
-          },
-          { Header: "Problems Attempted", accessor: "attempted" },
-          { Header: "Problems Solved", accessor: "solved" },
-          { Header: "Average Mark", accessor: "avgMark" },
-          { Header: "Last Submission Change", accessor: "lastChange" },
-          {
-            Header: "Options",
-            accessor: "options",
-          },
-        ]}
+      <TeacherAssignmentSubmissionsTable
+        userAssignmentSubmissions={userAssignmentSubmissions}
+        setAssignmentSubmissionModalData={setAssignmentSubmissionModalData}
+        onOpen={onOpen}
       />
     </>
   );

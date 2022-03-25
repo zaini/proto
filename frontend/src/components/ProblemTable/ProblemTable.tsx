@@ -13,6 +13,7 @@ import CustomTable from "../CustomTable/CustomTable";
 import gql from "graphql-tag";
 import { useLazyQuery } from "@apollo/client";
 import { Problem } from "../../gql-types";
+import { Rating } from "react-simple-star-rating";
 
 const GET_PROBLEMS = gql`
   query getProblems($filter: String) {
@@ -119,6 +120,24 @@ const ProblemTable = () => {
                 problem.specification.difficulty.toLowerCase() === difficulty
             )
             .map((problem) => {
+              const stars = problem.rating.numberOfRatings ? (
+                <Rating
+                  readonly={true}
+                  size={28}
+                  ratingValue={
+                    (Math.round(
+                      (problem.rating.totalRating /
+                        problem.rating.numberOfRatings) *
+                        10
+                    ) /
+                      10) *
+                    20
+                  }
+                />
+              ) : (
+                "Unrated"
+              );
+
               return {
                 id: problem.id,
                 problem: (
@@ -128,13 +147,7 @@ const ProblemTable = () => {
                 ),
                 difficulty: problem.specification.difficulty.toLowerCase(),
                 totalRatings: problem.rating.numberOfRatings,
-                avgRating: problem.rating.numberOfRatings
-                  ? Math.round(
-                      (problem.rating.totalRating /
-                        problem.rating.numberOfRatings) *
-                        10
-                    ) / 10
-                  : "Unrated",
+                avgRating: stars,
                 solved: `${problem.solved}`,
               };
             })}

@@ -21,6 +21,7 @@ import { LanguageCodeToName } from "../../utils";
 import SubmissionModal from "../../components/SubmissionModal/SubmissionModal";
 import Error from "../../components/Error/Error";
 import Loading from "../../components/Loading/Loading";
+import { Rating } from "react-simple-star-rating";
 
 const GET_USER = gql`
   query getUser($userId: ID!) {
@@ -228,6 +229,24 @@ const Profile = () => {
         {problems.length > 0 ? (
           <CustomTable
             data={problems.map((problem: Problem) => {
+              const stars = problem.rating.numberOfRatings ? (
+                <Rating
+                  readonly={true}
+                  size={28}
+                  ratingValue={
+                    (Math.round(
+                      (problem.rating.totalRating /
+                        problem.rating.numberOfRatings) *
+                        10
+                    ) /
+                      10) *
+                    20
+                  }
+                />
+              ) : (
+                "Unrated"
+              );
+
               return {
                 problem: (
                   <a href={`/problems/${problem.id}`}>
@@ -236,13 +255,7 @@ const Profile = () => {
                 ),
                 difficulty: problem.specification.difficulty.toLowerCase(),
                 totalRatings: problem.rating.numberOfRatings,
-                avgRating: problem.rating.numberOfRatings
-                  ? Math.round(
-                      (problem.rating.totalRating /
-                        problem.rating.numberOfRatings) *
-                        10
-                    ) / 10
-                  : "Unrated",
+                avgRating: stars,
               };
             })}
             columns={[

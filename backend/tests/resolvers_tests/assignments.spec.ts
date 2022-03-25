@@ -1059,6 +1059,55 @@ describe("assignments resolvers", () => {
       "Failed to create assignment due to invalid due date."
     );
   });
+  test("createAssignment with no name", async () => {
+    const validUserAccessToken = `Bearer ${createAccessToken({ id: 1 })}`;
+
+    const response = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `mutation createAssignment(
+          $classroomId: ID!
+          $assignmentName: String!
+          $dueDate: String!
+          $problemIds: [ID!]!
+        ) {
+          createAssignment(
+            classroomId: $classroomId
+            dueDate: $dueDate
+            problemIds: $problemIds
+            assignmentName: $assignmentName
+          ) {
+            id
+            name
+            dueDate
+            problems {
+              id
+              specification {
+                title
+              }
+            }
+          }
+        }`,
+        variables: {
+          classroomId: "1",
+          assignmentName: "",
+          dueDate: new Date("1/1/3000"),
+          problemIds: [1],
+        },
+      },
+      {
+        headers: {
+          Authorization: validUserAccessToken,
+        },
+      }
+    );
+
+    const { data } = response;
+
+    expect(data.errors[0].message).toBe(
+      "Cannot create assignment with empty name."
+    );
+  });
   test("removeAssignment with valid id and name", async () => {
     const validUserAccessToken = `Bearer ${createAccessToken({ id: 1 })}`;
 

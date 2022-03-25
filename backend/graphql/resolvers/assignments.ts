@@ -403,6 +403,10 @@ module.exports = {
         );
       }
 
+      if (assignmentName.length === 0) {
+        throw new ApolloError("Cannot create assignment with empty name.");
+      }
+
       const dueDateObject = new Date(dueDate);
       if (
         !(dueDateObject instanceof Date && !isNaN(dueDateObject.getTime())) ||

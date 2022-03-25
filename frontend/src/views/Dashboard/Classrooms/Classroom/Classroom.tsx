@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from "react";
-import { Center, Spinner } from "@chakra-ui/react";
+import { Box, Center, Spinner } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
@@ -8,6 +8,8 @@ import { AuthContext } from "../../../../context/Auth";
 import { AccountType } from "../../../../utils";
 import TeacherClassroom from "./TeacherClassroom";
 import LearnerClassroom from "./LearnerClassroom";
+import Loading from "../../../../components/Loading/Loading";
+import Error from "../../../../components/Error/Error";
 
 const ClassroomContext = createContext<ClassroomType | any>({ classroom: {} });
 
@@ -51,20 +53,13 @@ const Classroom = () => {
     },
   });
 
-  if (loading)
+  if (loading) return <Loading />;
+  if (error)
     return (
-      <Center h="1000px">
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
-      </Center>
+      <Box px={"12.5%"} pt={8}>
+        <Error error={error} />
+      </Box>
     );
-  // TODO have an actual error page and log this
-  if (error) return <>Error! ${error.message}</>;
 
   const classroomData: ClassroomType = data.getClassroom;
 

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import gql from "graphql-tag";
 import { useMutation, useQuery } from "@apollo/client";
 import {
+  Box,
   Button,
   Center,
   Input,
@@ -14,6 +15,8 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { Classroom } from "../../../../gql-types";
+import Error from "../../../../components/Error/Error";
+import Loading from "../../../../components/Loading/Loading";
 
 const GET_CLASSROOM = gql`
   query getClassroom($classroomId: ID!) {
@@ -63,20 +66,13 @@ const JoinClassroom = () => {
     },
   });
 
-  if (loading)
+  if (loading) return <Loading />;
+  if (error)
     return (
-      <Center h="1000px">
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
-      </Center>
+      <Box px={"12.5%"} pt={8}>
+        <Error error={error} />
+      </Box>
     );
-  // TODO have an actual error page and log this
-  if (error) return <>Could not find the classroom for this invite link.</>;
 
   const classroomData: Classroom = data.getClassroom;
 

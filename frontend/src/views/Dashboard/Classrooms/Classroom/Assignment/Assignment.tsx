@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { Center, Spinner } from "@chakra-ui/react";
+import { Box, Center, Spinner } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
@@ -7,6 +7,8 @@ import { Assignment as AssignmentType } from "../../../../../gql-types";
 import { AuthContext } from "../../../../../context/Auth";
 import TeacherAssignment from "./TeacherAssignment";
 import LearnerAssignment from "./LearnerAssignment";
+import Loading from "../../../../../components/Loading/Loading";
+import Error from "../../../../../components/Error/Error";
 
 const AssignmentContext = createContext<AssignmentType | any>({
   assignment: {},
@@ -48,20 +50,13 @@ const Assignment = () => {
     },
   });
 
-  if (loading)
+  if (loading) return <Loading />;
+  if (error)
     return (
-      <Center h="1000px">
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
-      </Center>
+      <Box px={"12.5%"} pt={8}>
+        <Error error={error} />
+      </Box>
     );
-  // TODO have an actual error page and log this
-  if (error) return <>Error! ${error.message}</>;
 
   const assignmentData: AssignmentType = data.getAssignment;
 

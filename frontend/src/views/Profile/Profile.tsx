@@ -19,6 +19,8 @@ import Tooltip from "@uiw/react-tooltip";
 import CustomTable from "../../components/CustomTable/CustomTable";
 import { LanguageCodeToName } from "../../utils";
 import SubmissionModal from "../../components/SubmissionModal/SubmissionModal";
+import Error from "../../components/Error/Error";
+import Loading from "../../components/Loading/Loading";
 
 const GET_USER = gql`
   query getUser($userId: ID!) {
@@ -85,20 +87,13 @@ const Profile = () => {
     },
   });
 
-  if (loading)
+  if (loading) return <Loading />;
+  if (error)
     return (
-      <Center h="1000px">
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
-      </Center>
+      <Box px={"12.5%"} pt={8}>
+        <Error error={error} />
+      </Box>
     );
-  // TODO have an actual error page and log this
-  if (error) return <>Could not find user. {error.message}</>;
 
   const profile: User = data.getUser;
 

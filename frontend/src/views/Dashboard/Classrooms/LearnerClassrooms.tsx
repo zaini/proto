@@ -14,6 +14,8 @@ import { useQuery } from "@apollo/client";
 import gql from "graphql-tag";
 import { Classroom } from "../../../gql-types";
 import CopyLink from "../../../components/CopyLink/CopyLink";
+import Loading from "../../../components/Loading/Loading";
+import Error from "../../../components/Error/Error";
 
 const GET_CLASSROOMS = gql`
   query getLearnerClassrooms {
@@ -27,20 +29,13 @@ const GET_CLASSROOMS = gql`
 const LearnerClassrooms = () => {
   const { loading, error, data } = useQuery(GET_CLASSROOMS);
 
-  if (loading)
+  if (loading) return <Loading />;
+  if (error)
     return (
-      <Center h="1000px">
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
-      </Center>
+      <Box px={"12.5%"} pt={8}>
+        <Error error={error} />
+      </Box>
     );
-  // TODO have an actual error page and log this
-  if (error) return <>Error! ${error.message}</>;
 
   const classrooms: Classroom[] = data.getLearnerClassrooms;
 

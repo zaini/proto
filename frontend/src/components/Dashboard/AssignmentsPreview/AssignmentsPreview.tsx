@@ -12,6 +12,8 @@ import { useQuery } from "@apollo/client";
 import { Assignment } from "../../../gql-types";
 import AssignmentBox from "../../AssignmentBox/AssignmentBox";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import Loading from "../../Loading/Loading";
+import Error from "../../Error/Error";
 
 const GET_ASSIGNMENTS = gql`
   query getAssignments {
@@ -50,20 +52,13 @@ const AssignmentsPreview = () => {
 
   const contentWrapper = useRef(null);
 
-  if (loading)
+  if (loading) return <Loading />;
+  if (error)
     return (
-      <Center h="1000px">
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
-      </Center>
+      <Box px={"12.5%"} pt={8}>
+        <Error error={error} />
+      </Box>
     );
-  // TODO have an actual error page and log this
-  if (error) return <>Error! {error.message}</>;
 
   const assignments: Assignment[] = data.getAssignments;
 

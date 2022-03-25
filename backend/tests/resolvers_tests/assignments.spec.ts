@@ -1854,4 +1854,162 @@ describe("assignments resolvers", () => {
       "Could not delete your submission for this assignment problem. It might not exist."
     );
   });
+  test("getAssignmentExportData for assignment that user owns", async () => {
+    const validUserAccessToken = `Bearer ${createAccessToken({ id: 4 })}`;
+
+    const response = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `query getAssignmentExportData($assignmentId: ID!) {
+          getAssignmentExportData(assignmentId: $assignmentId) {
+            userAssignmentSubmission {
+              user {
+                id
+                username
+                organisationId
+              }
+              assignmentSubmissions {
+                problem {
+                  id
+                  specification {
+                    title
+                  }
+                }
+                submission {
+                  id
+                  code
+                  language
+                  avgTime
+                  avgMemory
+                  passed
+                  userId
+                }
+                mark
+                comments
+              }
+            }
+            avgMark
+            solves
+            attempts
+            numOfProblems
+            comments
+          }
+        }`,
+        variables: {
+          assignmentId: "4",
+        },
+      },
+      {
+        headers: {
+          Authorization: validUserAccessToken,
+        },
+      }
+    );
+
+    const { data } = response;
+
+    expect(data).toMatchObject({
+      data: {
+        getAssignmentExportData: [
+          {
+            userAssignmentSubmission: {
+              user: {
+                id: "3",
+                username: "cathy",
+                organisationId: "cathy@school.ac.uk",
+              },
+              assignmentSubmissions: [
+                {
+                  problem: {
+                    id: "1",
+                    specification: {
+                      title: "Addition",
+                    },
+                  },
+                  submission: {
+                    id: "1",
+                    code: "random code",
+                    language: 71,
+                    avgTime: 3,
+                    avgMemory: 3,
+                    passed: false,
+                    userId: "3",
+                  },
+                  mark: null,
+                  comments: null,
+                },
+              ],
+            },
+            avgMark: 0,
+            solves: 0,
+            attempts: 1,
+            numOfProblems: 1,
+            comments: "Addition - null",
+          },
+        ],
+      },
+    });
+  });
+  test("getAssignmentExportData for assignment that user does not own", async () => {
+    const validUserAccessToken = `Bearer ${createAccessToken({ id: 1 })}`;
+
+    const response = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `query getAssignmentExportData($assignmentId: ID!) {
+          getAssignmentExportData(assignmentId: $assignmentId) {
+            userAssignmentSubmission {
+              user {
+                id
+              }
+            }
+          }
+        }`,
+        variables: {
+          assignmentId: "4",
+        },
+      },
+      {
+        headers: {
+          Authorization: validUserAccessToken,
+        },
+      }
+    );
+
+    const { data } = response;
+
+    expect(data.errors[0].message).toBe(
+      "This user is the not the creator of this assignment."
+    );
+  });
+  test("getAssignmentExportData for assignment that does not exist", async () => {
+    const validUserAccessToken = `Bearer ${createAccessToken({ id: 1 })}`;
+
+    const response = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `query getAssignmentExportData($assignmentId: ID!) {
+          getAssignmentExportData(assignmentId: $assignmentId) {
+            userAssignmentSubmission {
+              user {
+                id
+              }
+            }
+          }
+        }`,
+        variables: {
+          assignmentId: "-1",
+        },
+      },
+      {
+        headers: {
+          Authorization: validUserAccessToken,
+        },
+      }
+    );
+
+    const { data } = response;
+
+    expect(data.errors[0].message).toBe("This assignment does not exist.");
+  });
 });

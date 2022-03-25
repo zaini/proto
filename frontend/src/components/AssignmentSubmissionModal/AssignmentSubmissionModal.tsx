@@ -132,7 +132,11 @@ const AssignmentSubmissionModal = ({
   const [setAssignmentSubmissionFeedback] = useMutation(
     SET_ASSIGNMENT_SUBMISSION_MARK,
     {
-      refetchQueries: [GET_ASSIGNMENT_SUBMISSIONS, "getAssignmentSubmissions"],
+      refetchQueries: [
+        GET_ASSIGNMENT_SUBMISSIONS,
+        "getAssignmentSubmissions",
+        "getAssignmentExportData",
+      ],
       onError(err) {
         const message =
           (err.graphQLErrors &&

@@ -124,6 +124,15 @@ module.exports = gql`
     problem: Problem!
     submissions: [Submission!]!
   }
+  type UserAssignmentSubmissionDataRow {
+    userAssignmentSubmission: UserAssignmentSubmission!
+    avgMark: Float
+    solves: Int
+    attempts: Int
+    lastChange: String
+    comments: String
+    numOfProblems: Int
+  }
 
   type Mutation {
     # User Mutations
@@ -197,6 +206,17 @@ module.exports = gql`
     # Assignment Queries
     getAssignment(assignmentId: ID!, classroomId: ID!): Assignment!
     getAssignments: [Assignment!]!
+    getAssignmentSubmissions(
+      assignmentId: ID!
+      userId: ID
+    ): [AssignmentSubmission]!
+    getAssignmentProblemSubmissions(assignmentId: ID!): [ProblemSubmissions!]!
+    getAssignmentSubmissionsAsTeacher(
+      assignmentId: ID!
+    ): [UserAssignmentSubmission!]!
+    getAssignmentExportData(
+      assignmentId: ID!
+    ): [UserAssignmentSubmissionDataRow!]!
     # End of Assignment Queries
 
     # Problem Queries
@@ -208,14 +228,6 @@ module.exports = gql`
     # Submission Queries
     getTopKSubmissionForProblem(problemId: ID!, k: Int!): [Submission!]!
     getSubmissionsForProblem(problemId: ID!): [Submission!]!
-    getAssignmentSubmissions(
-      assignmentId: ID!
-      userId: ID
-    ): [AssignmentSubmission]!
-    getAssignmentProblemSubmissions(assignmentId: ID!): [ProblemSubmissions!]!
-    getAssignmentSubmissionsAsTeacher(
-      assignmentId: ID!
-    ): [UserAssignmentSubmission!]!
     getSubmission(submissionId: ID!): Submission!
     # End of Submission Queries
   }

@@ -199,6 +199,7 @@ export type ProblemSubmissions = {
 export type Query = {
   __typename?: 'Query';
   getAssignment: Assignment;
+  getAssignmentExportData: Array<UserAssignmentSubmissionDataRow>;
   getAssignmentProblemSubmissions: Array<ProblemSubmissions>;
   getAssignmentSubmissions: Array<Maybe<AssignmentSubmission>>;
   getAssignmentSubmissionsAsTeacher: Array<UserAssignmentSubmission>;
@@ -220,6 +221,11 @@ export type Query = {
 export type QueryGetAssignmentArgs = {
   assignmentId: Scalars['ID'];
   classroomId: Scalars['ID'];
+};
+
+
+export type QueryGetAssignmentExportDataArgs = {
+  assignmentId: Scalars['ID'];
 };
 
 
@@ -357,4 +363,15 @@ export type UserAssignmentSubmission = {
   __typename?: 'UserAssignmentSubmission';
   assignmentSubmissions: Array<AssignmentSubmission>;
   user: User;
+};
+
+export type UserAssignmentSubmissionDataRow = {
+  __typename?: 'UserAssignmentSubmissionDataRow';
+  attempts?: Maybe<Scalars['Int']>;
+  avgMark?: Maybe<Scalars['Float']>;
+  comments?: Maybe<Scalars['String']>;
+  lastChange?: Maybe<Scalars['String']>;
+  numOfProblems?: Maybe<Scalars['Int']>;
+  solves?: Maybe<Scalars['Int']>;
+  userAssignmentSubmission: UserAssignmentSubmission;
 };

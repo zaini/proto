@@ -9,6 +9,7 @@ import {
   QueryGetAssignmentSubmissionsArgs,
   QueryGetAssignmentSubmissionsAsTeacherArgs,
   MutationSetAssignmentSubmissionFeedbackArgs,
+  QueryGetAssignmentExportDataArgs,
 } from "../../gql-types";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
@@ -327,7 +328,7 @@ module.exports = {
       }
 
       // Only the creator of the classroom for the assignment can view all the submissions
-      if (assignment.classroom.creator.id != user.id) {
+      if (assignment.classroom.creator.id !== user.id) {
         throw new ApolloError(
           "This user is the not the creator of this assignment."
         );
@@ -365,6 +366,129 @@ module.exports = {
       );
 
       return userAssignmentSubmission;
+    },
+    getAssignmentExportData: async (
+      _: any,
+      { assignmentId }: QueryGetAssignmentExportDataArgs,
+      context: any
+    ) => {
+      logger.info("GraphQL assignments/getAssignmentExportData");
+
+      // Used by teacher to export all assignment submissions as CSV
+
+      const user = isAuth(context);
+
+      const assignment = await prisma.assignment.findUnique({
+        where: {
+          id: parseInt(assignmentId),
+        },
+        include: {
+          problems: { include: { problem: true } },
+          classroom: { include: { creator: true } },
+        },
+      });
+
+      if (!assignment) {
+        throw new ApolloError("This assignment does not exist.");
+      }
+
+      // Only the creator of the classroom for the assignment can view all the submissions
+      if (assignment.classroom.creator.id !== user.id) {
+        throw new ApolloError(
+          "This user is the not the creator of this assignment."
+        );
+      }
+
+      const learners = await prisma.usersOnClassrooms.findMany({
+        where: {
+          classroomId: assignment.classroomId,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+      const numOfProblems = assignment.problems.length;
+
+      const userAssignmentSubmissions = await Promise.all(
+        learners.map(async ({ user }) => {
+          const assignmentSubmissions =
+            await prisma.assignmentSubmission.findMany({
+              where: {
+                userId: user.id,
+                assignmentId: assignment.id,
+              },
+              include: {
+                submission: true,
+                user: true,
+                problem: {
+                  include: {
+                    specification: true,
+                  },
+                },
+              },
+            });
+
+          if (assignmentSubmissions) {
+            const attempts = assignmentSubmissions.length;
+            const solves = assignmentSubmissions.filter(
+              (assignmentSubmission) => assignmentSubmission?.submission?.passed
+            ).length;
+            const lastChange = Math.max.apply(
+              Math,
+              assignmentSubmissions.map((assignmentSubmission) => {
+                return assignmentSubmission.createdAt
+                  ? Date.parse(`${assignmentSubmission.createdAt}`)
+                  : -Infinity;
+              })
+            );
+            const totalMarks = assignmentSubmissions.reduce(
+              (total, assignmentSubmission) =>
+                total +
+                (assignmentSubmission.mark ? assignmentSubmission.mark : 0),
+              0
+            );
+            const avgMark = (totalMarks / numOfProblems).toFixed(2);
+            const comments = assignmentSubmissions
+              .map(
+                (assignmentSubmission) =>
+                  `${assignmentSubmission.problem.specification.title} - ${assignmentSubmission.comments}`
+              )
+              .join("\n\n");
+
+            return {
+              userAssignmentSubmission: {
+                user,
+                assignmentSubmissions,
+              },
+              attempts,
+              comments,
+              avgMark,
+              solves,
+              numOfProblems,
+              lastChange:
+                lastChange === -Infinity
+                  ? "N/A"
+                  : new Date(lastChange).toLocaleString(),
+            };
+          }
+
+          return {
+            userAssignmentSubmission: {
+              user,
+              assignmentSubmissions,
+            },
+            attempted: 0,
+            comments: "",
+            avgMark: 0,
+            solved: 0,
+            numOfProblems,
+            lastChange: "",
+          };
+        })
+      );
+
+      return userAssignmentSubmissions;
     },
   },
   Mutation: {

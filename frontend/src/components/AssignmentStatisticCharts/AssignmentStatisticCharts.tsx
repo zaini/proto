@@ -8,16 +8,16 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { Assignment, UserAssignmentSubmission } from "../../gql-types";
+import { Assignment, UserAssignmentSubmissionDataRow } from "../../gql-types";
 
 type Props = {
   assignment: Assignment;
-  userAssignmentSubmissions: UserAssignmentSubmission[];
+  userAssignmentSubmissionData: UserAssignmentSubmissionDataRow[];
 };
 
 const AssignmentStatisticCharts = ({
   assignment,
-  userAssignmentSubmissions,
+  userAssignmentSubmissionData,
 }: Props) => {
   const [data, setData] = useState<any[]>([]);
 
@@ -36,7 +36,7 @@ const AssignmentStatisticCharts = ({
       ])
     );
 
-    userAssignmentSubmissions.forEach((userAssignmentSubmission) => {
+    userAssignmentSubmissionData.forEach(({ userAssignmentSubmission }) => {
       const assignmentSubmissions =
         userAssignmentSubmission.assignmentSubmissions;
 
@@ -70,7 +70,7 @@ const AssignmentStatisticCharts = ({
     });
 
     setData(Object.values(problemStats));
-  }, [userAssignmentSubmissions]);
+  }, [userAssignmentSubmissionData]);
 
   return (
     <>

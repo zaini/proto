@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "dotenv -e .env.development -- nodemon -e ts --exec \"yarn run start\"",
-    "test:dev": "dotenv -e .env.test -- nodemon -e ts --exec \"yarn run start\"",
+    "test:dev": "dotenv -e .env.test -- nodemon -e ts --exec \"yarn run test:start\"",
     "start": "dotenv -e .env.development -- tsc && node dist/server.js",
     "test:start": "dotenv -e .env.test -- tsc && node dist/server.js",
     "db:migrate": "dotenv -e .env.development -- npx prisma migrate dev && npx prisma generate",

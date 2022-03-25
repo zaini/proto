@@ -71,7 +71,7 @@ export type Mutation = {
   removeStudent?: Maybe<Scalars['Boolean']>;
   setAssignmentProblemSubmission?: Maybe<AssignmentSubmission>;
   setAssignmentSubmissionFeedback?: Maybe<AssignmentSubmission>;
-  setOrganisationalId?: Maybe<Scalars['Boolean']>;
+  setOrganisationId?: Maybe<Scalars['Boolean']>;
   submitProblem: Submission;
   submitTests: Array<TestCaseSubmission>;
 };
@@ -154,8 +154,8 @@ export type MutationSetAssignmentSubmissionFeedbackArgs = {
 };
 
 
-export type MutationSetOrganisationalIdArgs = {
-  organisationalId: Scalars['String'];
+export type MutationSetOrganisationIdArgs = {
+  organisationId: Scalars['String'];
 };
 
 

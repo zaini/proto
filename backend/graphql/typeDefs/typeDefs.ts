@@ -128,7 +128,7 @@ module.exports = gql`
   type Mutation {
     # User Mutations
     deleteUser(userId: ID!, username: String!): Boolean
-    setOrganisationalId(organisationalId: String!): Boolean
+    setOrganisationId(organisationId: String!): Boolean
     # End of User Mutations
 
     # Classroom Mutations

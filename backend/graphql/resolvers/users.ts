@@ -5,10 +5,10 @@ import { authenticateToken } from "../../utils/tokens";
 import { isAuth } from "../../utils/isAuth";
 import { getUserProblemRatingInformation } from "../../utils/resolverUtils";
 import {
+  MutationSetOrganisationIdArgs,
   MutationDeleteUserArgs,
   QueryGetUserArgs,
-  MutationSetOrganisationalIdArgs,
-} from "../../gql-types";
+} from "./../../gql-types.d";
 
 module.exports = {
   Query: {
@@ -107,14 +107,14 @@ module.exports = {
 
       return true;
     },
-    setOrganisationalId: async (
+    setOrganisationId: async (
       _: any,
-      { organisationalId }: MutationSetOrganisationalIdArgs,
+      { organisationId }: MutationSetOrganisationIdArgs,
       context: any
     ) => {
-      logger.info("GraphQL users/setOrganisationalId");
+      logger.info("GraphQL users/setOrganisationId");
 
-      // Set organisational ID
+      // Set organisation ID
 
       const authUser = isAuth(context);
 
@@ -132,16 +132,16 @@ module.exports = {
             },
             data: {
               organisationId:
-                organisationalId.length === 0 ? null : organisationalId,
+                organisationId.length === 0 ? null : organisationId,
             },
           });
           return true;
         } catch (error) {
-          logger.error("GraphQL users/setOrganisationalId", error);
+          logger.error("GraphQL users/setOrganisationId", error);
         }
       }
       throw new ApolloError(
-        "Failed to set users unique organisational ID. It may be taken."
+        "Failed to set users unique organisation ID. It may be taken."
       );
     },
   },

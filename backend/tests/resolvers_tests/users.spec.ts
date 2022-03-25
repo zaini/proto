@@ -346,17 +346,17 @@ describe("users resolvers", () => {
 
     expect(data.errors[0].message).toBe("Invalid Login Token");
   });
-  test("setOrganisationalId with new non-empty token", async () => {
+  test("setOrganisationId with new non-empty token", async () => {
     const userToken = `Bearer ${createAccessToken({ id: 1 })}`;
 
     const response = await axios.post(
       GRAPHQL_BACKEND_URL,
       {
-        query: `mutation SetOrganisationalId($organisationalId: String!) {
-          setOrganisationalId(organisationalId: $organisationalId)
+        query: `mutation setOrganisationId($organisationId: String!) {
+          setOrganisationId(organisationId: $organisationId)
         }`,
         variables: {
-          organisationalId: "k123",
+          organisationId: "k123",
         },
       },
       {
@@ -370,7 +370,7 @@ describe("users resolvers", () => {
 
     expect(data).toMatchObject({
       data: {
-        setOrganisationalId: true,
+        setOrganisationId: true,
       },
     });
 
@@ -405,17 +405,17 @@ describe("users resolvers", () => {
       },
     });
   });
-  test("setOrganisationalId with new empty token", async () => {
+  test("setOrganisationId with new empty token", async () => {
     const userToken = `Bearer ${createAccessToken({ id: 1 })}`;
 
     const response = await axios.post(
       GRAPHQL_BACKEND_URL,
       {
-        query: `mutation SetOrganisationalId($organisationalId: String!) {
-          setOrganisationalId(organisationalId: $organisationalId)
+        query: `mutation setOrganisationId($organisationId: String!) {
+          setOrganisationId(organisationId: $organisationId)
         }`,
         variables: {
-          organisationalId: "",
+          organisationId: "",
         },
       },
       {
@@ -429,7 +429,7 @@ describe("users resolvers", () => {
 
     expect(data).toMatchObject({
       data: {
-        setOrganisationalId: true,
+        setOrganisationId: true,
       },
     });
 
@@ -464,17 +464,17 @@ describe("users resolvers", () => {
       },
     });
   });
-  test("setOrganisationalId with non-unique, taken token", async () => {
+  test("setOrganisationId with non-unique, taken token", async () => {
     const userToken = `Bearer ${createAccessToken({ id: 1 })}`;
 
     const response = await axios.post(
       GRAPHQL_BACKEND_URL,
       {
-        query: `mutation SetOrganisationalId($organisationalId: String!) {
-          setOrganisationalId(organisationalId: $organisationalId)
+        query: `mutation setOrganisationId($organisationId: String!) {
+          setOrganisationId(organisationId: $organisationId)
         }`,
         variables: {
-          organisationalId: "bob@school.ac.uk",
+          organisationId: "bob@school.ac.uk",
         },
       },
       {
@@ -487,7 +487,7 @@ describe("users resolvers", () => {
     const { data } = response;
 
     expect(data.errors[0].message).toBe(
-      "Failed to set users unique organisational ID. It may be taken."
+      "Failed to set users unique organisation ID. It may be taken."
     );
 
     const userResponse = await axios.post(

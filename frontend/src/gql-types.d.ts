@@ -205,6 +205,7 @@ export type Query = {
   getSubmission: Submission;
   getSubmissionsForProblem: Array<Submission>;
   getTeacherClassrooms: Array<Classroom>;
+  getTopKSubmissionForProblem: Array<Submission>;
   getUser: User;
   isLoggedIn: Scalars['String'];
 };
@@ -257,6 +258,12 @@ export type QueryGetSubmissionsForProblemArgs = {
 };
 
 
+export type QueryGetTopKSubmissionForProblemArgs = {
+  k: Scalars['Int'];
+  problemId: Scalars['ID'];
+};
+
+
 export type QueryGetUserArgs = {
   userId: Scalars['ID'];
 };
@@ -296,6 +303,7 @@ export type Submission = {
   passed: Scalars['Boolean'];
   problem: Problem;
   testCaseSubmissions: Array<TestCaseSubmission>;
+  user: User;
   userId: Scalars['ID'];
 };
 

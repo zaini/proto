@@ -96,6 +96,7 @@ module.exports = gql`
   type Submission {
     id: ID!
     userId: ID!
+    user: User!
     problem: Problem!
     testCaseSubmissions: [TestCaseSubmission!]!
     createdAt: String!
@@ -203,6 +204,7 @@ module.exports = gql`
     # End of Problem Queries
 
     # Submission Queries
+    getTopKSubmissionForProblem(problemId: ID!, k: Int!): [Submission!]!
     getSubmissionsForProblem(problemId: ID!): [Submission!]!
     getAssignmentSubmissions(
       assignmentId: ID!

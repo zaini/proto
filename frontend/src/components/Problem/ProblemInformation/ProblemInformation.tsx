@@ -5,6 +5,7 @@ import { Tabs, Tab, TabList, TabPanels, TabPanel } from "@chakra-ui/react";
 import ProblemDescription from "./ProblemDescription/ProblemDescription";
 import Submissions from "./Submissions/Submissions";
 import { Submission } from "../../../gql-types";
+import Leaderboard from "./Leaderboard/Leaderboard";
 
 type ProblemInformationProps = {
   tabIndex: number;
@@ -33,7 +34,7 @@ const ProblemInformation = ({
         <TabList>
           <Tab>Description</Tab>
           <Tab>Submissions</Tab>
-          {/* <Tab>Leaderboard</Tab> */}
+          <Tab>Leaderboard</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -45,7 +46,9 @@ const ProblemInformation = ({
               latestSubmission={latestSubmission}
             />
           </TabPanel>
-          {/* <TabPanel>TODO maybe make a leaderboard?</TabPanel> */}
+          <TabPanel>
+            <Leaderboard />
+          </TabPanel>
         </TabPanels>
       </Tabs>
     </>

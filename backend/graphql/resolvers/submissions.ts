@@ -5,6 +5,7 @@ import {
   MutationSubmitProblemArgs,
   QueryGetSubmissionsForProblemArgs,
   QueryGetSubmissionArgs,
+  QueryGetTopKSubmissionForProblemArgs,
 } from "./../../gql-types.d";
 import { prisma } from "../../index";
 import { logger } from "../../logger";
@@ -16,6 +17,48 @@ import {
 
 module.exports = {
   Query: {
+    getTopKSubmissionForProblem: async (
+      _: any,
+      { problemId, k }: QueryGetTopKSubmissionForProblemArgs,
+      context: any
+    ) => {
+      logger.info("GraphQL submissions/getSubmissionsForProblem");
+
+      // Get the top k submissions based on runtime for a problem.
+      // Used when viewing leaderboard for a problem
+
+      const user = isAuth(context);
+
+      const problem = await prisma.problem.findUnique({
+        where: {
+          id: parseInt(problemId),
+        },
+      });
+
+      if (!problem) {
+        throw new ApolloError("This problem does not exist.");
+      }
+
+      if (k < 0) {
+        throw new ApolloError("Cannot return less than 0 submissions.");
+      }
+
+      const submissions = await prisma.submission.findMany({
+        where: {
+          problemId: problem.id,
+          passed: true,
+        },
+        include: {
+          user: true,
+        },
+        orderBy: {
+          avgTime: "asc",
+        },
+        take: k,
+      });
+
+      return submissions;
+    },
     getSubmissionsForProblem: async (
       _: any,
       { problemId }: QueryGetSubmissionsForProblemArgs,

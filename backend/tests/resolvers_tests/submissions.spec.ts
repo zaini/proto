@@ -4,6 +4,101 @@ import { createAccessToken } from "../../utils/tokens";
 const GRAPHQL_BACKEND_URL = "http://localhost:5000/graphql";
 
 describe("submissions resolvers", () => {
+  test("getTopKSubmissionForProblem with valid args", async () => {
+    const validUserAccessToken = `Bearer ${createAccessToken({ id: 1 })}`;
+
+    const response = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `query getTopKSubmissionForProblem($problemId: ID!, $k: Int!) {
+          getTopKSubmissionForProblem(problemId: $problemId, k: $k) {
+            id
+            language
+          }
+        }`,
+        variables: {
+          problemId: "1",
+          k: 5,
+        },
+      },
+      {
+        headers: {
+          Authorization: validUserAccessToken,
+        },
+      }
+    );
+
+    const { data } = response;
+
+    expect(data).toMatchObject({
+      data: {
+        getTopKSubmissionForProblem: [
+          {
+            id: "4",
+            language: 71,
+          },
+        ],
+      },
+    });
+  });
+  test("getTopKSubmissionForProblem with invalid k", async () => {
+    const validUserAccessToken = `Bearer ${createAccessToken({ id: 1 })}`;
+
+    const response = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `query getTopKSubmissionForProblem($problemId: ID!, $k: Int!) {
+          getTopKSubmissionForProblem(problemId: $problemId, k: $k) {
+            id
+            language
+          }
+        }`,
+        variables: {
+          problemId: "1",
+          k: -100,
+        },
+      },
+      {
+        headers: {
+          Authorization: validUserAccessToken,
+        },
+      }
+    );
+
+    const { data } = response;
+
+    expect(data.errors[0].message).toBe(
+      "Cannot return less than 0 submissions."
+    );
+  });
+  test("getTopKSubmissionForProblem with invalid problem id", async () => {
+    const validUserAccessToken = `Bearer ${createAccessToken({ id: 1 })}`;
+
+    const response = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `query getTopKSubmissionForProblem($problemId: ID!, $k: Int!) {
+          getTopKSubmissionForProblem(problemId: $problemId, k: $k) {
+            id
+            language
+          }
+        }`,
+        variables: {
+          problemId: "-1",
+          k: 5,
+        },
+      },
+      {
+        headers: {
+          Authorization: validUserAccessToken,
+        },
+      }
+    );
+
+    const { data } = response;
+
+    expect(data.errors[0].message).toBe("This problem does not exist.");
+  });
   test("getSubmissionsForProblem with no submissions made", async () => {
     const validUserAccessToken = `Bearer ${createAccessToken({ id: 1 })}`;
 

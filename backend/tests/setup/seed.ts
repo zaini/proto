@@ -367,6 +367,15 @@ process.stdin.on("data", buffer => {
         avgTime: 3,
         avgMemory: 3,
       },
+      {
+        userId: 3,
+        problemId: 1,
+        code: "passing random code",
+        language: 71,
+        passed: true,
+        avgTime: 3,
+        avgMemory: 3,
+      },
     ],
   });
   logger.info("Successfully seeded submissions");

@@ -16,6 +16,7 @@ import {
   Button,
   Text,
   IconButton,
+  Tooltip,
 } from "@chakra-ui/react";
 import { Select as MultiSelect } from "chakra-react-select";
 import NewProblemTestCases from "../../../components/Problem/NewProblemTestCases/NewProblemTestCases";
@@ -134,7 +135,13 @@ const NewProblem = () => {
       <br />
       <Stack>
         <InputGroup>
-          <InputLeftAddon children="Name" />
+          <Tooltip
+            label={
+              "This is the name that will show on the dashboard and used to search for this problem."
+            }
+          >
+            <InputLeftAddon children="Name" />
+          </Tooltip>
           <Input
             type="text"
             placeholder="FizzBuzz"
@@ -143,7 +150,13 @@ const NewProblem = () => {
           />
         </InputGroup>
         <InputGroup>
-          <InputLeftAddon children="Difficulty" />
+          <Tooltip
+            label={
+              "The difficulty should be an assessment of how compotent a user should be with programming to be able to solve the problem."
+            }
+          >
+            <InputLeftAddon children="Difficulty" />
+          </Tooltip>
           <Select
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
@@ -154,7 +167,13 @@ const NewProblem = () => {
           </Select>
         </InputGroup>
         <InputGroup>
-          <InputLeftAddon children="Description" />
+          <Tooltip
+            label={
+              "A description of the problem should include example inputs and outputs and outline what is expected to solve this problem. Written in markdown."
+            }
+          >
+            <InputLeftAddon children="Description" />
+          </Tooltip>
           <Tabs w={"100%"}>
             <TabList>
               <Tab>Markdown</Tab>
@@ -187,6 +206,11 @@ const NewProblem = () => {
         <br />
         <Box>
           <Heading size={"md"}>Test Cases</Heading>
+          <Text>
+            Hidden test cases are not shown to users but there code will be
+            tested against them to determine if they have solved a problem.
+          </Text>
+          <br />
           <NewProblemTestCases
             testCases={testCases}
             setTestCases={setTestCases}
@@ -197,8 +221,16 @@ const NewProblem = () => {
           <Heading size={"md"}>Language Support</Heading>
           <Text>
             Select the languages you would like to support and write the
-            boilerplate code you want to provide. Read the help guide for
-            guidance.
+            boilerplate code you want to provide for people who open this
+            problem.
+          </Text>
+          <br />
+          <Text>
+            Example initial code is given for a simple problem with two inputs.
+            Note that all inputs are given in from the standard input as a
+            single line, so you should modify the given code to suit your
+            inputs. Your should then write the expected output to the console as
+            that is how the code will be assessed.
           </Text>
           <br />
           <MultiSelect

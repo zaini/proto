@@ -346,4 +346,179 @@ describe("users resolvers", () => {
 
     expect(data.errors[0].message).toBe("Invalid Login Token");
   });
+  test("setOrganisationalId with new non-empty token", async () => {
+    const userToken = `Bearer ${createAccessToken({ id: 1 })}`;
+
+    const response = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `mutation SetOrganisationalId($organisationalId: String!) {
+          setOrganisationalId(organisationalId: $organisationalId)
+        }`,
+        variables: {
+          organisationalId: "k123",
+        },
+      },
+      {
+        headers: {
+          Authorization: userToken,
+        },
+      }
+    );
+
+    const { data } = response;
+
+    expect(data).toMatchObject({
+      data: {
+        setOrganisationalId: true,
+      },
+    });
+
+    const userResponse = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `query getUser($userId: ID!) {
+          getUser(userId: $userId) {
+            id
+            organisationId
+          }
+        }`,
+        variables: {
+          userId: "1",
+        },
+      },
+      {
+        headers: {
+          Authorization: userToken,
+        },
+      }
+    );
+
+    const { data: userData } = userResponse;
+
+    expect(userData).toMatchObject({
+      data: {
+        getUser: {
+          id: "1",
+          organisationId: "k123",
+        },
+      },
+    });
+  });
+  test("setOrganisationalId with new empty token", async () => {
+    const userToken = `Bearer ${createAccessToken({ id: 1 })}`;
+
+    const response = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `mutation SetOrganisationalId($organisationalId: String!) {
+          setOrganisationalId(organisationalId: $organisationalId)
+        }`,
+        variables: {
+          organisationalId: "",
+        },
+      },
+      {
+        headers: {
+          Authorization: userToken,
+        },
+      }
+    );
+
+    const { data } = response;
+
+    expect(data).toMatchObject({
+      data: {
+        setOrganisationalId: true,
+      },
+    });
+
+    const userResponse = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `query getUser($userId: ID!) {
+          getUser(userId: $userId) {
+            id
+            organisationId
+          }
+        }`,
+        variables: {
+          userId: "1",
+        },
+      },
+      {
+        headers: {
+          Authorization: userToken,
+        },
+      }
+    );
+
+    const { data: userData } = userResponse;
+
+    expect(userData).toMatchObject({
+      data: {
+        getUser: {
+          id: "1",
+          organisationId: null,
+        },
+      },
+    });
+  });
+  test("setOrganisationalId with non-unique, taken token", async () => {
+    const userToken = `Bearer ${createAccessToken({ id: 1 })}`;
+
+    const response = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `mutation SetOrganisationalId($organisationalId: String!) {
+          setOrganisationalId(organisationalId: $organisationalId)
+        }`,
+        variables: {
+          organisationalId: "bob@school.ac.uk",
+        },
+      },
+      {
+        headers: {
+          Authorization: userToken,
+        },
+      }
+    );
+
+    const { data } = response;
+
+    expect(data.errors[0].message).toBe(
+      "Failed to set users unique organisational ID. It may be taken."
+    );
+
+    const userResponse = await axios.post(
+      GRAPHQL_BACKEND_URL,
+      {
+        query: `query getUser($userId: ID!) {
+          getUser(userId: $userId) {
+            id
+            organisationId
+          }
+        }`,
+        variables: {
+          userId: "1",
+        },
+      },
+      {
+        headers: {
+          Authorization: userToken,
+        },
+      }
+    );
+
+    const { data: userData } = userResponse;
+
+    expect(userData).toMatchObject({
+      data: {
+        getUser: {
+          id: "1",
+          organisationId: "123",
+        },
+      },
+    });
+  });
 });

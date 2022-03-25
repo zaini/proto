@@ -25,6 +25,7 @@ module.exports = gql`
     id: ID!
     githubId: String!
     username: String!
+    organisationId: String
     createdAt: String!
     ownedClassrooms: [Classroom!]! # Classrooms this user owns
     problems: [Problem!]! # Problems the user has created
@@ -127,6 +128,7 @@ module.exports = gql`
   type Mutation {
     # User Mutations
     deleteUser(userId: ID!, username: String!): Boolean
+    setOrganisationalId(organisationalId: String!): Boolean
     # End of User Mutations
 
     # Classroom Mutations

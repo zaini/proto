@@ -4,7 +4,11 @@ import { logger } from "../../logger";
 import { authenticateToken } from "../../utils/tokens";
 import { isAuth } from "../../utils/isAuth";
 import { getUserProblemRatingInformation } from "../../utils/resolverUtils";
-import { MutationDeleteUserArgs, QueryGetUserArgs } from "../../gql-types";
+import {
+  MutationDeleteUserArgs,
+  QueryGetUserArgs,
+  MutationSetOrganisationalIdArgs,
+} from "../../gql-types";
 
 module.exports = {
   Query: {
@@ -102,6 +106,43 @@ module.exports = {
       }
 
       return true;
+    },
+    setOrganisationalId: async (
+      _: any,
+      { organisationalId }: MutationSetOrganisationalIdArgs,
+      context: any
+    ) => {
+      logger.info("GraphQL users/setOrganisationalId");
+
+      // Set organisational ID
+
+      const authUser = isAuth(context);
+
+      const user = await prisma.user.findUnique({
+        where: {
+          id: parseInt(authUser.id),
+        },
+      });
+
+      if (user && user.id === authUser.id) {
+        try {
+          await prisma.user.update({
+            where: {
+              id: user.id,
+            },
+            data: {
+              organisationId:
+                organisationalId.length === 0 ? null : organisationalId,
+            },
+          });
+          return true;
+        } catch (error) {
+          logger.error("GraphQL users/setOrganisationalId", error);
+        }
+      }
+      throw new ApolloError(
+        "Failed to set users unique organisational ID. It may be taken."
+      );
     },
   },
 };

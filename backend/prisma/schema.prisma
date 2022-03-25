@@ -20,6 +20,7 @@ model User {
   id                    Int                    @id @default(autoincrement())
   githubId              String                 @unique
   username              String                 @unique
+  organisationId        String?                @unique
   createdAt             DateTime               @default(now())
   ownedClassrooms       Classroom[] // Classrooms the User has created
   problems              Problem[] // Problems the User has created

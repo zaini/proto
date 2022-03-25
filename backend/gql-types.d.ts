@@ -71,6 +71,7 @@ export type Mutation = {
   removeStudent?: Maybe<Scalars['Boolean']>;
   setAssignmentProblemSubmission?: Maybe<AssignmentSubmission>;
   setAssignmentSubmissionFeedback?: Maybe<AssignmentSubmission>;
+  setOrganisationalId?: Maybe<Scalars['Boolean']>;
   submitProblem: Submission;
   submitTests: Array<TestCaseSubmission>;
 };
@@ -150,6 +151,11 @@ export type MutationSetAssignmentSubmissionFeedbackArgs = {
   mark: Scalars['Float'];
   problemId: Scalars['ID'];
   userId: Scalars['ID'];
+};
+
+
+export type MutationSetOrganisationalIdArgs = {
+  organisationalId: Scalars['String'];
 };
 
 
@@ -340,6 +346,7 @@ export type User = {
   createdAt: Scalars['String'];
   githubId: Scalars['String'];
   id: Scalars['ID'];
+  organisationId?: Maybe<Scalars['String']>;
   ownedClassrooms: Array<Classroom>;
   problems: Array<Problem>;
   recentSubmissions: Array<Submission>;

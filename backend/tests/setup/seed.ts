@@ -12,9 +12,13 @@ const seed = async () => {
   logger.info("Starting seeding for database");
   await prisma.user.createMany({
     data: [
-      { githubId: "11", username: "ali" },
-      { githubId: "22", username: "bob" },
-      { githubId: "33", username: "cathy" },
+      { githubId: "11", username: "ali", organisationId: "123" },
+      { githubId: "22", username: "bob", organisationId: "bob@school.ac.uk" },
+      {
+        githubId: "33",
+        username: "cathy",
+        organisationId: "cathy@school.ac.uk",
+      },
       { githubId: "51179189", username: "zaini" },
       { githubId: "55", username: "edward" },
     ],

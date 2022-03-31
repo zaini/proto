@@ -13,7 +13,7 @@ import { AuthContext } from "../../../context/Auth";
 import { useMutation, gql } from "@apollo/client";
 import DeleteAccountModal from "../../../components/DeleteAccountModal/DeleteAccountModal";
 
-const SET_ORGANISATION_ID = gql`
+export const SET_ORGANISATION_ID = gql`
   mutation setOrganisationId($organisationId: String!) {
     setOrganisationId(organisationId: $organisationId)
   }
@@ -45,7 +45,7 @@ const Settings = () => {
     <>
       <DeleteAccountModal isOpen={isOpen} onClose={onClose} />
       <Box px={"12.5%"} py={8}>
-        <Heading>Account Settings</Heading>
+        <Heading data-testid="account-settings">Account Settings</Heading>
         <br />
         <Button onClick={onOpen} colorScheme={"red"}>
           Delete Account
@@ -60,7 +60,11 @@ const Settings = () => {
         <br />
         <InputGroup>
           <InputLeftAddon children="Current Organisation ID" />
-          <Input readOnly={true} value={`${user.organisationId || "N/A"}`} />
+          <Input
+            readOnly={true}
+            value={`${user.organisationId || "N/A"}`}
+            data-testid="organisation-id"
+          />
         </InputGroup>
         <br />
         <InputGroup>

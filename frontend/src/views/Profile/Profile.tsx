@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import gql from "graphql-tag";
-import { useQuery } from "@apollo/client";
+import { useQuery, gql } from "@apollo/client";
 import { Problem, Submission, User } from "../../gql-types";
 import {
   Avatar,
@@ -10,7 +9,6 @@ import {
   ButtonGroup,
   Center,
   Heading,
-  Spinner,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -23,7 +21,7 @@ import Error from "../../components/Error/Error";
 import Loading from "../../components/Loading/Loading";
 import { Rating } from "react-simple-star-rating";
 
-const GET_USER = gql`
+export const GET_USER = gql`
   query getUser($userId: ID!) {
     getUser(userId: $userId) {
       id
@@ -111,7 +109,7 @@ const Profile = () => {
         {...{ isOpen, onClose, submissionId: modalSubmissionId }}
       />
       <Box px={"12.5%"} pt={8}>
-        <Heading size={"2xl"}>
+        <Heading size={"2xl"} data-testid="username">
           <Avatar
             size={"lg"}
             src={`https://avatars.githubusercontent.com/u/${profile.githubId}`}

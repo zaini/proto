@@ -17,12 +17,15 @@ const Error = ({ error }: Props) => {
       <b>Details</b>
       <br />
       <br />
-      <Textarea>
-        {(error.graphQLErrors &&
-          error.graphQLErrors[0] &&
-          error.graphQLErrors[0].message) ||
-          error.message}
-      </Textarea>
+      <Textarea
+        readOnly={true}
+        value={
+          (error.graphQLErrors &&
+            error.graphQLErrors[0] &&
+            error.graphQLErrors[0].message) ||
+          error.message
+        }
+      />
     </>
   );
 };

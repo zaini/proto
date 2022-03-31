@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const NotFound = () => {
   return (
     <Stack textAlign={"center"} my={8}>
-      <Heading>Page Not Found</Heading>
+      <Heading data-testid="page-not-found">Page Not Found</Heading>
       <Text>
         Maybe try{" "}
         <u>

@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -32,27 +29,28 @@ model User {
   testCases             TestCase[]
 }
 
-model Classroom {
-  id          Int                 @id @default(autoincrement())
-  name        String              @default("Unnamed Classroom")
-  creator     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  users       UsersOnClassrooms[] // The Users who are in this Classroom
-  assignments Assignment[] // The Assignments set for this Classroom
-  createdAt   DateTime            @default(now())
-  password    String
+model Specification {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String
+  initialCode String
+  testCases   TestCase[]
+  difficulty  Difficulty
+  problem     Problem[]
+  createdAt   DateTime   @default(now())
 }
 
-model UsersOnClassrooms {
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
-  classroomId Int
-  assignedAt  DateTime  @default(now())
-  createdAt   DateTime  @default(now())
-
-
-  @@id([userId, classroomId])
+model Problem {
+  id                    Int                     @id @default(autoincrement())
+  creator               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                Int
+  specification         Specification           @relation(fields: [specificationId], references: [id], onDelete: Cascade)
+  assignments           ProblemsOnAssignments[]
+  submission            Submission[]
+  assignmentSubmissions AssignmentSubmission[]
+  ratings               Rating[]
+  specificationId       Int
+  createdAt             DateTime                @default(now())
 }
 
 model Assignment {
@@ -67,30 +65,15 @@ model Assignment {
   assignmentSubmissions AssignmentSubmission[]
 }
 
-model Specification {
-  id          Int        @id @default(autoincrement())
-  title       String
-  description String
-  initialCode String
-  testCases   TestCase[]
-  difficulty  Difficulty
-  Problem     Problem[]
-  createdAt   DateTime   @default(now())
-
-}
-
-model Problem {
-  id                    Int                     @id @default(autoincrement())
-  creator               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId                Int
-  specification         Specification           @relation(fields: [specificationId], references: [id], onDelete: Cascade)
-  assignments           ProblemsOnAssignments[]
-  submission            Submission[]
-  assignmentSubmissions AssignmentSubmission[]
-  ratings               Rating[]
-  specificationId       Int
-  createdAt             DateTime                @default(now())
-
+model Classroom {
+  id          Int                 @id @default(autoincrement())
+  name        String              @default("Unnamed Classroom")
+  creator     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  users       UsersOnClassrooms[] // The Users who are in this Classroom
+  assignments Assignment[] // The Assignments set for this Classroom
+  createdAt   DateTime            @default(now())
+  password    String
 }
 
 model Rating {
@@ -133,7 +116,6 @@ model TestCaseSubmission {
   submissionId   Int?
   userId         Int
   createdAt      DateTime    @default(now())
-
 }
 
 model Submission {
@@ -168,6 +150,17 @@ model AssignmentSubmission {
   @@id([userId, assignmentId, problemId])
 }
 
+model UsersOnClassrooms {
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  classroomId Int
+  assignedAt  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
+  @@id([userId, classroomId])
+}
+
 model ProblemsOnAssignments {
   problem      Problem    @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId    Int
@@ -177,5 +170,3 @@ model ProblemsOnAssignments {
 
   @@id([problemId, assignmentId])
 }
-
-// HelpRequest, DailyChallenge, CronJobHistory etc.

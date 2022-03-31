@@ -17,6 +17,7 @@ const Login = () => {
         <Heading>Login to Proto</Heading>
         <br />
         <Button
+          data-testid="login-button"
           aria-label={"Login with GitHub"}
           colorScheme={"blue"}
           leftIcon={<BsGithub />}

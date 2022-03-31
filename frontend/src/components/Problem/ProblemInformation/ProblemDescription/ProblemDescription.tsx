@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Text, Code, Box } from "@chakra-ui/layout";
 import { ProblemContext } from "../../../../views/Problem/Problem";
 import { Rating } from "react-simple-star-rating";

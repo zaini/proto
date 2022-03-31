@@ -14,7 +14,9 @@ const DashboardHome = () => {
       <Box px={"12.5%"}>
         <Box my={12}>
           <Link to={`/problems/new`}>
-            <Button colorScheme={"blue"}>+ Create New Problem</Button>
+            <Button data-testid="new-problem-button" colorScheme={"blue"}>
+              + Create New Problem
+            </Button>
           </Link>
         </Box>
 

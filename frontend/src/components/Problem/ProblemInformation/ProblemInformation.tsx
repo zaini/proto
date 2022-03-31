@@ -24,7 +24,9 @@ const ProblemInformation = ({
 
   return (
     <>
-      <Heading p={4}>{problem.specification.title}</Heading>
+      <Heading p={4} data-testid="problem-title">
+        {problem.specification.title}
+      </Heading>
       <Tabs
         index={tabIndex}
         onChange={(index) => {

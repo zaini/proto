@@ -19,7 +19,7 @@ import CreateClassroom from "./CreateClassroom/CreateClassroom";
 import Loading from "../../../components/Loading/Loading";
 import Error from "../../../components/Error/Error";
 
-const CREATE_CLASSROOM = gql`
+export const CREATE_CLASSROOM = gql`
   mutation createClassroom($classroomName: String!, $password: String) {
     createClassroom(classroomName: $classroomName, password: $password) {
       id
@@ -28,7 +28,7 @@ const CREATE_CLASSROOM = gql`
   }
 `;
 
-const GET_CLASSROOMS = gql`
+export const GET_CLASSROOMS = gql`
   query getTeacherClassrooms {
     getTeacherClassrooms {
       id
@@ -75,7 +75,11 @@ const TeacherClassrooms = () => {
     <Box px={"12.5%"} pt={8}>
       <Heading>Classrooms</Heading>
       <br />
-      <Button onClick={onOpen} colorScheme={"blue"}>
+      <Button
+        data-testid="create-new-classroom"
+        onClick={onOpen}
+        colorScheme={"blue"}
+      >
         Create Classroom
       </Button>
 

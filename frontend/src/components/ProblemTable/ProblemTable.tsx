@@ -72,7 +72,9 @@ const ProblemTable = () => {
             }}
           >
             {["all", "easy", "medium", "hard"].map((x) => (
-              <option value={x}>{x}</option>
+              <option value={x} key={x}>
+                {x}
+              </option>
             ))}
           </Select>
         </InputGroup>

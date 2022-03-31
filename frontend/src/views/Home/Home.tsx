@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import {
   Box,
   HStack,
@@ -19,7 +19,9 @@ const Home = () => {
     <Box mx={"4rem"} my={"6rem"}>
       <HStack justify={"space-evenly"}>
         <Box maxW={700}>
-          <Heading size={"2xl"}>Proto</Heading>
+          <Heading size={"2xl"} data-testid="home-heading">
+            Proto
+          </Heading>
           <Heading>
             <Typist
               cursor={{
@@ -57,6 +59,7 @@ const Home = () => {
           {user ? (
             <ButtonGroup>
               <Button
+                data-testid="dashboard-button"
                 colorScheme={"blue"}
                 size={"lg"}
                 aria-label={"Go to dashboard"}
@@ -79,6 +82,7 @@ const Home = () => {
             </ButtonGroup>
           ) : (
             <Button
+              data-testid="get-started-button"
               colorScheme={"blue"}
               size={"lg"}
               aria-label={"Login with GitHub"}

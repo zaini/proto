@@ -13,7 +13,7 @@ const Logout = () => {
 
   return (
     <Box>
-      <Heading>Logout</Heading>
+      <Heading data-testid="logout-heading">Logout</Heading>
     </Box>
   );
 };

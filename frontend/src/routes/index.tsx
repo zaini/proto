@@ -7,13 +7,13 @@ import Settings from "../views/Profile/Settings/Settings";
 import { Classroom } from "../views/Dashboard/Classrooms/Classroom/Classroom";
 import Classrooms from "../views/Dashboard/Classrooms/Classrooms";
 import JoinClassroom from "../views/Dashboard/Classrooms/JoinClassroom/JoinClassroom";
-import DashboardHome from "../views/Dashboard/Home/Home";
 import Home from "../views/Home/Home";
 import NotFound from "../views/NotFound/NotFound";
 import { Problem } from "../views/Problem/Problem";
 import Profile from "../views/Profile/Profile";
 import { Assignment } from "../views/Dashboard/Classrooms/Classroom/Assignment/Assignment";
 import NewProblem from "../views/Problem/NewProblem/NewProblem";
+import DashboardHome from "../views/Dashboard/DashboardHome/DashboardHome";
 
 const IndexRouter = () => {
   const { user } = useContext(AuthContext);

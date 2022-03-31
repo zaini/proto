@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { CodeEditor } from "../../components/Problem/CodeEditor/CodeEditor";
 import ProblemInformation from "../../components/Problem/ProblemInformation/ProblemInformation";
-import { Spinner, Center } from "@chakra-ui/react";
 import { Problem as ProblemType, Submission, User } from "../../gql-types";
 import Loading from "../../components/Loading/Loading";
 import Error from "../../components/Error/Error";
@@ -22,7 +21,7 @@ const ProblemContext = createContext<ProblemType>({
   },
 });
 
-const GET_PROBLEM = gql`
+export const GET_PROBLEM = gql`
   query getProblem($problemId: ID!) {
     getProblem(problemId: $problemId) {
       id
@@ -52,7 +51,7 @@ const GET_PROBLEM = gql`
   }
 `;
 
-const SUBMIT_PROBLEM = gql`
+export const SUBMIT_PROBLEM = gql`
   mutation submitProblem($problemId: ID!, $code: String!, $language: Int!) {
     submitProblem(problemId: $problemId, code: $code, language: $language) {
       id
@@ -66,7 +65,7 @@ const SUBMIT_PROBLEM = gql`
   }
 `;
 
-const GET_SUBMISSIONS = gql`
+export const GET_SUBMISSIONS = gql`
   query getSubmissionsForProblem($problemId: ID!) {
     getSubmissionsForProblem(problemId: $problemId) {
       id

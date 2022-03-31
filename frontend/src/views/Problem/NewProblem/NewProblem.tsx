@@ -37,7 +37,7 @@ enum Difficulty {
   Medium = "MEDIUM",
 }
 
-const CREATE_PROBLEM = gql`
+export const CREATE_PROBLEM = gql`
   mutation createProblem($specification: SpecificationInput!) {
     createProblem(specification: $specification) {
       id
@@ -45,7 +45,7 @@ const CREATE_PROBLEM = gql`
   }
 `;
 
-const GET_DEFAULT_INITIAL_CODE = gql`
+export const GET_DEFAULT_INITIAL_CODE = gql`
   query getDefaultInitialCodes {
     getDefaultInitialCodes
   }

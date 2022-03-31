@@ -1,6 +1,6 @@
 import Profile, { GET_USER } from "./Profile";
 import { MockedProvider } from "@apollo/client/testing";
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import { Routes, Route, MemoryRouter } from "react-router-dom";
 import "@testing-library/jest-dom/extend-expect";
 import wait from "waait";

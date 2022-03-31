@@ -17,7 +17,7 @@ import CopyLink from "../../../components/CopyLink/CopyLink";
 import Loading from "../../../components/Loading/Loading";
 import Error from "../../../components/Error/Error";
 
-const GET_CLASSROOMS = gql`
+export const GET_CLASSROOMS = gql`
   query getLearnerClassrooms {
     getLearnerClassrooms {
       id

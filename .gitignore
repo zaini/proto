@@ -28,3 +28,6 @@ frontend/build
 backend/logs
 backend/.env.test
 backend/.env.development
+
+Problem.test.tsx*
+NewProblem.test.tsx*

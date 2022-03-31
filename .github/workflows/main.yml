@@ -39,3 +39,4 @@ jobs:
       - run: yarn run install
       - run: yarn run setup
       - run: cd backend && (yarn run test:dev & yarn run test)
+      - run: cd frontend && yarn test

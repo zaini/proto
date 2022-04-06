@@ -1,14 +1,18 @@
 [![CI](https://github.com/zaini/proto/actions/workflows/main.yml/badge.svg)](https://github.com/zaini/proto/actions/workflows/main.yml)
 
-# proto
+# Proto
 
-Proto is a web application to enable students to practice programming and data structures & algorithms as well as enabling teachers to track the progress of students, identify areas of struggle and create their own problems.
-
-https://azaini.notion.site/Project-Notes-ef726b5090584db8b0f07925b3b01140
-
-## Features
+Proto is a full-stack web application for creating, solving, and automatically assessing programming problems and submissions. It includes features to build classrooms, invite users, set assignments, and give feedback. Developers can utilise the modular backend in various contexts such as university assignments, coding challenges, hackathons, and employability examinations. The accompanying frontend aims to showcase how this backend can be implemented with a user-friendly web application.
 
 ## Requirements
+
+This project requires the following:
+
+- Node
+- npm
+- yarn
+- PostgreSQL
+- Docker/Docker Compose
 
 ## Setup + Installation
 
@@ -58,9 +62,17 @@ JUDGE_API_URL=http://localhost:2358
 NODE_ENV=development
 ```
 
-Information about getting a GitHub client ID and secret can be found [here.](https://docs.github.com/en/rest/guides/basics-of-authentication)
+Information about getting a GitHub client ID and secret can be found [here.](https://docs.github.com/en/rest/guides/basics-of-authentication) Set the Homepage URL to `http://localhost:5000/` and the Authorisation callback URL to `http://localhost:5000/auth/github/callback` for this to work locally. Adjust according to your deployment.
 
 #### Main
+
+1. In the backend directory, run `yarn install` to install all the required packages.
+
+2. Run `yarn run judge` to start Judge0.
+
+3. Run `yarn run test:db:setup` followed by `yarn run test:db:seed` to set up the database.
+
+4. Run `yarn run dev` to start the backend. It should be accessible at `http://localhost:5000/`. You can open Apollo Studio Explorer at `http://localhost:5000/graphql`.
 
 ## Testing
 
@@ -74,10 +86,8 @@ To run the backend tests:
 
 To run the frontend tests:
 
-1. Go to the backend directory.
-
-2. ...
+1. Go to the frontend directory and run `yarn test`. Press `a` to run all tests.
 
 ## Other
 
-This was part of a dissertation project at King's College London supervised by Dr Christopher Hampson
+This is part of a BSc dissertation project at King's College London supervised by Dr Christopher Hampson.
